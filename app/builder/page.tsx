@@ -22,13 +22,15 @@ import {
   Loader2,
   Camera,
   Image as ImageIcon,
-  ArrowUpRight
+  ArrowUpRight,
+  ShieldCheck
 } from "lucide-react"
 import { CldUploadWidget } from "next-cloudinary"
 
 import { ModernProfessional, CVData } from "@/components/templates/ModernProfessional"
 import { ClassicTable } from "@/components/templates/ClassicTable"
 import { ExecutiveTwoColumn } from "@/components/templates/ExecutiveTwoColumn"
+import { ATSAuditPanel } from "@/components/ATSAuditPanel"
 import { refineTextWithAI, saveCV } from "@/lib/actions"
 import { useRouter } from "next/navigation"
 
@@ -116,6 +118,7 @@ export default function BuilderPage() {
   const { data: session } = useSession()
   const [activeSection, setActiveSection] = useState("personal")
   const [isPreview, setIsPreview] = useState(false)
+  const [isAuditOpen, setIsAuditOpen] = useState(false)
   const [cvData, setCvData] = useState<CVData>({
     ...INITIAL_DATA,
     personalInfo: {
@@ -782,6 +785,14 @@ export default function BuilderPage() {
 
                  <div className="flex items-center space-x-2 sm:space-x-4">
                     <button 
+                      onClick={() => setIsAuditOpen(true)}
+                      className="flex items-center space-x-2 px-3 sm:px-4 h-9 sm:h-11 rounded-xl font-bold text-xs sm:text-sm bg-white/5 hover:bg-white/10 text-brand-action transition-all active:scale-95"
+                      title="ATS Audit"
+                    >
+                       <ShieldCheck size={18} />
+                       <span className="hidden lg:inline">Audit</span>
+                    </button>
+                    <button 
                       onClick={() => setIsPreview(!isPreview)}
                       className={`flex items-center space-x-2 px-3 sm:px-6 h-9 sm:h-11 rounded-xl font-bold text-xs sm:text-sm transition-all active:scale-95 ${isPreview ? "bg-white text-black shadow-lg" : "bg-white/5 hover:bg-white/10"}`}
                     >
@@ -792,8 +803,8 @@ export default function BuilderPage() {
              </div>
 
                {/* Preview Container - Responsive scaling */}
-               <div className={`flex-1 w-full overflow-auto p-4 sm:p-12 bg-slate-100/5 custom-scrollbar relative z-10 flex justify-center ${isPreview ? "p-3 sm:p-0 pb-24" : ""}`}>
-                <div className={`origin-top transition-transform duration-500 scale-[0.45] xs:scale-[0.55] sm:scale-75 md:scale-90 lg:scale-[0.8] xl:scale-100 ${isPreview ? "scale-[0.4] xs:scale-[0.5] sm:scale-100 p-4 sm:p-12! mb-10" : "mt-8"}`}>
+               <div className={`flex-1 w-full overflow-auto bg-slate-100/5 custom-scrollbar relative z-10 flex justify-center py-10 ${isPreview ? "p-0 pb-24" : ""}`}>
+                <div className={`origin-top transition-transform duration-500 scale-[0.4] xs:scale-[0.5] sm:scale-75 md:scale-[0.85] lg:scale-[0.75] xl:scale-95 ${isPreview ? "scale-[0.4] xs:scale-[0.55] sm:scale-100 mt-4 mb-20" : "my-0"}`}>
                    {renderTemplate()}
                 </div>
               </div>
@@ -806,7 +817,12 @@ export default function BuilderPage() {
           </motion.div>
 
         </div>
-      </main>
+          <ATSAuditPanel 
+            isOpen={isAuditOpen} 
+            onClose={() => setIsAuditOpen(false)} 
+            cvData={{...cvData, templateId: currentTemplate}} 
+          />
+       </main>
     </div>
   )
 }

@@ -3,12 +3,13 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useTheme } from "next-themes"
-import { Menu, X, Sun, Moon, Sparkles, User, FileText, LayoutDashboard, SearchCode, MailQuestion, LogOut, Settings } from "lucide-react"
+import { Menu, X, Sun, Moon, Sparkles, User, FileText, LayoutDashboard, SearchCode, MailQuestion, LogOut, Settings, ChevronDown } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useSession, signOut } from "next-auth/react"
 import Image from "next/image"
 
 const publicLinks = [
+  { name: "Features", href: "/features", icon: Sparkles },
   { name: "Templates", href: "/templates", icon: FileText },
   { name: "ATS Checker", href: "/ats", icon: SearchCode },
   { name: "Support", href: "/support", icon: MailQuestion },
@@ -17,7 +18,6 @@ const publicLinks = [
 const protectedLinks = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   ...publicLinks,
-  { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ]
 
 export function Navbar() {
@@ -92,9 +92,8 @@ export function Navbar() {
             </button>
 
             {status === "authenticated" ? (
-              <div className="flex items-center space-x-4">
-                <Link 
-                  href="/dashboard/settings"
+              <div className="relative group/dropdown">
+                <button
                   className="flex items-center space-x-3 bg-white/5 border border-border-custom pl-4 pr-5 py-2 rounded-[20px] hover:bg-white/10 transition-all group"
                 >
                   <div className="relative">
@@ -113,18 +112,42 @@ export function Navbar() {
                     )}
                     <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-brand-success border-2 border-background rounded-full shadow-sm" />
                   </div>
-                  <div className="flex flex-col -space-y-0.5">
+                  <div className="flex flex-col -space-y-0.5 text-left">
                     <span className="text-[9px] font-black tracking-widest leading-none text-brand-action uppercase opacity-80">Member</span>
                     <span className="text-sm font-black text-foreground truncate max-w-[110px] tracking-tight">{session.user?.name || "Member"}</span>
                   </div>
-                </Link>
-                <button
-                  onClick={() => signOut()}
-                  className="p-3 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all outline-none shadow-sm active:scale-95 flex items-center justify-center"
-                  title="Sign Out"
-                >
-                  <LogOut size={20} />
+                  <ChevronDown size={14} className="text-foreground/40 group-hover/dropdown:rotate-180 transition-transform duration-300" />
                 </button>
+
+                {/* Dropdown Menu */}
+                <div className="absolute right-0 top-full pt-4 opacity-0 translate-y-2 pointer-events-none group-hover/dropdown:opacity-100 group-hover/dropdown:translate-y-0 group-hover/dropdown:pointer-events-auto transition-all duration-300 z-[210]">
+                  <div className="w-64 glass bg-white/70   dark:bg-transparent border border-border-custom rounded-[24px] shadow-2xl overflow-hidden p-2">
+                    <div className="px-4 py-3 border-b border-border-custom mb-2">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-brand-action mb-1">Account</p>
+                      <p className="text-sm font-black text-foreground truncate">{session.user?.email}</p>
+                    </div>
+                    
+                    <Link 
+                      href="/dashboard/settings"
+                      className="flex items-center space-x-3 p-3 rounded-xl hover:bg-black/30 dark:hover:bg-white/5 transition-all group/item"
+                    >
+                      <div className="w-10 h-10 rounded-lg bg-brand-action/15 flex items-center justify-center text-brand-action group-hover/item:bg-brand-action group-hover/item:text-white transition-all">
+                        <Settings size={18} />
+                      </div>
+                      <span className="font-bold text-sm">Settings</span>
+                    </Link>
+
+                    <button
+                      onClick={() => signOut()}
+                      className="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-red-500/10 transition-all group/logout"
+                    >
+                      <div className="w-10 h-10 rounded-lg bg-red-500/15 flex items-center justify-center text-red-500 group-hover/logout:bg-red-500 group-hover/logout:text-white transition-all">
+                        <LogOut size={18} />
+                      </div>
+                      <span className="font-bold text-sm text-red-500">Sign Out</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             ) : status === "loading" ? (
               <div className="w-32 h-10 bg-white/5 animate-pulse rounded-xl" />

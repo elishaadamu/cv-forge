@@ -170,6 +170,59 @@ export async function refineTextWithAI(text: string, type: "summary" | "experien
   }
 }
 
+export async function analyzeCVATS(cvData: any, jobDescription?: string) {
+  if (!cvData) return { error: "No CV data provided" }
+  
+  try {
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-1.5-flash",
+      generationConfig: { responseMimeType: "application/json" }
+    })
+    
+    const prompt = `
+      You are an expert ATS (Applicant Tracking System) Auditor. Analyze the following CV data for ATS compliance, readability, and keyword optimization.
+      
+      CV Data: ${JSON.stringify(cvData)}
+      ${jobDescription ? `Job Description: ${jobDescription}` : ""}
+
+      Analyze the following:
+      1. Structural integrity (Contact info, section headers).
+      2. Quantifiable results in experience.
+      3. Keyword density ${jobDescription ? "relative to the job description" : "(industry standard)"}.
+      4. Formatting best practices.
+
+      Return a JSON object with this exact structure:
+      {
+        "score": number (0-100),
+        "checks": [
+          { "label": "string", "status": "pass" | "warning" | "fail", "message": "string" }
+        ],
+        "suggestions": ["string" (max 3)],
+        "missingKeywords": ["string" (up to 5)]
+      }
+    `
+
+    const result = await model.generateContent(prompt)
+    const response = await result.response
+    let text = response.text()
+    console.log("ATS Raw Response:", text)
+    
+    // Clean up Markdown if present
+    if (text.includes("```json")) {
+      text = text.split("```json")[1].split("```")[0].trim()
+    } else if (text.includes("```")) {
+      text = text.split("```")[1].split("```")[0].trim()
+    }
+
+    const analysis = JSON.parse(text)
+
+    return { success: true, analysis }
+  } catch (error) {
+    console.error("ATS analysis error:", error)
+    return { error: "Failed to audit CV. Please check your data and try again." }
+  }
+}
+
 export async function saveCV(userId: string, data: any, id?: string) {
   if (!userId) return { error: "User not authenticated" }
 
