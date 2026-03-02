@@ -14,15 +14,16 @@ const transporter = nodemailer.createTransport({
   }
 })
 
-const logoPath = path.join(process.cwd(), "public", "android-chrome-512x512.png")
+const logoPath = path.join(process.cwd(), "public", "logo.png")
 
-export async function sendEmail({ to, subject, html }: { to: string, subject: string, html: string }) {
+export async function sendEmail({ to, subject, html, text }: { to: string, subject: string, html: string, text?: string }) {
   console.log(`SYST_MAIL: Sending to ${to} via ${process.env.SMTP_HOST}:${process.env.SMTP_PORT}`)
   try {
     const res = await transporter.sendMail({
       from: process.env.SMTP_FROM || '"cvmyjob" <info.cvmyjob@gmail.com>',
       to,
       subject,
+      text: text || "Please view this email in an HTML compatible client.",
       html,
       attachments: [{
         filename: 'logo.png',
@@ -42,6 +43,7 @@ export async function sendWelcomeEmail(email: string, name: string) {
   return sendEmail({
     to: email,
     subject: "Welcome to cvmyjob! 🚀",
+    text: `Welcome to cvmyjob, ${name}! We're thrilled to have you join us. Your career toolkit is now ready.`,
     html: `
       <div style="font-family: sans-serif; padding: 20px; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 24px; background: #fff;">
         <div style="text-align: center; margin-bottom: 20px;">
@@ -71,6 +73,7 @@ export async function sendOTPEmail(email: string, otp: string) {
   return sendEmail({
     to: email,
     subject: `Verification Code: ${otp} 🛡️`,
+    text: `Your security verification code is: ${otp}. This code expires in 10 minutes.`,
     html: `
       <div style="font-family: sans-serif; padding: 40px; color: #333; max-width: 500px; margin: auto; border: 1px solid #eee; border-radius: 32px; text-align: center; background: #fafafa; border: 1px solid #eaeaea;">
         <div style="margin-bottom: 24px;">
@@ -93,6 +96,7 @@ export async function sendPasswordChangedEmail(email: string) {
   return sendEmail({
     to: email,
     subject: "Security Alert: Password Changed",
+    text: "Your cvmyjob password has been successfully changed. If you did not authorize this, please contact our security team immediately.",
     html: `
       <div style="font-family: sans-serif; padding: 30px; color: #333; max-width: 500px; margin: auto; border: 1px solid #eee; border-radius: 24px;">
         <div style="text-align: center; margin-bottom: 20px;">
