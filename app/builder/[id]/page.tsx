@@ -104,7 +104,7 @@ export default function BuilderPage() {
     }
   })
   const [currentTemplate, setCurrentTemplate] = useState<"modern" | "classic" | "executive">("modern")
-  const [isRefining, setIsRefining] = useState(false)
+  const [refiningId, setRefiningId] = useState<string | null>(null) // tracks which specific item is being AI-refined
   const [isSavingDraft, setIsSavingDraft] = useState(false)
   const [isSavingFinish, setIsSavingFinish] = useState(false)
   const router = useRouter()
@@ -151,36 +151,52 @@ export default function BuilderPage() {
     }
   }
 
-  const handleRefine = async (type: "summary" | "experience" | "project", id?: string) => {
+  const handleRefine = async (type: "summary" | "experience" | "project", itemId?: string) => {
     if (type === "summary") {
-      if (!cvData.personalInfo.summary) return
-      setIsRefining(true)
-      const res = await refineTextWithAI(cvData.personalInfo.summary, "summary")
-      if (res.success && res.refinedText) {
-        updatePersonalInfo("summary", res.refinedText)
+      if (!cvData.personalInfo.summary || refiningId === "summary") return
+      setRefiningId("summary")
+      try {
+        const res = await refineTextWithAI(cvData.personalInfo.summary, "summary")
+        if (res.success && res.refinedText) {
+          updatePersonalInfo("summary", res.refinedText)
+        } else if (res.error) {
+          message.error(res.error)
+        }
+      } finally {
+        setRefiningId(null)
       }
-      setIsRefining(false)
-    } else if (type === "experience" && id) {
-      const exp = cvData.experience.find(e => e.id === id)
-      if (!exp || exp.description.length === 0) return
-      setIsRefining(true)
-      const res = await refineTextWithAI(exp.description.join("\n"), "experience")
-      if (res.success && res.refinedText) {
-        const bullets = res.refinedText.split("\n")
-          .map(line => line.replace(/^[-•*]\s*/, "")) // Remove common bullet point chars
-          .filter(line => line.trim())
-        updateExperience(id, "description", bullets)
+    } else if (type === "experience" && itemId) {
+      const exp = cvData.experience.find(e => e.id === itemId)
+      if (!exp || exp.description.length === 0 || refiningId === itemId) return
+      setRefiningId(itemId)
+      try {
+        const res = await refineTextWithAI(exp.description.join("\n"), "experience")
+        if (res.success && res.refinedText) {
+          const bullets = res.refinedText
+            .split("\n")
+            .map(line => line.replace(/^[-•*\d.]+\s*/, "").trim())
+            .filter(line => line.length > 0)
+          updateExperience(itemId, "description", bullets)
+        } else if (res.error) {
+          message.error(res.error)
+        }
+      } finally {
+        setRefiningId(null)
       }
-      setIsRefining(false)
-    } else if (type === "project" && id) {
-      const proj = cvData.projects.find(p => p.id === id)
-      if (!proj || !proj.description) return
-      setIsRefining(true)
-      const res = await refineTextWithAI(proj.description, "summary") // Use summary prompt for project description
-      if (res.success && res.refinedText) {
-        updateProject(id, "description", res.refinedText)
+    } else if (type === "project" && itemId) {
+      const proj = cvData.projects.find(p => p.id === itemId)
+      if (!proj || !proj.description || refiningId === itemId) return
+      setRefiningId(`project-${itemId}`)
+      try {
+        const res = await refineTextWithAI(proj.description, "summary")
+        if (res.success && res.refinedText) {
+          updateProject(itemId, "description", res.refinedText)
+        } else if (res.error) {
+          message.error(res.error)
+        }
+      } finally {
+        setRefiningId(null)
       }
-      setIsRefining(false)
     }
   }
 
@@ -432,11 +448,11 @@ export default function BuilderPage() {
                           <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Summary</label>
                           <button 
                             onClick={() => handleRefine("summary")}
-                            disabled={isRefining || !cvData.personalInfo.summary}
+                            disabled={refiningId === "summary" || !cvData.personalInfo.summary}
                             className="flex items-center space-x-1.5 text-[10px] font-black uppercase tracking-widest text-brand-action hover:text-brand-action/80 transition-colors disabled:opacity-50"
                           >
-                             {isRefining ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
-                             <span>Refine with AI</span>
+                             {refiningId === "summary" ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                             <span>{refiningId === "summary" ? "Refining..." : "Refine with AI"}</span>
                           </button>
                         </div>
                         <textarea 
@@ -519,11 +535,11 @@ export default function BuilderPage() {
                                   <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Responsibilities (One per line)</label>
                                   <button 
                                     onClick={() => handleRefine("experience", exp.id)}
-                                    disabled={isRefining || exp.description.length === 0}
+                                    disabled={refiningId === exp.id || exp.description.length === 0}
                                     className="flex items-center space-x-1.5 text-[10px] font-black uppercase tracking-widest text-brand-action hover:text-brand-action/80 transition-colors disabled:opacity-50"
                                   >
-                                     {isRefining ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
-                                     <span>Refine with AI</span>
+                                     {refiningId === exp.id ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                                     <span>{refiningId === exp.id ? "Refining..." : "Refine with AI"}</span>
                                   </button>
                                 </div>
                                 <textarea 
@@ -728,11 +744,11 @@ export default function BuilderPage() {
                                    <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Description</label>
                                    <button 
                                      onClick={() => handleRefine("project", project.id)}
-                                     disabled={isRefining || !project.description}
+                                     disabled={refiningId === `project-${project.id}` || !project.description}
                                      className="flex items-center space-x-1.5 text-[10px] font-black uppercase tracking-widest text-brand-action hover:text-brand-action/80 transition-colors disabled:opacity-50"
                                    >
-                                      {isRefining ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
-                                      <span>Refine with AI</span>
+                                      {refiningId === `project-${project.id}` ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                                      <span>{refiningId === `project-${project.id}` ? "Refining..." : "Refine with AI"}</span>
                                    </button>
                                  </div>
                                  <textarea 

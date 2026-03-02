@@ -1,157 +1,421 @@
 "use client"
 
 import { CVData } from "./ModernProfessional"
-import { Mail, Phone, MapPin, Linkedin, Github, Globe } from "lucide-react"
 
 export function ExecutiveTwoColumn({ data }: { data: CVData }) {
   const { personalInfo, experience, education, skills, projects } = data
 
+  // Flatten skills for simple bullet list
+  const allSkills = skills.flatMap((s) => s.items)
+
   return (
-    <div className="bg-[#f8fafc] min-h-[1123px] w-full max-w-[850px] mx-auto shadow-2xl flex font-sans overflow-hidden">
-      {/* Sidebar - Dark & Structured */}
-      <aside className="w-[300px] bg-[#0f172a] text-white p-12 flex flex-col gap-12 sticky top-0 h-full">
+    <div
+      style={{
+        background: "#fff",
+        width: "850px",
+        minHeight: "1100px",
+        fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
+        fontSize: "13px",
+        color: "#111",
+        display: "flex",
+        flexDirection: "row",
+      }}
+    >
+      {/* ── LEFT DARK SIDEBAR ── */}
+      <div
+        style={{
+          width: "260px",
+          background: "#1b2a4a",
+          color: "#fff",
+          padding: "48px 28px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "28px",
+          flexShrink: 0,
+        }}
+      >
+        {/* Photo */}
+        {personalInfo.profileImage && (
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <img
+              src={personalInfo.profileImage}
+              alt={personalInfo.fullName}
+              style={{
+                width: "120px",
+                height: "140px",
+                objectFit: "cover",
+                border: "3px solid rgba(255,255,255,0.2)",
+              }}
+            />
+          </div>
+        )}
+
+        {/* Name + Title */}
         <div>
-          {personalInfo.profileImage && (
-            <div className="w-full aspect-square rounded-2xl overflow-hidden border-2 border-slate-700 mb-8 grayscale hover:grayscale-0 transition-all duration-700">
-               <img 
-                 src={personalInfo.profileImage} 
-                 alt={personalInfo.fullName} 
-                 className="w-full h-full object-cover"
-               />
-            </div>
-          )}
-          <div className="h-1 w-16 bg-brand-action mb-6" />
-          <h1 className="text-4xl font-black tracking-tighter leading-[0.9] mb-4 uppercase wrap-break-word">
-            {personalInfo.fullName.split(' ')[0]} <br/>
-            <span className="text-slate-400">{personalInfo.fullName.split(' ').slice(1).join(' ')}</span>
+          <h1
+            style={{
+              fontSize: "26px",
+              fontWeight: 900,
+              color: "#fff",
+              lineHeight: 1.1,
+              textTransform: "uppercase",
+              letterSpacing: "-0.5px",
+              marginBottom: "6px",
+            }}
+          >
+            {personalInfo.fullName || "Your Name"}
           </h1>
-          <p className="text-brand-action font-black text-xs uppercase tracking-[0.2em]">{personalInfo.jobTitle}</p>
-        </div>
-
-        <div className="space-y-8">
-          <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 border-b border-slate-800 pb-3">Contact</h3>
-          <ul className="space-y-5 text-[11px] font-bold text-slate-300 uppercase tracking-widest leading-relaxed">
-            <li className="flex items-start gap-4">
-              <div className="w-6 h-6 rounded bg-slate-800 flex items-center justify-center shrink-0">
-                <Mail size={12} className="text-brand-action" />
-              </div>
-              <span className="pt-1 break-all">{personalInfo.email}</span>
-            </li>
-            <li className="flex items-start gap-4">
-              <div className="w-6 h-6 rounded bg-slate-800 flex items-center justify-center shrink-0">
-                <Phone size={12} className="text-brand-action" />
-              </div>
-              <span className="pt-1">{personalInfo.phone}</span>
-            </li>
-            <li className="flex items-start gap-4">
-              <div className="w-6 h-6 rounded bg-slate-800 flex items-center justify-center shrink-0">
-                <MapPin size={12} className="text-brand-action" />
-              </div>
-              <span className="pt-1">{personalInfo.location}</span>
-            </li>
-            <li className="flex items-start gap-4 underline decoration-brand-action/30">
-              <div className="w-6 h-6 rounded bg-slate-800 flex items-center justify-center shrink-0">
-                <Globe size={12} className="text-brand-action" />
-              </div>
-              <span className="pt-1">{personalInfo.website}</span>
-            </li>
-          </ul>
-        </div>
-
-        <div className="space-y-8">
-          <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 border-b border-slate-800 pb-3">Skills</h3>
-          <div className="space-y-6">
-            {skills.map((group, idx) => (
-              <div key={idx} className="space-y-3">
-                <p className="text-[9px] font-black text-brand-action uppercase tracking-[0.2em]">{group.category}</p>
-                <div className="flex flex-wrap gap-2">
-                  {group.items.map((item, i) => (
-                    <span key={i} className="text-[10px] text-slate-400 font-bold bg-slate-800/50 px-2 py-1 rounded">
-                      {item}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="mt-auto pt-10">
-          <div className="p-4 bg-brand-action/5 border border-brand-action/10 rounded-2xl flex items-center gap-4">
-             <div className="w-10 h-10 rounded-full bg-brand-action flex items-center justify-center font-black text-white text-xl">V</div>
-             <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-white">Verified</p>
-                <p className="text-[9px] font-bold text-slate-500">Forge ID: #CVF-2026</p>
-             </div>
-          </div>
-        </div>
-      </aside>
-
-      {/* Main Content - Clean & Elegant */}
-      <main className="flex-1 bg-white p-16 flex flex-col gap-14">
-        <section>
-          <h3 className="text-xs font-black uppercase tracking-[0.5em] text-slate-200 mb-6">Executive Summary</h3>
-          <p className="text-[15px] font-medium text-slate-600 leading-[1.8] text-justify">
-             {personalInfo.summary}
+          <p
+            style={{
+              fontSize: "11px",
+              color: "#94a3b8",
+              textTransform: "uppercase",
+              letterSpacing: "1px",
+            }}
+          >
+            {personalInfo.jobTitle}
           </p>
-        </section>
+        </div>
 
-        <section className="space-y-10">
-          <h3 className="text-xs font-black uppercase tracking-[0.5em] text-slate-200 mb-2">Professional Experience</h3>
-          <div className="space-y-12">
-             {experience.map((exp) => (
-               <div key={exp.id} className="relative pl-8 border-l-2 border-slate-50 group">
-                  <div className="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full bg-slate-200 group-hover:bg-brand-action transition-colors" />
-                  <div className="flex justify-between items-baseline mb-4">
-                    <div>
-                      <h4 className="text-xl font-black text-slate-900 uppercase tracking-tight">{exp.role}</h4>
-                      <p className="text-sm font-black text-slate-400 uppercase tracking-widest">{exp.company}</p>
-                    </div>
-                    <span className="text-[10px] font-black text-slate-500 bg-slate-50 border border-slate-100 px-3 py-1.5 rounded-lg uppercase tracking-widest">
+        {/* Contact */}
+        <div>
+          <SidebarSection label="Contact" />
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "8px",
+              marginTop: "10px",
+            }}
+          >
+            {personalInfo.phone && (
+              <SidebarContact label="Phone:" value={personalInfo.phone} />
+            )}
+            {personalInfo.email && (
+              <SidebarContact label="Email:" value={personalInfo.email} />
+            )}
+            {personalInfo.linkedin && (
+              <SidebarContact label="LinkedIn:" value={personalInfo.linkedin} />
+            )}
+            {personalInfo.location && (
+              <SidebarContact label="Location:" value={personalInfo.location} />
+            )}
+            {personalInfo.website && (
+              <SidebarContact label="Website:" value={personalInfo.website} />
+            )}
+            {personalInfo.github && (
+              <SidebarContact label="GitHub:" value={personalInfo.github} />
+            )}
+          </div>
+        </div>
+
+        {/* Skills */}
+        {allSkills.length > 0 && (
+          <div>
+            <SidebarSection label="Skills" />
+            <ul
+              style={{
+                marginTop: "10px",
+                paddingLeft: "0",
+                listStyle: "none",
+                display: "flex",
+                flexDirection: "column",
+                gap: "5px",
+              }}
+            >
+              {allSkills.map((skill, i) => (
+                <li
+                  key={i}
+                  style={{
+                    fontSize: "12px",
+                    color: "#cbd5e1",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                >
+                  <span
+                    style={{
+                      width: "5px",
+                      height: "5px",
+                      borderRadius: "50%",
+                      background: "#60a5fa",
+                      flexShrink: 0,
+                    }}
+                  />
+                  {skill}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+
+      {/* ── RIGHT MAIN CONTENT ── */}
+      <div style={{ flex: 1, padding: "48px 40px", background: "#fff" }}>
+        {/* Summary */}
+        {personalInfo.summary && (
+          <div style={{ marginBottom: "28px" }}>
+            <MainHeading label="Summary" />
+            <p
+              style={{
+                fontSize: "12.5px",
+                color: "#374151",
+                lineHeight: 1.75,
+                textAlign: "justify",
+              }}
+            >
+              {personalInfo.summary}
+            </p>
+          </div>
+        )}
+
+        {/* Experience */}
+        {experience.length > 0 && (
+          <div style={{ marginBottom: "28px" }}>
+            <MainHeading label="Experience" />
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "20px",
+              }}
+            >
+              {experience.map((exp) => (
+                <div key={exp.id}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "baseline",
+                      marginBottom: "2px",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontWeight: 700,
+                        fontSize: "13.5px",
+                        color: "#1b2a4a",
+                      }}
+                    >
+                      {exp.company}
+                      {exp.role ? ` | ${exp.role}` : ""}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: "11.5px",
+                        color: "#6b7280",
+                        whiteSpace: "nowrap",
+                        marginLeft: "12px",
+                      }}
+                    >
                       {exp.duration}
                     </span>
                   </div>
-                  <ul className="space-y-3">
-                    {exp.description.map((bullet, idx) => (
-                      <li key={idx} className="text-[14px] font-medium text-slate-500 flex items-start gap-4 leading-relaxed">
-                        <span className="text-brand-action font-black">/</span>
-                        <span>{bullet}</span>
+                  <ul
+                    style={{
+                      paddingLeft: "16px",
+                      margin: "6px 0 0",
+                      listStyleType: "disc",
+                    }}
+                  >
+                    {exp.description.filter(Boolean).map((bullet, i) => (
+                      <li
+                        key={i}
+                        style={{
+                          fontSize: "12px",
+                          color: "#374151",
+                          lineHeight: 1.65,
+                          marginBottom: "3px",
+                        }}
+                      >
+                        {bullet}
                       </li>
                     ))}
                   </ul>
-               </div>
-             ))}
+                </div>
+              ))}
+            </div>
           </div>
-        </section>
+        )}
 
-        <section className="space-y-8">
-          <h3 className="text-xs font-black uppercase tracking-[0.5em] text-slate-200 mb-2">Technical Projects</h3>
-          <div className="grid grid-cols-1 gap-8">
-             {projects.map(project => (
-               <div key={project.id} className="p-6 bg-slate-50 rounded-3xl border border-slate-100 group hover:border-brand-action/20 transition-all cursor-default">
-                  <div className="flex justify-between items-center mb-3">
-                    <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest">{project.name}</h4>
-                    <span className="text-[10px] font-bold text-brand-action tracking-widest">{project.link}</span>
+        {/* Education */}
+        {education.length > 0 && (
+          <div style={{ marginBottom: "28px" }}>
+            <MainHeading label="Education" />
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "14px",
+              }}
+            >
+              {education.map((edu) => (
+                <div key={edu.id}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "baseline",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontWeight: 700,
+                        fontSize: "13px",
+                        color: "#1b2a4a",
+                      }}
+                    >
+                      {edu.degree}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: "11.5px",
+                        color: "#6b7280",
+                        whiteSpace: "nowrap",
+                        marginLeft: "12px",
+                      }}
+                    >
+                      {edu.duration}
+                    </span>
                   </div>
-                  <p className="text-[13px] font-medium text-slate-500 leading-relaxed italic">"{project.description}"</p>
-               </div>
-             ))}
+                  <p style={{ fontSize: "12px", color: "#6b7280" }}>
+                    {edu.school}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
-        </section>
+        )}
 
-        <section>
-          <h3 className="text-xs font-black uppercase tracking-[0.5em] text-slate-200 mb-6">Academic Background</h3>
-          <div className="grid grid-cols-2 gap-10">
-             {education.map(edu => (
-               <div key={edu.id} className="space-y-1">
-                  <h4 className="text-[13px] font-black text-slate-800 uppercase tracking-tight">{edu.degree}</h4>
-                  <p className="text-[11px] font-bold text-slate-400 uppercase">{edu.school}</p>
-                  <p className="text-[10px] font-black text-brand-action uppercase pt-1">{edu.duration}</p>
-               </div>
-             ))}
+        {/* Projects */}
+        {projects.length > 0 && (
+          <div style={{ marginBottom: "28px" }}>
+            <MainHeading label="Projects" />
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "14px",
+              }}
+            >
+              {projects.map((proj) => (
+                <div key={proj.id}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "baseline",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontWeight: 700,
+                        fontSize: "13px",
+                        color: "#1b2a4a",
+                      }}
+                    >
+                      {proj.name}
+                    </span>
+                    {proj.link && (
+                      <span style={{ fontSize: "10.5px", color: "#9ca3af" }}>
+                        {proj.link}
+                      </span>
+                    )}
+                  </div>
+                  {proj.description && (
+                    <p
+                      style={{
+                        fontSize: "12px",
+                        color: "#374151",
+                        lineHeight: 1.6,
+                        marginTop: "3px",
+                        fontStyle: "italic",
+                      }}
+                    >
+                      "{proj.description}"
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
-        </section>
-      </main>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function SidebarSection({ label }: { label: string }) {
+  return (
+    <h4
+      style={{
+        fontSize: "11px",
+        fontWeight: 800,
+        color: "#60a5fa",
+        textTransform: "uppercase",
+        letterSpacing: "1.5px",
+        borderBottom: "1px solid rgba(255,255,255,0.15)",
+        paddingBottom: "5px",
+      }}
+    >
+      {label}
+    </h4>
+  )
+}
+
+function SidebarContact({ label, value }: { label: string; value: string }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
+      <span
+        style={{
+          fontSize: "9.5px",
+          color: "#60a5fa",
+          fontWeight: 700,
+          textTransform: "uppercase",
+          letterSpacing: "0.5px",
+        }}
+      >
+        {label}
+      </span>
+      <span
+        style={{
+          fontSize: "11px",
+          color: "#cbd5e1",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {value}
+      </span>
+    </div>
+  )
+}
+
+function MainHeading({ label }: { label: string }) {
+  return (
+    <div style={{ marginBottom: "12px" }}>
+      <h3
+        style={{
+          fontSize: "14px",
+          fontWeight: 800,
+          color: "#1b2a4a",
+          textTransform: "uppercase",
+          letterSpacing: "1px",
+          marginBottom: "5px",
+        }}
+      >
+        {label}
+      </h3>
+      <div
+        style={{
+          height: "2px",
+          background: "#1b2a4a",
+          width: "100%",
+          opacity: 0.15,
+        }}
+      />
     </div>
   )
 }

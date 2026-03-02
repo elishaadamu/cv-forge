@@ -5,124 +5,331 @@ import { CVData } from "./ModernProfessional"
 export function ClassicTable({ data }: { data: CVData }) {
   const { personalInfo, experience, education, skills, projects } = data
 
+  // Flatten skills for the competencies table
+  const allSkillItems = skills.flatMap((s) => s.items)
+
   return (
-    <div className="bg-white text-black p-[0.75in] shadow-2xl min-h-[11in] w-full max-w-[8.5in] mx-auto font-serif leading-tight text-[13px] selection:bg-slate-200">
-      {/* Header - Clean Centered */}
-      <header className="mb-10 flex items-center justify-between gap-8 border-b-2 border-black pb-4">
-        {personalInfo.profileImage && (
-          <div className="w-24 h-24 aspect-square border-2 border-black overflow-hidden bg-slate-100 shrink-0">
-            <img 
-              src={personalInfo.profileImage} 
-              alt={personalInfo.fullName} 
-              className="w-full h-full object-cover grayscale"
-            />
-          </div>
+    <div
+      style={{
+        background: "#fff",
+        width: "850px",
+        minHeight: "1100px",
+        fontFamily: "'Times New Roman', 'Georgia', serif",
+        fontSize: "13px",
+        color: "#000",
+        padding: "56px 64px",
+        boxSizing: "border-box",
+      }}
+    >
+      {/* ── HEADER ── */}
+      <div
+        style={{
+          borderBottom: "2.5px solid #000",
+          borderTop: "2.5px solid #000",
+          padding: "12px 0",
+          marginBottom: "20px",
+          textAlign: "center",
+        }}
+      >
+        <h1
+          style={{
+            fontSize: "26px",
+            fontWeight: 700,
+            letterSpacing: "1px",
+            marginBottom: "4px",
+            fontFamily: "'Times New Roman', serif",
+          }}
+        >
+          {personalInfo.fullName || "Your Name"}
+        </h1>
+        {personalInfo.jobTitle && (
+          <p
+            style={{
+              fontSize: "13px",
+              fontStyle: "italic",
+              color: "#333",
+              marginBottom: "6px",
+            }}
+          >
+            {personalInfo.jobTitle}
+          </p>
         )}
-        <div className="flex-1 text-center space-y-2">
-          <h1 className="text-4xl font-bold uppercase tracking-widest">{personalInfo.fullName}</h1>
-          <div className="text-[11px] font-bold uppercase tracking-widest text-slate-600 flex justify-center gap-4">
-            <span>{personalInfo.location}</span>
-            <span>•</span>
-            <span>{personalInfo.phone}</span>
-            <span>•</span>
-            <span>{personalInfo.email}</span>
-          </div>
-          <div className="text-[10px] font-medium italic underline text-slate-400 flex justify-center gap-6">
-             <span>{personalInfo.linkedin}</span>
-             <span>{personalInfo.github}</span>
-             <span>{personalInfo.website}</span>
-          </div>
-        </div>
-        {personalInfo.profileImage && <div className="w-24 shrink-0" />} {/* Spacer for centering */}
-      </header>
-
-      {/* Professional Summary */}
-      <section className="mb-8">
-        <h3 className="text-[14px] font-black uppercase tracking-[0.2em] border-b border-black mb-3">Professional Dossier</h3>
-        <p className="text-justify leading-snug text-slate-800">
-          {personalInfo.summary}
+        <p
+          style={{
+            fontSize: "12px",
+            color: "#333",
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            gap: "4px",
+          }}
+        >
+          {[
+            personalInfo.location,
+            personalInfo.phone && `(${personalInfo.phone})`,
+            personalInfo.email,
+            personalInfo.website,
+          ]
+            .filter(Boolean)
+            .join(" | ")}
         </p>
-      </section>
+        {(personalInfo.linkedin || personalInfo.github) && (
+          <p
+            style={{
+              fontSize: "11.5px",
+              color: "#555",
+              fontStyle: "italic",
+              marginTop: "3px",
+            }}
+          >
+            {[personalInfo.linkedin, personalInfo.github]
+              .filter(Boolean)
+              .join(" | ")}
+          </p>
+        )}
+      </div>
 
-      {/* Expertise - Structured Table */}
-      <section className="mb-8">
-        <h3 className="text-[14px] font-black uppercase tracking-[0.2em] border-b border-black mb-4">Core Competencies</h3>
-        <div className="border border-black overflow-hidden bg-slate-50/30">
-          <table className="w-full border-collapse">
+      {/* ── EDUCATION ── */}
+      {education.length > 0 && (
+        <Section label="Education">
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <tbody>
-              {skills.map((group, idx) => (
-                <tr key={idx} className="border-b border-black last:border-0">
-                  <td className="w-[180px] p-2 px-4 bg-slate-100/50 font-black uppercase text-[10px] tracking-widest border-r border-black">{group.category}</td>
-                  <td className="p-2 px-4 text-[11px] font-bold uppercase tracking-wider text-slate-700">
-                    {group.items.join(" • ")}
+              {education.map((edu) => (
+                <tr key={edu.id}>
+                  <td
+                    style={{
+                      paddingBottom: "6px",
+                      verticalAlign: "top",
+                      width: "55%",
+                    }}
+                  >
+                    <span style={{ fontWeight: 700, fontSize: "13px" }}>
+                      {edu.degree}
+                    </span>
+                  </td>
+                  <td
+                    style={{
+                      paddingBottom: "6px",
+                      verticalAlign: "top",
+                      width: "30%",
+                    }}
+                  >
+                    {edu.school}
+                  </td>
+                  <td
+                    style={{
+                      paddingBottom: "6px",
+                      verticalAlign: "top",
+                      textAlign: "right",
+                      width: "15%",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {edu.duration}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
-      </section>
+        </Section>
+      )}
 
-      {/* Experience - Detailed Table-like structure */}
-      <section className="mb-8">
-        <h3 className="text-[14px] font-black uppercase tracking-[0.2em] border-b border-black mb-6">Professional Tenure</h3>
-        <div className="space-y-8">
-          {experience.map((exp) => (
-            <div key={exp.id} className="space-y-3">
-              <div className="flex justify-between items-baseline">
-                <div className="space-y-0.5">
-                  <h4 className="text-lg font-bold text-black uppercase tracking-tight">{exp.company}</h4>
-                  <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">{exp.role}</p>
+      {/* ── PROFESSIONAL SUMMARY ── */}
+      {personalInfo.summary && (
+        <Section label="Professional Summary">
+          <p
+            style={{
+              fontSize: "13px",
+              lineHeight: 1.7,
+              color: "#111",
+              textAlign: "justify",
+            }}
+          >
+            {personalInfo.summary}
+          </p>
+        </Section>
+      )}
+
+      {/* ── CORE COMPETENCIES ── */}
+      {allSkillItems.length > 0 && (
+        <Section label="Core Competencies">
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              border: "1px solid #999",
+            }}
+          >
+            <tbody>
+              {skills.map((group, idx) => (
+                <tr
+                  key={idx}
+                  style={{
+                    borderBottom:
+                      idx < skills.length - 1 ? "1px solid #bbb" : "none",
+                  }}
+                >
+                  <td
+                    style={{
+                      padding: "5px 10px",
+                      fontWeight: 700,
+                      fontSize: "12px",
+                      verticalAlign: "top",
+                      width: "25%",
+                      background: "#f5f5f5",
+                      borderRight: "1px solid #bbb",
+                    }}
+                  >
+                    {group.category}
+                  </td>
+                  <td style={{ padding: "5px 10px", fontSize: "12px" }}>
+                    {group.items.join(", ")}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Section>
+      )}
+
+      {/* ── WORK EXPERIENCE ── */}
+      {experience.length > 0 && (
+        <Section label="Professional Experience">
+          <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+            {experience.map((exp) => (
+              <div key={exp.id}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "baseline",
+                  }}
+                >
+                  <span style={{ fontWeight: 700, fontSize: "13.5px" }}>
+                    {exp.company}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: "12px",
+                      fontStyle: "italic",
+                      color: "#444",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {exp.duration}
+                  </span>
                 </div>
-                <span className="text-[11px] font-bold italic border border-black/10 px-2 py-1 bg-slate-50">{exp.duration}</span>
+                <p
+                  style={{
+                    fontSize: "12.5px",
+                    fontStyle: "italic",
+                    color: "#555",
+                    marginBottom: "6px",
+                  }}
+                >
+                  {exp.role}
+                </p>
+                <ul
+                  style={{
+                    paddingLeft: "20px",
+                    margin: 0,
+                    listStyleType: "disc",
+                  }}
+                >
+                  {exp.description.filter(Boolean).map((bullet, i) => (
+                    <li
+                      key={i}
+                      style={{
+                        fontSize: "12.5px",
+                        lineHeight: 1.65,
+                        marginBottom: "3px",
+                        color: "#111",
+                        textAlign: "justify",
+                      }}
+                    >
+                      {bullet}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <ul className="list-disc list-outside ml-5 space-y-1.5 text-slate-700">
-                {exp.description.map((bullet, idx) => (
-                  <li key={idx} className="text-justify leading-relaxed pl-1">{bullet}</li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Projects */}
-      <section className="mb-8">
-        <h3 className="text-[14px] font-black uppercase tracking-[0.2em] border-b border-black mb-4">Strategic Projects</h3>
-        <div className="grid grid-cols-2 gap-x-12 gap-y-6">
-          {projects.map((proj) => (
-            <div key={proj.id} className="space-y-1">
-              <div className="flex justify-between border-b border-slate-100 pb-1">
-                 <h4 className="text-[12px] font-black uppercase tracking-tight">{proj.name}</h4>
-                 <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{proj.link}</span>
-              </div>
-              <p className="text-[11px] leading-relaxed text-slate-600 italic">
-                {proj.description}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Education */}
-      <section>
-        <h3 className="text-[14px] font-black uppercase tracking-[0.2em] border-b border-black mb-4">Academic Credentials</h3>
-        <table className="w-full">
-          <tbody>
-            {education.map((edu) => (
-              <tr key={edu.id} className="group">
-                <td className="py-2 pr-4">
-                  <div className="font-bold text-[13px] uppercase tracking-tight">{edu.school}</div>
-                  <div className="text-[11px] italic font-medium text-slate-500">{edu.degree}</div>
-                </td>
-                <td className="py-2 text-right align-top">
-                   <div className="font-bold text-[11px] uppercase tracking-widest text-slate-400">{edu.duration}</div>
-                </td>
-              </tr>
             ))}
-          </tbody>
-        </table>
-      </section>
+          </div>
+        </Section>
+      )}
+
+      {/* ── PROJECTS ── */}
+      {projects.length > 0 && (
+        <Section label="Projects">
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            {projects.map((proj) => (
+              <div key={proj.id}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <span style={{ fontWeight: 700, fontSize: "13px" }}>
+                    {proj.name}
+                  </span>
+                  {proj.link && (
+                    <span
+                      style={{
+                        fontSize: "11px",
+                        color: "#666",
+                        fontStyle: "italic",
+                      }}
+                    >
+                      {proj.link}
+                    </span>
+                  )}
+                </div>
+                {proj.description && (
+                  <p
+                    style={{
+                      fontSize: "12.5px",
+                      color: "#333",
+                      lineHeight: 1.6,
+                      marginTop: "3px",
+                      fontStyle: "italic",
+                    }}
+                  >
+                    {proj.description}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
+    </div>
+  )
+}
+
+function Section({
+  label,
+  children,
+}: {
+  label: string
+  children: React.ReactNode
+}) {
+  return (
+    <div style={{ marginBottom: "20px" }}>
+      <h3
+        style={{
+          fontSize: "13.5px",
+          fontWeight: 700,
+          textTransform: "uppercase",
+          letterSpacing: "0.5px",
+          borderBottom: "1.5px solid #000",
+          paddingBottom: "3px",
+          marginBottom: "10px",
+          fontFamily: "'Times New Roman', serif",
+        }}
+      >
+        {label}
+      </h3>
+      {children}
     </div>
   )
 }
