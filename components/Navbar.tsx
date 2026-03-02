@@ -120,8 +120,8 @@ export function Navbar() {
                 </button>
 
                 {/* Dropdown Menu */}
-                <div className="absolute right-0 top-full pt-4 opacity-0 translate-y-2 pointer-events-none group-hover/dropdown:opacity-100 group-hover/dropdown:translate-y-0 group-hover/dropdown:pointer-events-auto transition-all duration-300 z-[210]">
-                  <div className="w-64 glass bg-white/70   dark:bg-transparent border border-border-custom rounded-[24px] shadow-2xl overflow-hidden p-2">
+                <div className="absolute right-0 top-full pt-4 opacity-0 translate-y-2 pointer-events-none group-hover/dropdown:opacity-100 group-hover/dropdown:translate-y-0 group-hover/dropdown:pointer-events-auto transition-all duration-300 z-210">
+                  <div className="w-64 glass bg-white/98 dark:bg-transparent border border-border-custom rounded-[24px] shadow-2xl overflow-hidden p-2">
                     <div className="px-4 py-3 border-b border-border-custom mb-2">
                       <p className="text-[10px] font-black uppercase tracking-widest text-brand-action mb-1">Account</p>
                       <p className="text-sm font-black text-foreground truncate">{session.user?.email}</p>
@@ -129,9 +129,9 @@ export function Navbar() {
                     
                     <Link 
                       href="/dashboard/settings"
-                      className="flex items-center space-x-3 p-3 rounded-xl hover:bg-black/30 dark:hover:bg-white/5 transition-all group/item"
+                      className="flex items-center space-x-3 p-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 transition-all group/item"
                     >
-                      <div className="w-10 h-10 rounded-lg bg-brand-action/15 flex items-center justify-center text-brand-action group-hover/item:bg-brand-action group-hover/item:text-white transition-all">
+                      <div className="w-10 h-10 rounded-lg bg-brand-action/20 flex items-center justify-center text-brand-action group-hover/item:bg-brand-action group-hover/item:text-white transition-all">
                         <Settings size={18} />
                       </div>
                       <span className="font-bold text-sm">Settings</span>
@@ -141,7 +141,7 @@ export function Navbar() {
                       onClick={() => signOut()}
                       className="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-red-500/10 transition-all group/logout"
                     >
-                      <div className="w-10 h-10 rounded-lg bg-red-500/15 flex items-center justify-center text-red-500 group-hover/logout:bg-red-500 group-hover/logout:text-white transition-all">
+                      <div className="w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center text-red-500 group-hover/logout:bg-red-500 group-hover/logout:text-white transition-all">
                         <LogOut size={18} />
                       </div>
                       <span className="font-bold text-sm text-red-500">Sign Out</span>

@@ -127,7 +127,7 @@ export function Hero() {
           </motion.div>
           
           <h1 className="text-6xl md:text-8xl lg:text-[7.5rem] font-black tracking-tighter leading-[0.9] text-foreground">
-            Unlock Your <span className="bg-clip-text text-transparent bg-gradient-to-r from-brand-action via-brand-action/80 to-brand-secondary block mt-4 drop-shadow-[0_0_40px_rgba(var(--brand-action-rgb),0.3)]">Career Potential.</span>
+            Unlock Your <span className="bg-clip-text text-transparent bg-linear-to-r from-brand-action via-brand-action/80 to-brand-secondary block mt-4 drop-shadow-[0_0_40px_rgba(var(--brand-action-rgb),0.3)]">Career Potential.</span>
           </h1>
           
           <p className="text-xl md:text-2xl text-foreground/60 max-w-3xl leading-relaxed font-medium px-4">

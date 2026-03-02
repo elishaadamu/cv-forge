@@ -122,7 +122,7 @@ export default function FeaturesPage() {
               transition={{ delay: 0.1 }}
               className="text-6xl md:text-7xl font-black tracking-tight leading-[1.1]"
             >
-              Everything you need to <span className="bg-clip-text text-transparent bg-gradient-to-r from-brand-action to-brand-secondary">Land Your Dream Job.</span>
+              Everything you need to <span className="bg-clip-text text-transparent bg-linear-to-r from-brand-action to-brand-secondary">Land Your Dream Job.</span>
             </motion.h1>
             
             <motion.p
