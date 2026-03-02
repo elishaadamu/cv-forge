@@ -8,19 +8,23 @@ export function FAQ() {
   const faqs = [
     {
       q: "Is cvmyjob really free?",
-      a: "Yes! 100%. We don't believe in charging job seekers. Our platform is built specifically for your career success."
+      a: "Yes! 100%. We provide a completely free platform that empowers job seekers without financial barriers. No hidden paywalls, no locked essential features."
+    },
+    {
+       q: "What tools are included?",
+       a: "Everything is included: AI-assisted CV builder, Cover Letter generator, multi-format document converter (PDF to DOCX), ATS score checker, and a LinkedIn summary generator."
     },
     {
       q: "Will my CV be ATS-friendly?",
-      a: "Our templates are designed specifically to be readable by ATS engines. We use standard fonts and layouts that avoid the common pitfalls of image-based resumes."
+      a: "Our templates are engineered specifically to be readable by ATS engines. We focus on standard structures that ensure your CV hits the mark for every application."
     },
     {
-      q: "Are there watermarks on my PDF?",
-      a: "Never. Your professional career shouldn't be a billboard for us. Every export is clean and watermark-free."
+      q: "Are there watermarks or limits?",
+      a: "Never. Every export is clean, watermark-free, and professional. We offer unlimited exports for yours CVs and documents because career growth should be accessible to everyone."
     },
     {
-      q: "Can I edit my CV later?",
-      a: "Absolutely. Once you save as a draft, your CV is stored in your private dashboard for future edits and template switching."
+      q: "How can it be free?",
+      a: "Our mission is to empower job seekers globally. We sustain the platform through optional donations and future affiliate partnerships with career services, keeping the core tools free for everyone."
     }
   ]
 

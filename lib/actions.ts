@@ -28,7 +28,7 @@ export async function registerUser(
   try {
     const existingUser = await prisma.user.findUnique({
       where: { email }
-    })
+    }) as any
 
     if (existingUser && existingUser.emailVerified) {
       return { error: "User already exists with this email" }
@@ -81,7 +81,7 @@ export async function verifySignupOTP(email: string, otp: string) {
   try {
     const user = await prisma.user.findUnique({
       where: { email }
-    })
+    }) as any
 
     if (!user) return { error: "Account not found." }
     if (user.emailVerified) return { error: "Account already verified." }
@@ -514,7 +514,7 @@ export async function sendSecurityOTP(identifier: string) {
           { email: identifier }
         ]
       }
-    })
+    }) as any
 
     if (!user || !user.email) return { error: "Identify your forge. User not found." }
 
@@ -551,7 +551,7 @@ export async function verifyOTPAndUpdatePassword(identifier: string, otp: string
           { email: identifier }
         ]
       }
-    })
+    }) as any
 
     if (!user) return { error: "User not found." }
     if (user.otpCode !== otp) return { error: "Invalid verification code." }

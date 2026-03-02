@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useTheme } from "next-themes"
-import { Menu, X, Sun, Moon, Sparkles, User, FileText, LayoutDashboard, SearchCode, MailQuestion, LogOut, Settings, ChevronDown } from "lucide-react"
+import { Menu, X, Sun, Moon, Sparkles, User, FileText, LayoutDashboard, SearchCode, MailQuestion, LogOut, Settings, ChevronDown, FilePen, Repeat } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useSession, signOut } from "next-auth/react"
 import Image from "next/image"
@@ -11,7 +11,9 @@ import Image from "next/image"
 const publicLinks = [
   { name: "Features", href: "/features", icon: Sparkles },
   { name: "Templates", href: "/templates", icon: FileText },
+  { name: "Cover Letter", href: "/cover-letter", icon: FilePen },
   { name: "ATS Checker", href: "/ats", icon: SearchCode },
+  { name: "Tools", href: "/tools", icon: Repeat },
   { name: "Support", href: "/support", icon: MailQuestion },
 ]
 
@@ -121,10 +123,10 @@ export function Navbar() {
                     <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-brand-success border-2 border-background rounded-full shadow-sm" />
                   </div>
                   <div className="flex flex-col -space-y-0.5 text-left">
-                    <span className="text-[9px] font-black tracking-widest leading-none text-brand-action uppercase opacity-80">Member</span>
-                    <span className="text-sm font-black text-foreground truncate max-w-[110px] tracking-tight">{session.user?.name || "Member"}</span>
+                    <span className="text-[9px] font-black tracking-widest leading-none text-brand-secondary uppercase opacity-80">Member</span>
+                    <span className="text-sm font-black text-white truncate max-w-[110px] tracking-tight">{session.user?.name || "Member"}</span>
                   </div>
-                  <ChevronDown size={14} className="text-foreground/40 group-hover/dropdown:rotate-180 transition-transform duration-300" />
+                  <ChevronDown size={14} className="text-white/40 group-hover/dropdown:rotate-180 transition-transform duration-300" />
                 </button>
 
                 {/* Dropdown Menu */}
@@ -185,13 +187,13 @@ export function Navbar() {
               className="p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-all outline-none"
               aria-label="Toggle Theme"
             >
-              {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+              {theme === "dark" ? <Sun size={20} className="text-amber-400" /> : <Moon size={20} className="text-white" />}
             </button>
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="p-2 rounded-lg hover:bg-brand-primary/10 transition-colors"
+              className="p-2 rounded-lg hover:bg-white/10 transition-colors"
             >
-              {isOpen ? <X className="text-brand-action" /> : <Menu />}
+              {isOpen ? <X className="text-brand-action" /> : <Menu className="text-white" />}
             </button>
           </div>
         </div>

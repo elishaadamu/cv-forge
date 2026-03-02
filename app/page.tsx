@@ -13,6 +13,8 @@ import { DonationSection } from "@/components/landing/DonationSection"
 import { FAQ } from "@/components/landing/FAQ"
 import { TechStack } from "@/components/landing/TechStack"
 import { Features } from "@/components/landing/Features"
+import { TemplateShowcase } from "@/components/landing/TemplateShowcase"
+import { StrategicPillars } from "@/components/landing/StrategicPillars"
 import { BackToTop } from "@/components/landing/BackToTop"
 
 export default function Home() {
@@ -30,12 +32,16 @@ export default function Home() {
 
       <Hero />
       
+      <TemplateShowcase />
+
       <div id="stats">
         <ImpactStats />
       </div>
+
+      <StrategicPillars />
       
       <Workflow />
-      
+
       <TechStack />
       
       <Features />
@@ -86,8 +92,14 @@ export default function Home() {
              <div className="space-y-8">
                 <h4 className="text-sm font-black uppercase tracking-[0.2em] text-white/30">Platform</h4>
                 <div className="flex flex-col space-y-5">
-                   {['Templates', 'Dashboard', 'ATS Checker', 'Pricing (Free)'].map(item => (
-                     <Link key={item} href="#" className="font-bold text-lg text-white/80 hover:text-brand-action transition-colors">{item}</Link>
+                   {[
+                     { name: 'Templates', href: '/templates' },
+                     { name: 'Cover Letter', href: '/cover-letter' },
+                     { name: 'ATS Checker', href: '/ats' },
+                     { name: 'Document Converter', href: '/tools' },
+                     { name: 'Dashboard', href: '/dashboard' }
+                   ].map(item => (
+                     <Link key={item.name} href={item.href} className="font-bold text-lg text-white/80 hover:text-brand-action transition-colors">{item.name}</Link>
                    ))}
                 </div>
              </div>

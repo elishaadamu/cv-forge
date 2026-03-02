@@ -94,7 +94,7 @@ export function ImpactStats() {
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.6, delay: i * 0.1, ease: "easeOut" }}
               whileHover={{ y: -8 }}
-              className="group relative p-10 bg-white/5 border border-white/5 rounded-[40px] text-center overflow-hidden transition-all duration-500 hover:bg-white/10 hover:border-white/20 hover:shadow-2xl hover:shadow-black/20"
+              className="group relative p-10 glass border border-border-custom rounded-[40px] text-center overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-brand-action/5"
             >
               <div className="absolute inset-0 bg-linear-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               

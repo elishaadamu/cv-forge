@@ -11,6 +11,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      allowDangerousEmailAccountLinking: true,
     }),
     Credentials({
       name: "Credentials",
@@ -27,7 +28,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (!user || !user.password) return null
         
-        // Prevent login if not verified
+        // Prevent login if not verified (manual signups only)
         if (!user.emailVerified) return null
 
         const isValid = await bcrypt.compare(credentials.password as string, user.password)
@@ -44,6 +45,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     })
   ],
   callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider === "google") {
+        // Automatically verify email for Google sign-ups
+        if (user.email && !(user as any).emailVerified) {
+          try {
+            await prisma.user.update({
+              where: { email: user.email },
+              data: { emailVerified: new Date() }
+            });
+          } catch (error) {
+            console.error("Error updating emailVerified for Google user:", error);
+          }
+        }
+        return true;
+      }
+      return true;
+    },
     async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id

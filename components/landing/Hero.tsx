@@ -3,11 +3,11 @@
 import Link from "next/link"
 import Image from "next/image"
 import { motion } from "framer-motion"
-import { ArrowRight, FileText, Star, ShieldCheck, Zap, CheckCircle2, ChevronDown } from "lucide-react"
+import { ArrowRight, FileText, Star, ShieldCheck, Zap, CheckCircle2, ChevronDown, Target } from "lucide-react"
 
 export function Hero() {
   return (
-    <section className="relative w-full py-20 px-4 overflow-hidden">
+    <section className="relative w-full pt-35 pb-30 px-4 overflow-hidden">
       {/* Background Animation - Bound to Hero Height, Full Screen Width */}
       <div className="absolute inset-0 -z-10 pointer-events-none">
         
@@ -110,12 +110,12 @@ export function Hero() {
       </div>
 
       {/* Main Content Container */}
-      <div className="max-w-7xl mx-auto flex flex-col items-center text-center space-y-12">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
         <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="space-y-10 flex flex-col items-center"
+          className="space-y-10 text-left"
         >
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
@@ -126,69 +126,96 @@ export function Hero() {
             <span>100% Free Forever. No Hidden Fees.</span>
           </motion.div>
           
-          <h1 className="text-6xl md:text-8xl lg:text-[7.5rem] font-black tracking-tighter leading-[0.9] text-foreground">
-            Unlock Your <span className="bg-clip-text text-transparent bg-linear-to-r from-brand-action via-brand-action/80 to-brand-secondary block mt-4 drop-shadow-[0_0_40px_rgba(var(--brand-action-rgb),0.3)]">Career Potential.</span>
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.95] text-foreground">
+            Craft Your Next <span className="bg-clip-text text-transparent bg-linear-to-r from-brand-action via-brand-action/80 to-brand-secondary block mt-4">Career Milestone.</span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-foreground/60 max-w-3xl leading-relaxed font-medium px-4">
-            Craft high-performance, ATS-ready CVs in minutes. cvmyjob is a professional, AI-powered platform built for job seekers who value precision and premium design.
+          <p className="text-xl md:text-2xl text-foreground/60 max-w-xl leading-relaxed font-medium">
+            A premium, AI-powered toolkit to build, optimize, and manage professional documents without financial barriers.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-6 pt-6 w-full justify-center">
+          <div className="flex flex-col sm:flex-row gap-6 pt-2">
             <Link
               href="/builder"
-              className="px-12 py-6 bg-brand-action text-white rounded-[24px] font-black text-2xl flex items-center justify-center space-x-4 shadow-[0_20px_50px_-10px_rgba(var(--brand-action-rgb),0.5)] hover:shadow-[0_25px_60px_-5px_rgba(var(--brand-action-rgb),0.6)] hover:-translate-y-2 transition-all active:scale-95 duration-500 group min-w-[300px]"
+              className="px-10 py-5 bg-brand-action text-white rounded-[24px] font-black text-xl flex items-center justify-center space-x-3 shadow-[0_20px_50px_-10px_rgba(var(--brand-action-rgb),0.5)] hover:shadow-brand-action/40 hover:-translate-y-1.5 transition-all active:scale-95 duration-500 group min-w-[240px]"
             >
-              <span>Build My CV</span>
+              <span>Create My CV</span>
               <ArrowRight className="group-hover:translate-x-2 transition-transform duration-500" />
             </Link>
             <Link
               href="/templates"
-              className="px-12 py-6 glass border border-border-custom rounded-[24px] font-black text-2xl flex items-center justify-center space-x-4 hover:bg-foreground/5 transition-all duration-500 hover:-translate-y-1 min-w-[300px]"
+              className="px-10 py-5 glass border border-border-custom rounded-[24px] font-black text-xl flex items-center justify-center space-x-3 hover:bg-foreground/5 transition-all duration-500 hover:-translate-y-1 min-w-[240px]"
             >
-              <span>View Templates</span>
-              <FileText size={28} className="text-brand-secondary" />
+              <span>View Styles</span>
+              <FileText size={24} className="text-brand-secondary" />
             </Link>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-6 pt-12">
-            <div className="flex items-center space-x-3 group">
-              <div className="w-8 h-8 rounded-xl bg-brand-success/20 flex items-center justify-center">
-                 <CheckCircle2 size={18} className="text-brand-success" />
-              </div>
-              <span className="text-[13px] font-black tracking-[0.2em] text-foreground/50 uppercase group-hover:text-brand-success transition-colors">No Watermark</span>
+          <div className="flex flex-wrap items-center gap-x-10 gap-y-4 pt-4">
+             {[
+               { icon: CheckCircle2, text: "No Watermark", color: "brand-success" },
+               { icon: ShieldCheck, text: "ATS Perfect", color: "brand-secondary" },
+               { icon: Zap, text: "AI Optimized", color: "brand-action" }
+             ].map((feat, i) => (
+               <div key={i} className="flex items-center space-x-2 group">
+                 <feat.icon size={18} className={`text-${feat.color}`} />
+                 <span className="text-[11px] font-black tracking-[0.2em] text-foreground/40 uppercase group-hover:text-foreground/60 transition-colors">{feat.text}</span>
+               </div>
+             ))}
+          </div>
+        </motion.div>
+
+        {/* Visual Right Side */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9, x: 30 }}
+          animate={{ opacity: 1, scale: 1, x: 0 }}
+          transition={{ duration: 1, delay: 0.2 }}
+          className="relative"
+        >
+          <div className="relative z-10 w-full aspect-square max-w-[600px] mx-auto group">
+            <div className="absolute inset-0 bg-brand-action/10 blur-[100px] rounded-full opacity-50 group-hover:opacity-70 transition-opacity" />
+            <div className="relative rounded-[40px] overflow-hidden border border-border-custom shadow-2xl bg-card-bg">
+              <Image 
+                src="/hero.png" 
+                alt="cvmyjob Platform Interface" 
+                width={800} 
+                height={800} 
+                className="object-cover w-full h-full transform group-hover:scale-105 transition-transform duration-1000"
+              />
             </div>
-            <div className="flex items-center space-x-3 group">
-               <div className="w-8 h-8 rounded-xl bg-brand-secondary/20 flex items-center justify-center">
-                 <ShieldCheck size={18} className="text-brand-secondary" />
+
+            {/* Floating Badges */}
+            <motion.div 
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -top-6 -left-6 z-20 glass px-6 py-4 rounded-3xl border border-brand-action/20 shadow-xl flex items-center space-x-3"
+            >
+              <div className="w-10 h-10 bg-brand-action/10 rounded-xl flex items-center justify-center text-brand-action">
+                <Target size={20} />
               </div>
-              <span className="text-[13px] font-black tracking-[0.2em] text-foreground/50 uppercase group-hover:text-brand-secondary transition-colors">ATS Friendly</span>
-            </div>
-             <div className="flex items-center space-x-3 group">
-               <div className="w-8 h-8 rounded-xl bg-brand-action/20 flex items-center justify-center">
-                 <Zap size={18} className="text-brand-action" />
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black uppercase tracking-widest text-brand-action">ATS Match</span>
+                <span className="text-xl font-black">94% Score</span>
               </div>
-              <span className="text-[13px] font-black tracking-[0.2em] text-foreground/50 uppercase group-hover:text-brand-action transition-colors">Real-time Preview</span>
-            </div>
+            </motion.div>
+
+            <motion.div 
+              animate={{ y: [0, 10, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+              className="absolute -bottom-6 -right-6 z-20 glass px-6 py-4 rounded-3xl border border-brand-secondary/20 shadow-xl flex items-center space-x-3"
+            >
+              <div className="w-10 h-10 bg-brand-secondary/10 rounded-xl flex items-center justify-center text-brand-secondary">
+                <ShieldCheck size={20} />
+              </div>
+              <div className="flex flex-col text-left">
+                <span className="text-[10px] font-black uppercase tracking-widest text-brand-secondary">Security</span>
+                <span className="text-xl font-black">Verified ATS</span>
+              </div>
+            </motion.div>
           </div>
         </motion.div>
       </div>
-
-      {/* Scroll Down Indicator */}
-      <div className="mt-24 flex justify-center">
-        <motion.button
-          initial={{ opacity: 0, y: 0 }}
-          animate={{ opacity: 1, y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
-          className="w-14 h-14 glass border border-border-custom rounded-2xl flex items-center justify-center group transition-all active:scale-95 hover:bg-foreground/5"
-          onClick={() => {
-            const statsSection = document.getElementById('stats')
-            statsSection?.scrollIntoView({ behavior: 'smooth' })
-          }}
-        >
-          <ChevronDown size={28} className="text-brand-action group-hover:translate-y-2 transition-transform duration-300" />
-        </motion.button>
-      </div>
     </section>
+
   )
 }

@@ -7,7 +7,7 @@ import { Navbar } from "@/components/Navbar"
 
 export default function NotFound() {
   return (
-    <div className="relative min-h-screen overflow-hidden selection:bg-brand-action/30">
+    <div className="relative min-h-screen mt-30 overflow-hidden selection:bg-brand-action/30">
       {/* Background Decor - Similar to Home/Hero for consistency */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03] dark:opacity-[0.08]" 
            style={{ backgroundImage: 'linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)', backgroundSize: '40px 40px' }} 

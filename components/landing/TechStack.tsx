@@ -25,7 +25,7 @@ export function TechStack() {
               transition={{ delay: i * 0.15 }}
               className="flex flex-col items-center space-y-4 group"
             >
-              <div className={`w-20 h-20 rounded-3xl bg-background border border-white/5 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform ${item.color}`}>
+              <div className={`w-20 h-20 rounded-3xl bg-background border border-border-custom flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform ${item.color}`}>
                 <item.icon size={36} strokeWidth={1.5} />
               </div>
               <div className="space-y-1">
