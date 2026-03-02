@@ -5,10 +5,12 @@ import bcrypt from "bcryptjs"
 import { AuthError } from "next-auth"
 import { signIn } from "@/auth"
 import { GoogleGenerativeAI } from "@google/generative-ai"
+import { sendPasswordChangedEmail, sendWelcomeEmail, sendOTPEmail } from "./mail"
 
 type ActionResponse = {
   success?: boolean;
   error?: string;
+  message?: string;
 }
 
 export async function registerUser(
@@ -28,24 +30,82 @@ export async function registerUser(
       where: { email }
     })
 
-    if (existingUser) {
+    if (existingUser && existingUser.emailVerified) {
       return { error: "User already exists with this email" }
     }
 
     const hashedPassword = await bcrypt.hash(password, 10)
+    const otp = Math.floor(100000 + Math.random() * 900000).toString()
+    const expiry = new Date(Date.now() + 15 * 60 * 1000) // 15 mins
 
-    await prisma.user.create({
+    if (existingUser) {
+      // Update unverified user
+      await prisma.user.update({
+        where: { id: existingUser.id },
+        data: {
+          name,
+          password: hashedPassword,
+          otpCode: otp,
+          otpExpiry: expiry
+        }
+      })
+    } else {
+      // Create new unverified user
+      await prisma.user.create({
+        data: {
+          name,
+          email,
+          password: hashedPassword,
+          otpCode: otp,
+          otpExpiry: expiry,
+          emailVerified: null
+        }
+      })
+    }
+
+    const emailRes = await sendOTPEmail(email, otp)
+    if (!emailRes.success) {
+      return { error: "Failed to dispatch verification code. Please check your email/SMTP." }
+    }
+
+    return { success: true, message: "A 6-digit verification code has been dispatched to your email." }
+  } catch (error) {
+    console.error("Registration initiation error:", error)
+    return { error: "Failed to initiate registration" }
+  }
+}
+
+export async function verifySignupOTP(email: string, otp: string) {
+  if (!email || !otp) return { error: "Missing required information" }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email }
+    })
+
+    if (!user) return { error: "Account not found." }
+    if (user.emailVerified) return { error: "Account already verified." }
+    if (user.otpCode !== otp) return { error: "Invalid verification code." }
+    if (!user.otpExpiry || user.otpExpiry < new Date()) return { error: "Verification code has expired." }
+
+    await prisma.user.update({
+      where: { id: user.id },
       data: {
-        name,
-        email,
-        password: hashedPassword,
+        emailVerified: new Date(),
+        otpCode: null,
+        otpExpiry: null
       }
     })
 
+    // Send Welcome Email AFTER successful verification
+    if (user.email && user.name) {
+      await sendWelcomeEmail(user.email, user.name)
+    }
+
     return { success: true }
   } catch (error) {
-    console.error("Registration error:", error)
-    return { error: "Failed to register user" }
+    console.error("Signup verification error:", error)
+    return { error: "Failed to verify account" }
   }
 }
 
@@ -62,15 +122,17 @@ export async function loginUser(
   }
 
   try {
+    console.log("LOGIN_ACTION: Calling signIn for", email)
     await signIn("credentials", {
       email,
       password,
       redirectTo,
     })
-    
+    // This part should technically not be reached if redirect: true
     return { success: true }
   } catch (error) {
     if (error instanceof AuthError) {
+      console.log("LOGIN_ACTION: AuthError", error.type)
       switch (error.type) {
         case "CredentialsSignin":
           return { error: "Invalid credentials." }
@@ -78,6 +140,9 @@ export async function loginUser(
           return { error: "Something went wrong." }
       }
     }
+    
+    // Rethrow everything else, including redirects
+    console.log("LOGIN_ACTION: Rethrowing error/redirect")
     throw error
   }
 }
@@ -305,10 +370,15 @@ export async function getCV(id: string, userId: string) {
 }
 
 export async function listCVs(userId: string) {
-  if (!userId) return { error: "User not authenticated" }
+  const start = Date.now()
+  console.log("LIST_CVS_ACTION: Starting for user", userId)
+  if (!userId) {
+    console.error("LIST_CVS_ACTION: No userId provided")
+    return { error: "User not authenticated" }
+  }
 
   try {
-    const cvs = await prisma.cV.findMany({
+    const fetchPromise = prisma.cV.findMany({
       where: { userId },
       orderBy: { updatedAt: "desc" },
       select: {
@@ -319,10 +389,19 @@ export async function listCVs(userId: string) {
       }
     })
 
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error("Database response timeout")), 12000)
+    })
+
+    const cvs = await Promise.race([fetchPromise, timeoutPromise]) as any[]
+
+    const duration = Date.now() - start
+    console.log(`LIST_CVS_ACTION: Success in ${duration}ms, found ${cvs.length} CVs`)
     return { success: true, cvs }
   } catch (error) {
-    console.error("List CVs error:", error)
-    return { error: "Failed to fetch CVs" }
+    const duration = Date.now() - start
+    console.error(`LIST_CVS_ACTION: Error after ${duration}ms -`, error)
+    return { error: "Failed to fetch CVs - DB may be unresponsive" }
   }
 }
 
@@ -337,5 +416,112 @@ export async function deleteCV(id: string, userId: string) {
   } catch (error) {
     console.error("Delete CV error:", error)
     return { error: "Failed to delete CV" }
+  }
+}
+
+
+export async function getUserProfile(userId: string) {
+  if (!userId) return { error: "Unauthenticated" }
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { name: true, email: true, image: true }
+    })
+    return { success: true, user }
+  } catch (error) {
+    return { error: "Failed to fetch profile" }
+  }
+}
+
+export async function updateProfile(userId: string, data: { name?: string, image?: string }) {
+  if (!userId) return { error: "Unauthenticated" }
+
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        name: data.name,
+        image: data.image
+      }
+    })
+
+    return { success: true, user: updatedUser }
+  } catch (error) {
+    console.error("Update profile error:", error)
+    return { error: "Failed to update profile" }
+  }
+}
+
+export async function sendSecurityOTP(identifier: string) {
+  try {
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { id: identifier },
+          { email: identifier }
+        ]
+      }
+    })
+
+    if (!user || !user.email) return { error: "Identify your forge. User not found." }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString()
+    const expiry = new Date(Date.now() + 10 * 60 * 1000) // 10 mins
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        otpCode: otp,
+        otpExpiry: expiry
+      }
+    })
+
+    const emailRes = await sendOTPEmail(user.email, otp)
+    if (!emailRes.success) {
+      console.error("OTP_EMAIL_FAILED:", emailRes.error)
+      return { error: "Failed to dispatch email. Please verify your SMTP settings." }
+    }
+
+    return { success: true, message: "A 6-digit verification code has been dispatched to your email." }
+  } catch (error) {
+    console.error("OTP_ACTION_EXCEPTION:", error)
+    return { error: `Failed to dispatch verification code: ${error instanceof Error ? error.message : "System Error"}` }
+  }
+}
+
+export async function verifyOTPAndUpdatePassword(identifier: string, otp: string, newPassword: string) {
+  try {
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { id: identifier },
+          { email: identifier }
+        ]
+      }
+    })
+
+    if (!user) return { error: "User not found." }
+    if (user.otpCode !== otp) return { error: "Invalid verification code." }
+    if (!user.otpExpiry || user.otpExpiry < new Date()) return { error: "Verification code has expired." }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        otpCode: null,
+        otpExpiry: null
+      }
+    })
+
+    if (user.email) {
+      await sendPasswordChangedEmail(user.email)
+    }
+
+    return { success: true, message: "Forge security updated. Password changed successfully." }
+  } catch (error) {
+    console.error("Password update error:", error)
+    return { error: "Failed to update security." }
   }
 }

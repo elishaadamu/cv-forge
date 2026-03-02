@@ -8,34 +8,37 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  accounts      Account[]
-  sessions      Session[]
-  cvs           CV[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id               String    @id @default(cuid())
+  name             String?
+  email            String?   @unique
+  emailVerified    DateTime?
+  image            String?
+  password         String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  otpCode          String?
+  otpExpiry        DateTime?
+  resetToken       String?   @unique
+  resetTokenExpiry DateTime?
+  accounts         Account[]
+  cvs              CV[]
+  sessions         Session[]
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?  @db.Text
-  access_token       String?  @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?  @db.Text
-  session_state      String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -57,43 +60,43 @@ model VerificationToken {
 }
 
 model CV {
-  id           String      @id @default(cuid())
-  name         String      @default("Untitled CV")
-  templateId   String      @default("modern")
+  id           String          @id @default(cuid())
+  name         String          @default("Untitled CV")
+  templateId   String          @default("modern")
   userId       String
-  user         User        @relation(fields: [userId], references: [id])
-  personalInfo PersonalInfo?
-  experiences  Experience[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   educations   Education[]
-  skills       SkillCategory[]
+  experiences  Experience[]
+  personalInfo PersonalInfo?
   projects     Project[]
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  skills       SkillCategory[]
 }
 
 model PersonalInfo {
-  id       String @id @default(cuid())
-  fullName String
-  email    String
-  phone    String?
-  location String?
-  jobTitle String?
-  website  String?
-  linkedin String?
-  github   String?
-  summary  String? @db.Text
+  id           String  @id @default(cuid())
+  fullName     String
+  email        String
+  phone        String?
+  location     String?
+  cvId         String  @unique
+  github       String?
+  jobTitle     String?
+  linkedin     String?
+  summary      String?
+  website      String?
   profileImage String?
-  cvId     String @unique
-  cv       CV     @relation(fields: [cvId], references: [id], onDelete: Cascade)
+  cv           CV      @relation(fields: [cvId], references: [id], onDelete: Cascade)
 }
 
 model Experience {
   id          String   @id @default(cuid())
   company     String
   role        String
+  cvId        String
   duration    String
   description String[] @default([])
-  cvId        String
   cv          CV       @relation(fields: [cvId], references: [id], onDelete: Cascade)
 }
 
@@ -101,8 +104,8 @@ model Education {
   id       String @id @default(cuid())
   school   String
   degree   String
-  duration String
   cvId     String
+  duration String
   cv       CV     @relation(fields: [cvId], references: [id], onDelete: Cascade)
 }
 
@@ -116,9 +119,9 @@ model SkillCategory {
 
 model Project {
   id          String  @id @default(cuid())
-  name        String
-  description String? @db.Text
+  description String?
   link        String?
   cvId        String
+  name        String
   cv          CV      @relation(fields: [cvId], references: [id], onDelete: Cascade)
 }

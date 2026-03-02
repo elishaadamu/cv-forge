@@ -1,4 +1,4 @@
-"use client"
+
 
 import { Phone, Mail, Linkedin, MapPin, Globe, Github } from "lucide-react"
 
@@ -39,6 +39,15 @@ export interface CVData {
     link: string
   }>
   templateId?: string
+}
+
+function formatUrl(url: string) {
+  if (!url) return ""
+  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("mailto:") || url.startsWith("tel:")) {
+    return url
+  }
+  if (url.includes("@")) return `mailto:${url}`
+  return `https://${url}`
 }
 
 export function ModernProfessional({ data }: { data: CVData }) {
@@ -195,9 +204,14 @@ export function ModernProfessional({ data }: { data: CVData }) {
                       {proj.name}
                     </span>
                     {proj.link && (
-                      <span style={{ fontSize: "10px", color: "#9ca3af" }}>
+                      <a 
+                        href={formatUrl(proj.link)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ fontSize: "10px", color: "#3b82c4", textDecoration: "none" }}
+                      >
                         {proj.link}
-                      </span>
+                      </a>
                     )}
                   </div>
                   {proj.description && (
@@ -280,22 +294,22 @@ export function ModernProfessional({ data }: { data: CVData }) {
             }}
           >
             {personalInfo.phone && (
-              <ContactRow icon="📞" text={personalInfo.phone} />
+              <ContactRow icon="📞" text={personalInfo.phone} href={`tel:${personalInfo.phone}`} />
             )}
             {personalInfo.email && (
-              <ContactRow icon="✉" text={personalInfo.email} />
+              <ContactRow icon="✉" text={personalInfo.email} href={`mailto:${personalInfo.email}`} />
             )}
             {personalInfo.linkedin && (
-              <ContactRow icon="in" text={personalInfo.linkedin} />
+              <ContactRow icon="in" text={personalInfo.linkedin} href={formatUrl(personalInfo.linkedin)} />
             )}
             {personalInfo.location && (
               <ContactRow icon="📍" text={personalInfo.location} />
             )}
             {personalInfo.website && (
-              <ContactRow icon="🌐" text={personalInfo.website} />
+              <ContactRow icon="🌐" text={personalInfo.website} href={formatUrl(personalInfo.website)} />
             )}
             {personalInfo.github && (
-              <ContactRow icon="⌥" text={personalInfo.github} />
+              <ContactRow icon="⌥" text={personalInfo.github} href={formatUrl(personalInfo.github)} />
             )}
           </div>
         </div>
@@ -416,23 +430,39 @@ function SidebarHeading({ label }: { label: string }) {
   )
 }
 
-function ContactRow({ icon, text }: { icon: string; text: string }) {
+function ContactRow({ icon, text, href }: { icon: string; text: string; href?: string }) {
+  const content = (
+    <span
+      style={{
+        fontSize: "11px",
+        color: href ? "#3b82c4" : "#374151",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+        textDecoration: href ? "underline" : "none",
+      }}
+    >
+      {text}
+    </span>
+  )
+
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "7px" }}>
       <span style={{ fontSize: "11px", flexShrink: 0, width: "14px" }}>
         {icon}
       </span>
-      <span
-        style={{
-          fontSize: "11px",
-          color: "#374151",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-        }}
-      >
-        {text}
-      </span>
+      {href ? (
+        <a 
+          href={href} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          style={{ textDecoration: "none", overflow: "hidden", display: "flex" }}
+        >
+          {content}
+        </a>
+      ) : (
+        content
+      )}
     </div>
   )
 }

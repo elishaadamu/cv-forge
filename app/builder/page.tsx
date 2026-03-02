@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { Navbar } from "@/components/Navbar"
 import { motion, AnimatePresence } from "framer-motion"
@@ -128,6 +128,15 @@ export default function BuilderPage() {
   const [isRefining, setIsRefining] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const router = useRouter()
+
+  useEffect(() => {
+    if (isPreview) {
+      document.body.classList.add("builder-fullscreen")
+    } else {
+      document.body.classList.remove("builder-fullscreen")
+    }
+    return () => document.body.classList.remove("builder-fullscreen") // Cleanup on unmount
+  }, [isPreview])
 
   const handleSave = async (shouldRedirect = false) => {
     if (!session?.user?.id) return
@@ -734,52 +743,60 @@ export default function BuilderPage() {
           {/* Main Preview Area */}
           <motion.div 
              layout
-             className={`flex-1 bg-white/5 border border-border-custom rounded-[40px] overflow-hidden flex flex-col shadow-2xl relative transition-all duration-500 ${isPreview ? "fixed inset-0 z-50 rounded-none m-0 pt-20" : ""}`}
+             className={`flex-1 bg-white/5 border border-border-custom rounded-[40px] overflow-hidden flex shadow-2xl relative transition-all duration-500 ${
+               isPreview 
+               ? "fixed inset-0 z-100 rounded-none m-0 flex-col bg-background" 
+               : "flex-col"
+             }`}
           >
-             {/* Toolbar */}
-             <div className="h-20 border-b border-border-custom flex items-center justify-between px-8 bg-background/50 backdrop-blur-xl z-20">
-                <div className="flex items-center space-x-5">
-                   <div className="flex items-center space-x-2 bg-white/5 p-1 rounded-2xl border border-border-custom">
-                      {[
-                        { id: "modern", name: "Modern", img: "/modern.png" },
-                        { id: "classic", name: "Classic", img: "/classic.png" },
-                        { id: "executive", name: "Executive", img: "/executive.png" }
-                      ].map((t) => (
-                        <button 
-                          key={t.id}
-                          onClick={() => setCurrentTemplate(t.id as any)}
-                          className={`group relative w-20 h-10 rounded-xl overflow-hidden transition-all border-2 ${currentTemplate === t.id ? "border-brand-action scale-105 shadow-lg shadow-brand-action/20" : "border-transparent opacity-40 hover:opacity-100"}`}
-                        >
-                          <img src={t.img} className="w-full h-full object-cover" alt={t.name} />
-                          <div className={`absolute inset-0 flex items-center justify-center bg-black/40 transition-opacity ${currentTemplate === t.id ? "opacity-0" : "group-hover:opacity-0"}`}>
-                             <span className="text-[8px] font-black uppercase tracking-tighter text-white">{t.name}</span>
-                          </div>
-                        </button>
-                      ))}
-                   </div>
-                   <div className="hidden sm:flex items-center space-x-2 text-brand-success text-[10px] font-black uppercase tracking-[0.2em] border-l border-border-custom pl-5">
-                      <div className="w-1.5 h-1.5 bg-brand-success rounded-full animate-pulse" />
-                      <span>Live Sync Active</span>
-                   </div>
-                </div>
+             {/* Toolbar - Responsive adjustment */}
+             <div className={`border-border-custom flex flex-wrap items-center justify-between px-3 sm:px-8 bg-background/80 backdrop-blur-2xl z-40 gap-3 transition-all duration-300 ${
+               isPreview 
+               ? "h-auto py-4 sm:h-22 border-b" 
+               : "h-auto py-3 sm:h-20 border-b"
+             }`}>
+                 <div className="flex items-center space-x-3 sm:space-x-5">
+                    <div className="flex items-center space-x-1 sm:space-x-2 bg-white/5 p-1 rounded-2xl border border-border-custom">
+                       {[
+                         { id: "modern", name: "Modern", img: "/modern.png" },
+                         { id: "classic", name: "Classic", img: "/classic.png" },
+                         { id: "executive", name: "Exec", img: "/executive.png" }
+                       ].map((t) => (
+                         <button 
+                           key={t.id}
+                           onClick={() => setCurrentTemplate(t.id as any)}
+                           className={`group relative w-16 sm:w-20 h-8 sm:h-10 rounded-xl overflow-hidden transition-all border-2 ${currentTemplate === t.id ? "border-brand-action scale-105 shadow-lg shadow-brand-action/20" : "border-transparent opacity-40 hover:opacity-100"}`}
+                         >
+                           <img src={t.img} className="w-full h-full object-cover" alt={t.name} />
+                           <div className={`absolute inset-0 flex items-center justify-center bg-black/40 transition-opacity ${currentTemplate === t.id ? "opacity-0" : "group-hover:opacity-0"}`}>
+                              <span className="text-[7px] sm:text-[8px] font-black uppercase tracking-tighter text-white">{t.name}</span>
+                           </div>
+                         </button>
+                       ))}
+                    </div>
+                    <div className="hidden md:flex items-center space-x-2 text-brand-success text-[10px] font-black uppercase tracking-[0.2em] border-l border-border-custom pl-5">
+                       <div className="w-1.5 h-1.5 bg-brand-success rounded-full animate-pulse" />
+                       <span className="hidden lg:inline">Live Sync Active</span>
+                    </div>
+                 </div>
 
-                <div className="flex items-center space-x-4">
-                   <button 
-                     onClick={() => setIsPreview(!isPreview)}
-                     className={`flex items-center space-x-2 px-6 h-11 rounded-xl font-bold text-sm transition-all active:scale-95 ${isPreview ? "bg-white text-black shadow-lg" : "bg-white/5 hover:bg-white/10"}`}
-                   >
-                      <Eye size={18} />
-                      <span>{isPreview ? "Exit Fullscreen" : "Fullscreen"}</span>
-                   </button>
-                </div>
+                 <div className="flex items-center space-x-2 sm:space-x-4">
+                    <button 
+                      onClick={() => setIsPreview(!isPreview)}
+                      className={`flex items-center space-x-2 px-3 sm:px-6 h-9 sm:h-11 rounded-xl font-bold text-xs sm:text-sm transition-all active:scale-95 ${isPreview ? "bg-white text-black shadow-lg" : "bg-white/5 hover:bg-white/10"}`}
+                    >
+                       <Eye size={16} />
+                       <span className="hidden xs:inline">{isPreview ? "Exit" : "Preview"}</span>
+                    </button>
+                 </div>
              </div>
 
-             {/* Preview Container */}
-             <div className={`flex-1 w-full overflow-y-auto p-4 sm:p-12 bg-slate-100/5 custom-scrollbar relative z-10 ${isPreview ? "p-0" : ""}`}>
-                <div className={`origin-top transition-transform duration-500 scale-90 lg:scale-[0.8] xl:scale-100 ${isPreview ? "scale-100 p-12! mb-20" : ""}`}>
+               {/* Preview Container - Responsive scaling */}
+               <div className={`flex-1 w-full overflow-auto p-4 sm:p-12 bg-slate-100/5 custom-scrollbar relative z-10 flex justify-center ${isPreview ? "p-3 sm:p-0 pb-24" : ""}`}>
+                <div className={`origin-top transition-transform duration-500 scale-[0.45] xs:scale-[0.55] sm:scale-75 md:scale-90 lg:scale-[0.8] xl:scale-100 ${isPreview ? "scale-[0.4] xs:scale-[0.5] sm:scale-100 p-4 sm:p-12! mb-10" : "mt-8"}`}>
                    {renderTemplate()}
                 </div>
-             </div>
+              </div>
 
              {/* Background Decoration */}
              <div className="absolute inset-0 pointer-events-none opacity-10 overflow-hidden">

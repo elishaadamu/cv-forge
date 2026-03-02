@@ -1,6 +1,15 @@
-"use client"
+
 
 import { CVData } from "./ModernProfessional"
+
+function formatUrl(url: string) {
+  if (!url) return ""
+  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("mailto:") || url.startsWith("tel:")) {
+    return url
+  }
+  if (url.includes("@")) return `mailto:${url}`
+  return `https://${url}`
+}
 
 export function ClassicTable({ data }: { data: CVData }) {
   const { personalInfo, experience, education, skills, projects } = data
@@ -61,17 +70,32 @@ export function ClassicTable({ data }: { data: CVData }) {
             display: "flex",
             flexWrap: "wrap",
             justifyContent: "center",
-            gap: "4px",
+            gap: "8px",
+            alignItems: "center"
           }}
         >
-          {[
-            personalInfo.location,
-            personalInfo.phone && `(${personalInfo.phone})`,
-            personalInfo.email,
-            personalInfo.website,
-          ]
-            .filter(Boolean)
-            .join(" | ")}
+          {personalInfo.location && <span>{personalInfo.location}</span>}
+          {personalInfo.location && (personalInfo.phone || personalInfo.email || personalInfo.website) && <span>|</span>}
+          
+          {personalInfo.phone && (
+            <a href={`tel:${personalInfo.phone}`} style={{ color: "#1a3a5c", textDecoration: "none" }}>
+              ({personalInfo.phone})
+            </a>
+          )}
+          {personalInfo.phone && (personalInfo.email || personalInfo.website) && <span>|</span>}
+
+          {personalInfo.email && (
+            <a href={`mailto:${personalInfo.email}`} style={{ color: "#1a3a5c", textDecoration: "none" }}>
+              {personalInfo.email}
+            </a>
+          )}
+          {personalInfo.email && personalInfo.website && <span>|</span>}
+
+          {personalInfo.website && (
+            <a href={formatUrl(personalInfo.website)} target="_blank" rel="noopener noreferrer" style={{ color: "#1a3a5c", textDecoration: "none" }}>
+              {personalInfo.website}
+            </a>
+          )}
         </p>
         {(personalInfo.linkedin || personalInfo.github) && (
           <p
@@ -79,12 +103,23 @@ export function ClassicTable({ data }: { data: CVData }) {
               fontSize: "11.5px",
               color: "#555",
               fontStyle: "italic",
-              marginTop: "3px",
+              marginTop: "4px",
+              display: "flex",
+              justifyContent: "center",
+              gap: "10px"
             }}
           >
-            {[personalInfo.linkedin, personalInfo.github]
-              .filter(Boolean)
-              .join(" | ")}
+            {personalInfo.linkedin && (
+              <a href={formatUrl(personalInfo.linkedin)} target="_blank" rel="noopener noreferrer" style={{ color: "#1a3a5c", textDecoration: "none" }}>
+                LinkedIn: {personalInfo.linkedin}
+              </a>
+            )}
+            {personalInfo.linkedin && personalInfo.github && <span>|</span>}
+            {personalInfo.github && (
+              <a href={formatUrl(personalInfo.github)} target="_blank" rel="noopener noreferrer" style={{ color: "#1a3a5c", textDecoration: "none" }}>
+                GitHub: {personalInfo.github}
+              </a>
+            )}
           </p>
         )}
       </div>
@@ -273,15 +308,19 @@ export function ClassicTable({ data }: { data: CVData }) {
                     {proj.name}
                   </span>
                   {proj.link && (
-                    <span
+                    <a
+                      href={formatUrl(proj.link)}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       style={{
                         fontSize: "11px",
-                        color: "#666",
+                        color: "#1a3a5c",
                         fontStyle: "italic",
+                        textDecoration: "none"
                       }}
                     >
                       {proj.link}
-                    </span>
+                    </a>
                   )}
                 </div>
                 {proj.description && (

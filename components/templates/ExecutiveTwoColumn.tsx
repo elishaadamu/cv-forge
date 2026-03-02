@@ -1,6 +1,15 @@
-"use client"
+
 
 import { CVData } from "./ModernProfessional"
+
+function formatUrl(url: string) {
+  if (!url) return ""
+  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("mailto:") || url.startsWith("tel:")) {
+    return url
+  }
+  if (url.includes("@")) return `mailto:${url}`
+  return `https://${url}`
+}
 
 export function ExecutiveTwoColumn({ data }: { data: CVData }) {
   const { personalInfo, experience, education, skills, projects } = data
@@ -89,22 +98,22 @@ export function ExecutiveTwoColumn({ data }: { data: CVData }) {
             }}
           >
             {personalInfo.phone && (
-              <SidebarContact label="Phone:" value={personalInfo.phone} />
+              <SidebarContact label="Phone:" value={personalInfo.phone} href={`tel:${personalInfo.phone}`} />
             )}
             {personalInfo.email && (
-              <SidebarContact label="Email:" value={personalInfo.email} />
+              <SidebarContact label="Email:" value={personalInfo.email} href={`mailto:${personalInfo.email}`} />
             )}
             {personalInfo.linkedin && (
-              <SidebarContact label="LinkedIn:" value={personalInfo.linkedin} />
+              <SidebarContact label="LinkedIn:" value={personalInfo.linkedin} href={formatUrl(personalInfo.linkedin)} />
             )}
             {personalInfo.location && (
               <SidebarContact label="Location:" value={personalInfo.location} />
             )}
             {personalInfo.website && (
-              <SidebarContact label="Website:" value={personalInfo.website} />
+              <SidebarContact label="Website:" value={personalInfo.website} href={formatUrl(personalInfo.website)} />
             )}
             {personalInfo.github && (
-              <SidebarContact label="GitHub:" value={personalInfo.github} />
+              <SidebarContact label="GitHub:" value={personalInfo.github} href={formatUrl(personalInfo.github)} />
             )}
           </div>
         </div>
@@ -318,9 +327,14 @@ export function ExecutiveTwoColumn({ data }: { data: CVData }) {
                       {proj.name}
                     </span>
                     {proj.link && (
-                      <span style={{ fontSize: "10.5px", color: "#9ca3af" }}>
+                      <a
+                        href={formatUrl(proj.link)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ fontSize: "10.5px", color: "#60a5fa", textDecoration: "none" }}
+                      >
                         {proj.link}
-                      </span>
+                      </a>
                     )}
                   </div>
                   {proj.description && (
@@ -364,7 +378,22 @@ function SidebarSection({ label }: { label: string }) {
   )
 }
 
-function SidebarContact({ label, value }: { label: string; value: string }) {
+function SidebarContact({ label, value, href }: { label: string; value: string; href?: string }) {
+  const content = (
+    <span
+      style={{
+        fontSize: "11px",
+        color: href ? "#60a5fa" : "#cbd5e1",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+        textDecoration: href ? "underline" : "none",
+      }}
+    >
+      {value}
+    </span>
+  )
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
       <span
@@ -378,17 +407,18 @@ function SidebarContact({ label, value }: { label: string; value: string }) {
       >
         {label}
       </span>
-      <span
-        style={{
-          fontSize: "11px",
-          color: "#cbd5e1",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-        }}
-      >
-        {value}
-      </span>
+      {href ? (
+        <a 
+          href={href} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          style={{ textDecoration: "none", overflow: "hidden" }}
+        >
+          {content}
+        </a>
+      ) : (
+        content
+      )}
     </div>
   )
 }

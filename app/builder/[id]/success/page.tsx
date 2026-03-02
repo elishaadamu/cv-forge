@@ -105,18 +105,23 @@ export default function SuccessPage() {
         link.click()
         document.body.removeChild(link)
       } else if (type === ".pdf") {
-        const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" })
-        const pdfWidth = pdf.internal.pageSize.getWidth()
-        const pdfHeight = pdf.internal.pageSize.getHeight()
-        const imgProps = pdf.getImageProperties(imgData)
-        const ratio = Math.min(pdfWidth / imgProps.width, pdfHeight / imgProps.height)
-        const imgW = imgProps.width * ratio
-        const imgH = imgProps.height * ratio
-        // Centre on page
-        const x = (pdfWidth - imgW) / 2
-        const y = 0
-        pdf.addImage(imgData, "PNG", x, y, imgW, imgH)
-        pdf.save(`${cvData.personalInfo.fullName.replace(/\s+/g, "_") || "CV"}_CV.pdf`)
+        const response = await fetch("/api/generate-pdf", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cvData, templateId: cvData.templateId }),
+        })
+
+        if (!response.ok) throw new Error("Failed to generate PDF")
+
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const link = document.createElement("a")
+        link.href = url
+        link.download = `${cvData.personalInfo.fullName.replace(/\s+/g, "_") || "CV"}_CV.pdf`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
       } else if (type === ".docx") {
         // Rich HTML that Word/Google Docs can open
         const htmlContent = `<!DOCTYPE html>

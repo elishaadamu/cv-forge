@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useTheme } from "next-themes"
-import { Menu, X, Sun, Moon, Sparkles, User, FileText, LayoutDashboard, SearchCode, MailQuestion, LogOut } from "lucide-react"
+import { Menu, X, Sun, Moon, Sparkles, User, FileText, LayoutDashboard, SearchCode, MailQuestion, LogOut, Settings } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useSession, signOut } from "next-auth/react"
 import Image from "next/image"
@@ -16,24 +16,46 @@ const publicLinks = [
 
 const protectedLinks = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  ...publicLinks
+  ...publicLinks,
+  { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ]
 
 export function Navbar() {
   const [mounted, setMounted] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
+  const [isBuilderFullscreen, setIsBuilderFullscreen] = useState(false)
   const { theme, setTheme } = useTheme()
   const { data: session, status } = useSession()
+ 
+  useEffect(() => {
+    setMounted(true)
+    
+    // Check for builder-fullscreen class on body
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === "class") {
+          setIsBuilderFullscreen(document.body.classList.contains("builder-fullscreen"))
+        }
+      })
+    })
 
-  useEffect(() => setMounted(true), [])
+    observer.observe(document.body, { attributes: true })
+    setIsBuilderFullscreen(document.body.classList.contains("builder-fullscreen"))
 
+    return () => observer.disconnect()
+  }, [])
+ 
   if (!mounted) return null
-
+ 
   const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark")
   const links = session ? protectedLinks : publicLinks
-
+ 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass shadow-sm">
+    <nav className={`fixed left-0 right-0 z-[200] glass transition-all duration-500 ease-in-out ${
+      isBuilderFullscreen 
+      ? "bottom-0 top-auto shadow-[0_-4px_30px_rgba(0,0,0,0.1)] rounded-t-[32px] border-b-0 border-t" 
+      : "top-0 shadow-sm border-t-0 border-b"
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
@@ -71,28 +93,34 @@ export function Navbar() {
 
             {status === "authenticated" ? (
               <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-3 bg-white/5 border border-border-custom px-4 py-2 rounded-2xl">
-                  {session.user?.image ? (
-                    <Image 
-                      src={session.user.image} 
-                      alt={session.user.name || "User"} 
-                      width={32} 
-                      height={32} 
-                      className="rounded-full shadow-sm"
-                    />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-brand-action/20 flex items-center justify-center text-brand-action font-bold">
-                      {session.user?.name?.charAt(0) || "U"}
-                    </div>
-                  )}
-                  <div className="flex flex-col">
-                    <span className="text-xs font-black tracking-tight leading-none text-foreground/80 uppercase">Member</span>
-                    <span className="text-sm font-bold text-foreground truncate max-w-[100px]">{session.user?.name}</span>
+                <Link 
+                  href="/dashboard/settings"
+                  className="flex items-center space-x-3 bg-white/5 border border-border-custom pl-4 pr-5 py-2 rounded-[20px] hover:bg-white/10 transition-all group"
+                >
+                  <div className="relative">
+                    {session.user?.image ? (
+                      <Image 
+                        src={session.user.image} 
+                        alt={session.user.name || "User"} 
+                        width={36} 
+                        height={36} 
+                        className="rounded-xl shadow-lg border border-white/10 group-hover:scale-105 transition-transform"
+                      />
+                    ) : (
+                      <div className="w-9 h-9 rounded-xl bg-brand-action/20 flex items-center justify-center text-brand-action font-black shadow-inner">
+                        {session.user?.name?.charAt(0) || "U"}
+                      </div>
+                    )}
+                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-brand-success border-2 border-background rounded-full shadow-sm" />
                   </div>
-                </div>
+                  <div className="flex flex-col -space-y-0.5">
+                    <span className="text-[9px] font-black tracking-widest leading-none text-brand-action uppercase opacity-80">Member</span>
+                    <span className="text-sm font-black text-foreground truncate max-w-[110px] tracking-tight">{session.user?.name || "Member"}</span>
+                  </div>
+                </Link>
                 <button
                   onClick={() => signOut()}
-                  className="p-2.5 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all outline-none shadow-sm active:scale-95 group"
+                  className="p-3 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all outline-none shadow-sm active:scale-95 flex items-center justify-center"
                   title="Sign Out"
                 >
                   <LogOut size={20} />

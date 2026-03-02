@@ -4,6 +4,8 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/components/AuthProvider";
 import { AntdRegistry } from '@ant-design/nextjs-registry';
+import { LoadingLine } from "@/components/LoadingLine";
+import { Suspense } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,6 +47,9 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <AntdRegistry>
+              <Suspense fallback={null}>
+                <LoadingLine />
+              </Suspense>
               {children}
             </AntdRegistry>
           </ThemeProvider>
