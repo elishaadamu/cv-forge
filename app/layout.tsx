@@ -18,12 +18,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CVForge | Build Your Professional CV for Free",
-  description: "CVForge is the ultimate 100% free CV builder. No watermark, no paywall, no hidden charges. Create your high-quality, ATS-friendly CV in minutes.",
-  keywords: ["cv builder", "resume builder", "free cv template", "no watermark resume", "professional resume", "job search tools"],
-  authors: [{ name: "CVForge Team" }],
+  title: "cvmyjob | Build Your Professional CV for Free",
+  description: "cvmyjob is the ultimate 100% free CV builder. No watermark, no paywall, no hidden charges. Create your high-quality, ATS-friendly CV in minutes.",
+  keywords: ["cv builder", "resume builder", "free cv template", "no watermark resume", "professional resume", "job search tools", "cvmyjob"],
+  authors: [{ name: "cvmyjob Team" }],
   openGraph: {
-    title: "CVForge | 100% Free Professional CV Builder",
+    title: "cvmyjob | 100% Free Professional CV Builder",
     description: "Start your career on the right foot with a premium CV, completely free of charge.",
     type: "website",
   },

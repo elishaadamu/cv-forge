@@ -46,13 +46,13 @@ const INITIAL_DATA: CVData = {
   personalInfo: {
     fullName: "Alex Sterling",
     jobTitle: "Senior Product Designer",
-    email: "alex.sterling@forge.com",
+    email: "alex.sterling@cvmyjob.online",
     phone: "+353 87 123 4567",
     location: "Dublin, Ireland",
     website: "alexsterling.design",
     linkedin: "linkedin.com/in/alexsterling",
     github: "github.com/asterling",
-    summary: "Strategic Product Designer with 8+ years of experience in forging high-scale digital ecosystems. Expert in bridging the gap between complex engineering requirements and intuitive user experiences. Proven track record of leading design teams to deliver award-winning platforms that serve millions of active users.",
+    summary: "Strategic Product Designer with 8+ years of experience in building high-scale digital ecosystems. Expert in bridging the gap between complex engineering requirements and intuitive user experiences. Proven track record of leading design teams to deliver award-winning platforms that serve millions of active users.",
     profileImage: "",
   },
   experience: [
@@ -101,9 +101,9 @@ const INITIAL_DATA: CVData = {
   projects: [
     {
       id: "1",
-      name: "ForgeUI Component Library",
-      description: "A state-of-the-art React component library focused on high-performance animations and glassmorphism aesthetics.",
-      link: "github.com/cvforge/ui"
+      name: "cvmyjob Component Library",
+      description: "A state-of-the-art React component library focused on high-performance animations and modern aesthetics.",
+      link: "github.com/cvmyjob/ui"
     },
     {
       id: "2",
@@ -315,9 +315,9 @@ export default function BuilderPage() {
               <header className="space-y-2">
                 <div className="flex items-center space-x-2 text-brand-action font-black uppercase tracking-widest text-[10px]">
                    <Wand2 size={14} />
-                   <span>V-Forge Real-time Editor</span>
+                   <span>cvmyjob Real-time Editor</span>
                 </div>
-                <h1 className="text-3xl font-black tracking-tight">Forge Your <span className="text-brand-action">CV</span></h1>
+                <h1 className="text-3xl font-black tracking-tight">Build Your <span className="text-brand-action">CV</span></h1>
               </header>
 
               <nav className="grid grid-cols-5 gap-2">

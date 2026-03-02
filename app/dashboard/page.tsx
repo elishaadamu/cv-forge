@@ -111,13 +111,13 @@ export default function DashboardPage() {
           >
             <div className="inline-flex items-center space-x-2 px-3 py-1 bg-brand-action/10 rounded-full text-brand-action border border-brand-action/20">
               <Sparkles size={14} className="animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em]">Live Forge</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em]">Career Hub</span>
             </div>
             <h1 className="text-6xl font-black tracking-tight leading-none text-foreground">
-              Your <span className="text-brand-action">Forge</span>
+              Your <span className="text-brand-action">Dashboard</span>
             </h1>
             <p className="text-foreground/40 font-medium max-w-sm">
-              Welcome back, {session?.user?.name?.split(' ')[0] || "member"}. Your blueprints for success are waiting.
+              Welcome back, {session?.user?.name?.split(' ')[0] || "member"}. Your career assets are ready for your next move.
             </p>
           </motion.div>
 
@@ -127,10 +127,10 @@ export default function DashboardPage() {
           >
             <Link 
               href="/builder"
-              className="px-12 py-6 bg-linear-to-r from-orange-500 to-brand-action text-white rounded-[32px] font-black text-xl shadow-[0_20px_60px_-15px_rgba(231,111,60,0.5)] hover:shadow-[0_30px_80px_-15px_rgba(231,111,60,0.7)] hover:-translate-y-1 transition-all flex items-center space-x-4 active:scale-95 group"
+              className="px-12 py-6 bg-linear-to-r from-brand-action to-brand-secondary text-white rounded-[32px] font-black text-xl shadow-[0_20px_60px_-15px_rgba(37,99,235,0.5)] hover:shadow-[0_30px_80px_-15px_rgba(37,99,235,0.7)] hover:-translate-y-1 transition-all flex items-center space-x-4 active:scale-95 group"
             >
               <Plus size={32} className="group-hover:rotate-90 transition-transform duration-500" />
-              <span>Forge New CV</span>
+              <span>Create New CV</span>
             </Link>
           </motion.div>
         </header>
@@ -151,8 +151,8 @@ export default function DashboardPage() {
                 </div>
               </div>
               <div className="text-center space-y-2">
-                <span className="text-xl font-black uppercase tracking-[0.3em] text-foreground/40 block">Accessing the Vault</span>
-                <p className="text-sm text-foreground/20 italic font-medium">Synchronizing with the global forge...</p>
+                <span className="text-xl font-black uppercase tracking-[0.3em] text-foreground/40 block">Loading Your Profile</span>
+                <p className="text-sm text-foreground/20 italic font-medium">Synchronizing your professional data...</p>
               </div>
             </motion.div>
           ) : error ? (
@@ -198,8 +198,8 @@ export default function DashboardPage() {
                   <Plus size={56} />
                 </div>
                 <div className="text-center space-y-1">
-                  <span className="text-3xl font-black text-foreground/20 group-hover:text-brand-action transition-colors block">New Blueprint</span>
-                  <span className="text-xs font-black uppercase tracking-[0.5em] text-foreground/5 group-hover:text-brand-action/40">Open Workspace</span>
+                  <span className="text-3xl font-black text-foreground/20 group-hover:text-brand-action transition-colors block">Create New</span>
+                  <span className="text-xs font-black uppercase tracking-[0.5em] text-foreground/5 group-hover:text-brand-action/40">Start Building</span>
                 </div>
               </Link>
 
@@ -239,7 +239,7 @@ export default function DashboardPage() {
                          className="flex-1 h-20 bg-brand-action text-white hover:bg-white hover:text-brand-action transition-all rounded-[32px] flex items-center justify-center font-black text-sm uppercase tracking-widest shadow-2xl active:scale-95 group/btn"
                        >
                          <Edit3 size={24} className="mr-3 group-hover/btn:scale-120 transition-transform" />
-                         Refine Draft
+                         Edit CV
                        </Link>
                        <button 
                          onClick={() => showDeleteConfirm(cv.id)}

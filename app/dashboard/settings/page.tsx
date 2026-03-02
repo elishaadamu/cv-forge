@@ -236,7 +236,7 @@ export default function SettingsPage() {
                           </div>
                           <div className="flex-1 space-y-2 text-center md:text-left">
                              <h3 className="text-2xl font-black">Profile Portrait</h3>
-                             <p className="text-foreground/40 font-medium">This is how other members will see you. Forged in style.</p>
+                             <p className="text-foreground/40 font-medium">This is how other members will see you. Designed for success.</p>
                              <div className="flex flex-wrap justify-center md:justify-start gap-2 pt-2">
                                 <span className="px-3 py-1 bg-brand-action/10 text-brand-action text-[10px] font-black uppercase tracking-wider rounded-full border border-brand-action/20">Pro Member</span>
                                 <span className="px-3 py-1 bg-white/5 text-foreground/40 text-[10px] font-black uppercase tracking-wider rounded-full border border-border-custom">Free Tier</span>
@@ -288,7 +288,7 @@ export default function SettingsPage() {
                             <ShieldCheck size={28} className="text-brand-action mr-3" />
                             Security Shield
                          </h3>
-                         <p className="text-foreground/40 font-medium">Verify your identity to forge a new password. Robust and secure.</p>
+                         <p className="text-foreground/40 font-medium">Verify your identity to update your password. Robust and secure.</p>
                       </div>
 
                       <AnimatePresence mode="wait">
@@ -413,7 +413,7 @@ export default function SettingsPage() {
                                     className="w-full py-5 bg-brand-action text-white rounded-2xl font-black text-lg shadow-xl shadow-brand-action/20 hover:shadow-brand-action/40 hover:-translate-y-1 transition-all flex items-center justify-center space-x-3 active:scale-95 disabled:opacity-50"
                                  >
                                     {isSubmitting ? <Loader2 size={24} className="animate-spin" /> : <ShieldCheck size={24} />}
-                                    <span>Forge New Security</span>
+                                    <span>Update Password</span>
                                  </button>
                                  
                                  <button 

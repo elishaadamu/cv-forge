@@ -116,7 +116,7 @@ export default function NotFound() {
       {/* Decorative footer element */}
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center space-x-2 text-[10px] font-black uppercase tracking-[0.4em] text-foreground/20">
         <Sparkles size={12} />
-        <span>CVForge Intelligence</span>
+        <span>cvmyjob platform</span>
       </div>
     </div>
   )

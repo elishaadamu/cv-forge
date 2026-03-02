@@ -63,7 +63,7 @@ export default function LoginPage() {
               <Sparkles size={36} className="animate-pulse" />
             </div>
             <h1 className="text-4xl font-black tracking-tight leading-none">Welcome Back</h1>
-            <p className="text-foreground/40 font-medium text-lg">Enter the vault to access your forged blueprints.</p>
+            <p className="text-foreground/40 font-medium text-lg">Sign in to access your professional career dashboard.</p>
           </div>
 
           <div className="space-y-6">
@@ -102,7 +102,7 @@ export default function LoginPage() {
 
               <div className="space-y-5">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40 ml-1">Forge Identifier (Email)</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40 ml-1">Email Address</label>
                   <div className="relative group">
                     <div className="absolute left-5 top-1/2 -translate-y-1/2 text-foreground/30 group-focus-within:text-brand-action transition-colors">
                       <Mail size={18} />
@@ -110,7 +110,7 @@ export default function LoginPage() {
                     <input
                       name="email"
                       type="email"
-                      placeholder="master@forge.com"
+                      placeholder="your@email.com"
                       className="w-full h-14 pl-14 bg-white/5 border border-border-custom rounded-2xl focus:ring-4 focus:ring-brand-action/10 focus:border-brand-action outline-none transition-all font-medium"
                       required
                       disabled={isPending}
@@ -120,7 +120,7 @@ export default function LoginPage() {
 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between ml-1">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Security Pattern</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Password</label>
                     <Link href="/forgot-password" title="Recover access" className="text-[10px] font-black text-brand-action hover:underline underline-offset-4 uppercase tracking-widest">Forgot?</Link>
                   </div>
                   <PasswordInput 
@@ -134,7 +134,7 @@ export default function LoginPage() {
 
               <div className="flex items-center space-x-2 px-1">
                  <input type="checkbox" id="remember" className="w-5 h-5 rounded-lg border-border-custom text-brand-action focus:ring-brand-action/20 transition-all cursor-pointer" />
-                 <label htmlFor="remember" className="text-xs font-bold text-foreground/40 cursor-pointer hover:text-foreground/60 transition-colors uppercase tracking-widest">Keep identity persistent</label>
+                 <label htmlFor="remember" className="text-xs font-bold text-foreground/40 cursor-pointer hover:text-foreground/60 transition-colors uppercase tracking-widest">Stay signed in</label>
               </div>
 
               <button
@@ -146,7 +146,7 @@ export default function LoginPage() {
                   <Loader2 className="animate-spin" size={24} />
                 ) : (
                   <>
-                    <span>Enter the Forge</span>
+                    <span>Sign In</span>
                     <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                   </>
                 )}
@@ -155,8 +155,8 @@ export default function LoginPage() {
           </div>
 
           <p className="text-center text-foreground/40 font-medium text-sm">
-            New to the Forge?{" "}
-            <Link href="/signup" className="text-brand-action font-black hover:underline underline-offset-8 decoration-2">Create Master Identity</Link>
+            New to cvmyjob?{" "}
+            <Link href="/signup" className="text-brand-action font-black hover:underline underline-offset-8 decoration-2">Create Account</Link>
           </p>
         </motion.div>
       </main>

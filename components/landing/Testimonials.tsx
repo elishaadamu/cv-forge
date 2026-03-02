@@ -7,7 +7,7 @@ export function Testimonials() {
     {
       name: "Damilola A.",
       role: "Frontend Developer",
-      text: "CVForge is a game changer for job hunters. The ATS audit feature showed exactly why my previous resume was being ignored.",
+      text: "cvmyjob is a game changer for job hunters. The ATS audit feature showed exactly why my previous resume was being ignored.",
       rating: 5
     },
     {
@@ -29,7 +29,7 @@ export function Testimonials() {
       <div className="max-w-7xl mx-auto space-y-16">
         <div className="text-center space-y-4">
           <h2 className="text-[2.75rem] font-black tracking-tight leading-none">Loved by the community.</h2>
-          <p className="text-foreground/50 text-xl font-medium max-w-2xl mx-auto">See what our users are saying about CVForge's premium experience.</p>
+          <p className="text-foreground/50 text-xl font-medium max-w-2xl mx-auto">See what our users are saying about cvmyjob's premium experience.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

@@ -40,7 +40,7 @@ export default function TemplatesPage() {
              transition={{ delay: 0.2 }}
              className="max-w-2xl mx-auto text-foreground/50 font-medium text-lg"
           >
-            Forged by world-class designers to pass the most rigorous ATS scans while catching every hiring manager&apos;s attention.
+            Crafted by career experts to pass the most rigorous ATS scans while catching every hiring manager&apos;s attention.
           </motion.p>
         </header>
 
@@ -104,7 +104,7 @@ export default function TemplatesPage() {
                     href={`/builder?template=${template.id}`}
                     className="w-full h-14 bg-white/5 border border-border-custom group-hover:bg-brand-action group-hover:text-white transition-all rounded-2xl flex items-center justify-center font-black text-lg shadow-sm active:scale-95 space-x-2"
                   >
-                    <span>Forge This Style</span>
+                    <span>Use This Template</span>
                     <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </div>
@@ -117,7 +117,7 @@ export default function TemplatesPage() {
         <section className="mt-40 text-center space-y-12">
            <h3 className="text-sm font-black uppercase tracking-[0.2em] text-foreground/20">Trusted by applicants at</h3>
            <div className="flex flex-wrap justify-center gap-x-12 gap-y-8 opacity-20 grayscale brightness-200">
-               {["TECHGIANT", "CLOUDCO", "NEOSTACK", "FORGEAPPS", "GLOBALFIN"].map(brand => (
+               {["TECHGIANT", "CLOUDCO", "NEOSTACK", "MYJOBCORP", "GLOBALFIN"].map(brand => (
                  <span key={brand} className="text-3xl font-black tracking-tighter">{brand}</span>
                ))}
            </div>

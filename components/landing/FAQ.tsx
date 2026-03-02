@@ -7,8 +7,8 @@ import { Plus, Minus } from "lucide-react"
 export function FAQ() {
   const faqs = [
     {
-      q: "Is CVForge really free?",
-      a: "Yes! 100%. We don't believe in charging job seekers. Our costs are covered by generous community donations."
+      q: "Is cvmyjob really free?",
+      a: "Yes! 100%. We don't believe in charging job seekers. Our platform is built specifically for your career success."
     },
     {
       q: "Will my CV be ATS-friendly?",

@@ -1,33 +1,40 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-primary: #0F2D33;
-  --color-brand-action: #E76F3C;
-  --color-brand-secondary: #5C88A3;
-  --color-brand-success: #10B981;
+  --color-brand-primary: #0F172A;
+  --color-brand-secondary: #14B8A6;
+  --color-brand-action: #2563EB;
+  --color-brand-action-hover: #1D4ED8;
+  --color-brand-success: #22C55E;
+  --color-brand-warning: #F59E0B;
   --color-brand-error: #EF4444;
   
-  --color-brand-text-light: #E5E7EB;
-  --color-brand-text-dark: #1F2937;
+  --color-brand-text-primary: #0F172A;
+  --color-brand-text-secondary: #475569;
+  --color-brand-text-muted: #94A3B8;
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #1F2937;
-  --nav-bg: rgba(255, 255, 255, 0.8);
-  --card-bg: #ffffff;
-  --border-color: #E2E8F0;
-  --success: #10B981;
+  --background: #F8FAFC;
+  --foreground: #0F172A;
+  --nav-bg: rgba(15, 23, 42, 0.95); /* Authority Navy */
+  --nav-text: #FFFFFF;
+  --glass-bg: rgba(255, 255, 255, 0.7); /* Light Glass */
+  --card-bg: #FFFFFF;
+  --border-color: rgba(15, 23, 42, 0.08);
+  --success: #22C55E;
   --error: #EF4444;
 }
 
 .dark {
-  --background: #0F2D33;
-  --foreground: #E5E7EB;
-  --nav-bg: rgba(15, 45, 51, 0.8);
-  --card-bg: #153E46;
-  --border-color: #1E4D56;
-  --success: #10B981;
+  --background: #020617;
+  --foreground: #F8FAFC;
+  --nav-bg: rgba(15, 23, 42, 0.85);
+  --nav-text: #FFFFFF;
+  --glass-bg: rgba(15, 23, 42, 0.7); /* Dark Glass */
+  --card-bg: #0F172A;
+  --border-color: rgba(248, 250, 252, 0.1);
+  --success: #14B8A6;
   --error: #EF4444;
 }
 
@@ -35,6 +42,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-nav-bg: var(--nav-bg);
+  --color-nav-text: var(--nav-text);
   --color-card-bg: var(--card-bg);
   --color-border-custom: var(--border-color);
   --color-success: var(--success);
@@ -72,6 +80,13 @@ body {
 
 /* Glassmorphism utility */
 .glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+}
+
+.glass-nav {
   background: var(--nav-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);

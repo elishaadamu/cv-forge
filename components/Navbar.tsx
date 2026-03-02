@@ -51,21 +51,29 @@ export function Navbar() {
   const links = session ? protectedLinks : publicLinks
  
   return (
-    <nav className={`fixed left-0 right-0 z-[200] glass transition-all duration-500 ease-in-out ${
+    <nav className={`fixed left-0 right-0 z-[200] glass-nav transition-all duration-500 ease-in-out ${
       isBuilderFullscreen 
       ? "bottom-0 top-auto shadow-[0_-4px_30px_rgba(0,0,0,0.1)] rounded-t-[32px] border-b-0 border-t" 
       : "top-0 shadow-sm border-t-0 border-b"
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
-          {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2 group">
-            <div className="w-10 h-10 bg-brand-action rounded-lg flex items-center justify-center transform group-hover:rotate-6 transition-all duration-300 shadow-md group-hover:shadow-brand-action/30">
-              <Sparkles className="text-white w-6 h-6" />
+          <Link href="/" className="flex items-center space-x-3 group animate-in fade-in slide-in-from-left-4 duration-1000">
+            <div className="relative w-11 h-11 bg-white/5 backdrop-blur-md rounded-xl p-1.5 border border-white/10 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-2xl">
+              <Image 
+                src="/logo.png" 
+                alt="cvmyjob Logo" 
+                fill 
+                className="object-contain p-2"
+                priority
+              />
             </div>
-            <span className="text-2xl font-black tracking-tight text-foreground">
-              CV<span className="text-brand-action">Forge</span>
-            </span>
+            <div className="flex flex-col -space-y-1">
+              <span className="text-xs font-black uppercase tracking-[0.3em] text-brand-secondary leading-none">Global</span>
+              <span className="text-2xl font-black tracking-tighter text-white">
+                CV<span className="bg-linear-to-r from-brand-action to-brand-secondary bg-clip-text text-transparent">MYJOB</span>
+              </span>
+            </div>
           </Link>
 
           {/* Desktop Nav */}
@@ -74,7 +82,7 @@ export function Navbar() {
               <Link
                 key={link.name}
                 href={link.href}
-                className="text-sm font-semibold hover:text-brand-action transition-colors duration-200"
+                className="text-sm font-semibold text-white/90 hover:text-white transition-colors duration-200"
               >
                 {link.name}
               </Link>
@@ -155,7 +163,7 @@ export function Navbar() {
               <div className="flex items-center space-x-6">
                 <Link
                   href="/login"
-                  className="text-sm font-bold hover:text-brand-action transition-colors"
+                  className="text-sm font-bold text-white/90 hover:text-white transition-colors"
                 >
                   Log In
                 </Link>

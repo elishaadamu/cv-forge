@@ -14,10 +14,10 @@ import {
 } from "lucide-react"
 
 const FAQs = [
-  { q: "Is CVForge truly free?", a: "We offer a powerful free tier for everyone. A premium plan is available for advanced AI features and unlimited cloud storage." },
+  { q: "Is cvmyjob truly free?", a: "We offer a powerful free tier for everyone. A premium plan is available for advanced AI features and unlimited cloud storage." },
   { q: "Can I download my CV as PDF?", a: "Absolutely. Our export engine ensures your PDF looks pixel-perfect and remains ATS-readable." },
-  { q: "How does the AI refinement work?", a: "We use Google's Gemini 1.5 Pro to analyze your text and forge professional bullet points based on industry standards." },
-  { q: "Is my data secure?", a: "Your privacy is our priority. All data is encrypted and stored securely on our decentralized infrastructure." },
+  { q: "How does the AI refinement work?", a: "We use Google's Gemini 1.5 Pro to analyze your text and craft professional bullet points based on industry standards." },
+  { q: "Is my data secure?", a: "Your privacy is our priority. All data is encrypted and stored securely on our infrastructure." },
 ]
 
 export default function SupportPage() {
@@ -47,7 +47,7 @@ export default function SupportPage() {
             transition={{ delay: 0.1 }}
             className="text-xl text-foreground/50 max-w-2xl mx-auto font-medium"
           >
-            The CVForge support team is here to help you navigate your career journey. Find answers or reach out directly.
+            The cvmyjob support team is here to help you navigate your career journey. Find answers or reach out directly.
           </motion.p>
         </header>
 
@@ -78,19 +78,19 @@ export default function SupportPage() {
                 <div className="space-y-2">
                    <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40 block ml-4">Subject</label>
                    <select className="w-full h-14 px-6 bg-white/5 border border-border-custom rounded-2xl outline-none focus:border-brand-action transition-all font-bold appearance-none">
-                      <option className="bg-slate-900">Technical Issue</option>
-                      <option className="bg-slate-900">Account Support</option>
-                      <option className="bg-slate-900">Billing Inquiry</option>
-                      <option className="bg-slate-900">Feature Request</option>
+                      <option className="bg-brand-primary text-white">Technical Issue</option>
+                      <option className="bg-brand-primary text-white">Account Support</option>
+                      <option className="bg-brand-primary text-white">Billing Inquiry</option>
+                      <option className="bg-brand-primary text-white">Feature Request</option>
                    </select>
                 </div>
                 <div className="space-y-2">
                    <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40 block ml-4">Message</label>
                    <textarea className="w-full h-40 p-6 bg-white/5 border border-border-custom rounded-2xl outline-none focus:border-brand-action transition-all font-medium resize-none" placeholder="Describe your issue in detail..." />
                 </div>
-                <button className="w-full h-16 bg-white text-black rounded-2xl font-black text-lg flex items-center justify-center space-x-3 hover:scale-[1.02] transition-transform active:scale-95 shadow-xl">
+                <button className="w-full h-16 bg-brand-action text-white rounded-2xl font-black text-lg flex items-center justify-center space-x-3 hover:scale-[1.02] transition-transform active:scale-95 shadow-xl">
                    <Send size={20} />
-                   <span>Forge Message</span>
+                   <span>Send Message</span>
                 </button>
              </form>
           </motion.div>

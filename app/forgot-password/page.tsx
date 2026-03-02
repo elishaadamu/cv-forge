@@ -327,7 +327,7 @@ export default function ForgotPasswordPage() {
           {/* Aesthetic footer */}
           <div className="mt-12 pt-8 border-t border-border-custom flex items-center justify-center space-x-2 text-[10px] font-black uppercase tracking-[0.3em] text-foreground/10">
              <Sparkles size={12} />
-             <span>Forged by CVForge Security</span>
+             <span>Powered by cvmyjob Security</span>
              <Sparkles size={12} />
           </div>
         </div>

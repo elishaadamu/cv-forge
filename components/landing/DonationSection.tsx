@@ -22,7 +22,7 @@ export function DonationSection() {
           
           <h2 className="text-4xl lg:text-6xl font-black mb-8 leading-[1.1]">Support Our Mission.</h2>
           <p className="text-xl lg:text-2xl text-foreground/70 max-w-2xl font-medium leading-relaxed mb-12">
-            CVForge is 100% free and community-driven. Your donations help us maintain servers and keep premium tools accessible to everyone.
+            cvmyjob is 100% free and career-focused. Your support helps us maintain infrastructure and keep premium tools accessible to everyone globally.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-6">

@@ -31,7 +31,7 @@ export function RecruiterInsight() {
           </div>
           <p className="text-sm font-black uppercase tracking-widest text-brand-secondary mb-4">Pro Insight</p>
           <p className="text-xl font-bold italic leading-relaxed text-foreground/80">
-            "Recruiters spend an average of 6 seconds per CV. If your formatting is messy or AI-unfriendly, you're rejected before you even start. Forge eliminates that risk."
+            "Recruiters spend an average of 6 seconds per CV. If your formatting is messy or AI-unfriendly, you're rejected before you even start. cvmyjob eliminates that risk."
           </p>
         </div>
       </div>

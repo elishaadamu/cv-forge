@@ -131,7 +131,7 @@ export function Hero() {
           </h1>
           
           <p className="text-xl md:text-2xl text-foreground/60 max-w-3xl leading-relaxed font-medium px-4">
-            Forge high-performance, ATS-ready CVs in minutes. CVForge is a premium, community-supported tool built for job seekers who refuse to settle for watermarks or hidden fees.
+            Craft high-performance, ATS-ready CVs in minutes. cvmyjob is a professional, AI-powered platform built for job seekers who value precision and premium design.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-6 pt-6 w-full justify-center">
@@ -144,7 +144,7 @@ export function Hero() {
             </Link>
             <Link
               href="/templates"
-              className="px-12 py-6 glass border border-border-custom rounded-[24px] font-black text-2xl flex items-center justify-center space-x-4 hover:bg-white/10 dark:hover:bg-brand-primary/20 transition-all duration-500 hover:-translate-y-1 min-w-[300px]"
+              className="px-12 py-6 glass border border-border-custom rounded-[24px] font-black text-2xl flex items-center justify-center space-x-4 hover:bg-foreground/5 transition-all duration-500 hover:-translate-y-1 min-w-[300px]"
             >
               <span>View Templates</span>
               <FileText size={28} className="text-brand-secondary" />
@@ -180,7 +180,7 @@ export function Hero() {
           initial={{ opacity: 0, y: 0 }}
           animate={{ opacity: 1, y: [0, 10, 0] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
-          className="w-14 h-14 glass border border-border-custom rounded-2xl flex items-center justify-center group transition-all active:scale-95"
+          className="w-14 h-14 glass border border-border-custom rounded-2xl flex items-center justify-center group transition-all active:scale-95 hover:bg-foreground/5"
           onClick={() => {
             const statsSection = document.getElementById('stats')
             statsSection?.scrollIntoView({ behavior: 'smooth' })

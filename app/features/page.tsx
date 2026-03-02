@@ -131,7 +131,7 @@ export default function FeaturesPage() {
               transition={{ delay: 0.2 }}
               className="text-xl text-foreground/50 font-medium leading-relaxed"
             >
-              CVForge combines industrial-grade parsing technology with modern design aesthetics to give you a terminal-level advantage in the job market.
+              cvmyjob combines advanced parsing technology with modern design aesthetics to give you a strategic advantage in the job market.
             </motion.p>
           </div>
 
@@ -185,7 +185,7 @@ export default function FeaturesPage() {
                   Ready to upgrade <br/> your career?
                 </h2>
                 <p className="text-white/70 text-xl font-medium max-w-md leading-relaxed">
-                  Join thousands of applicants who have landed jobs at top tech companies using CVForge.
+                  Join thousands of applicants who have landed jobs at top tech companies using cvmyjob.
                 </p>
               </div>
               <Link 

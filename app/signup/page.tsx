@@ -44,7 +44,7 @@ export default function SignupPage() {
         const res = await verifySignupOTP(signupData.email, otp)
         if (res.success) {
           setVerifySuccess(true)
-          message.success("Account verified successfully! Welcome to the Forge.")
+          message.success("Account verified successfully! Welcome to cvmyjob.")
           setTimeout(() => router.push("/login"), 2000)
         } else {
           setVerifyError(res.error || "Verification failed.")
@@ -83,8 +83,8 @@ export default function SignupPage() {
                   <div className="inline-flex items-center justify-center w-20 h-20 bg-brand-action/10 rounded-[28px] text-brand-action shadow-inner mb-2 border border-brand-action/5">
                     <Sparkles size={36} className="animate-pulse" />
                   </div>
-                  <h1 className="text-4xl font-black tracking-tight leading-tight">Forge Your Future</h1>
-                  <p className="text-foreground/40 font-medium text-lg">Join the world's most powerful free CV builder.</p>
+                  <h1 className="text-4xl font-black tracking-tight leading-tight">Build Your Future</h1>
+                  <p className="text-foreground/40 font-medium text-lg">Join cvmyjob - the world's most powerful career platform.</p>
                 </div>
 
                 <div className="space-y-6">
@@ -118,7 +118,7 @@ export default function SignupPage() {
 
                     <div className="space-y-5">
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40 ml-1">Full Identity</label>
+                        <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40 ml-1">Full Name</label>
                         <div className="relative group">
                           <div className="absolute left-5 top-1/2 -translate-y-1/2 text-foreground/30 group-focus-within:text-brand-action transition-colors">
                             <User size={18} />
@@ -126,7 +126,7 @@ export default function SignupPage() {
                           <input
                             name="name"
                             type="text"
-                            placeholder="Forge Master"
+                            placeholder="Your Full Name"
                             className="w-full h-14 pl-14 bg-white/5 border border-border-custom rounded-2xl focus:ring-4 focus:ring-brand-action/10 focus:border-brand-action outline-none transition-all font-medium text-foreground placeholder:text-foreground/20"
                             required
                             disabled={isPending}
@@ -135,7 +135,7 @@ export default function SignupPage() {
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40 ml-1">Secure Channel (Email)</label>
+                        <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40 ml-1">Email Address</label>
                         <div className="relative group">
                           <div className="absolute left-5 top-1/2 -translate-y-1/2 text-foreground/30 group-focus-within:text-brand-action transition-colors">
                             <Mail size={18} />
@@ -143,7 +143,7 @@ export default function SignupPage() {
                           <input
                             name="email"
                             type="email"
-                            placeholder="master@forge.com"
+                            placeholder="your@email.com"
                             className="w-full h-14 pl-14 bg-white/5 border border-border-custom rounded-2xl focus:ring-4 focus:ring-brand-action/10 focus:border-brand-action outline-none transition-all font-medium text-foreground placeholder:text-foreground/20"
                             required
                             disabled={isPending}
@@ -153,7 +153,7 @@ export default function SignupPage() {
 
                       <PasswordInput 
                         name="password"
-                        label="Forge Security (Password)" 
+                        label="Password" 
                         placeholder="••••••••" 
                         required 
                         disabled={isPending}
@@ -163,7 +163,7 @@ export default function SignupPage() {
                     <div className="p-4 bg-brand-success/5 rounded-2xl border border-brand-success/10 flex items-start space-x-3">
                       <ShieldCheck className="text-brand-success shrink-0 mt-0.5" size={18} />
                       <p className="text-[11px] text-foreground/50 font-medium leading-relaxed">
-                        By forging an account, you agree to our terms. Your data is encrypted and encrypted at rest.
+                        By creating an account, you agree to our terms. Your data is encrypted and secure.
                       </p>
                     </div>
 
@@ -176,7 +176,7 @@ export default function SignupPage() {
                         <Loader2 className="animate-spin" size={20} />
                       ) : (
                         <>
-                          <span>Initiate Forge</span>
+                          <span>Create Account</span>
                           <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                         </>
                       )}
@@ -186,7 +186,7 @@ export default function SignupPage() {
 
                 <p className="text-center text-foreground/40 font-medium text-sm">
                   Already a member?{" "}
-                  <Link href="/login" className="text-brand-action font-black hover:underline underline-offset-8 decoration-2">Enter the Vault</Link>
+                  <Link href="/login" className="text-brand-action font-black hover:underline underline-offset-8 decoration-2">Sign In</Link>
                 </p>
               </motion.div>
             ) : (
@@ -204,9 +204,9 @@ export default function SignupPage() {
                       <CheckCircle2 size={16} />
                     </div>
                   </div>
-                  <h1 className="text-4xl font-black tracking-tight leading-none">Protect Your Forge</h1>
+                  <h1 className="text-4xl font-black tracking-tight leading-none">Verify Account</h1>
                   <div className="space-y-1">
-                    <p className="text-foreground/40 font-bold uppercase tracking-widest text-[10px]">Verification Code Dispatched</p>
+                    <p className="text-foreground/40 font-bold uppercase tracking-widest text-[10px]">Verification Code Sent To</p>
                     <p className="text-foreground/60 font-medium italic text-lg">{signupData.email}</p>
                   </div>
                 </div>
@@ -230,20 +230,20 @@ export default function SignupPage() {
                     <Alert message={verifyError} type="error" showIcon className="rounded-2xl font-bold" />
                   )}
                   {verifySuccess && (
-                    <Alert message="Security Cleared. Welcome to the Forge." type="success" showIcon className="rounded-2xl font-bold" />
+                    <Alert message="Account Verified. Welcome to cvmyjob." type="success" showIcon className="rounded-2xl font-bold" />
                   )}
 
                   <div className="space-y-4">
                     <button
                       onClick={handleVerifyOTP}
                       disabled={isVerifying || verifySuccess || otp.length !== 6}
-                      className="w-full h-16 bg-linear-to-r from-brand-action to-orange-400 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-2xl hover:shadow-brand-action/50 hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center space-x-3 disabled:opacity-30 disabled:pointer-events-none group"
+                      className="w-full h-16 bg-linear-to-r from-brand-action to-brand-secondary text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-2xl hover:shadow-brand-action/50 hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center space-x-3 disabled:opacity-30 disabled:pointer-events-none group"
                     >
                       {isVerifying || isVTransition ? (
                         <Loader2 className="animate-spin" size={20} />
                       ) : (
                         <>
-                          <span>Verify Identity</span>
+                          <span>Verify Account</span>
                           <ShieldCheck size={20} className="group-hover:scale-110 transition-transform" />
                         </>
                       )}
