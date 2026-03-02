@@ -17,6 +17,7 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
+  const [activeTab, setActiveTab] = useState<'DRAFT' | 'COMPLETED' | 'DOWNLOADED'>('DRAFT')
 
   // Hydration fix
   useEffect(() => {
@@ -124,13 +125,31 @@ export default function DashboardPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col sm:flex-row items-center gap-6"
           >
+            {/* Tab Filters */}
+            <div className="flex bg-white/5 p-1.5 rounded-[24px] border border-border-custom backdrop-blur-xl">
+              {(['DRAFT', 'COMPLETED', 'DOWNLOADED'] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-6 py-3 rounded-[18px] text-[10px] font-black uppercase tracking-widest transition-all ${
+                    activeTab === tab 
+                      ? "bg-brand-action text-white shadow-lg shadow-brand-action/20" 
+                      : "text-foreground/40 hover:text-foreground hover:bg-white/5"
+                  }`}
+                >
+                  {tab === 'DRAFT' ? 'Blueprints' : tab === 'COMPLETED' ? 'Finished' : 'Acquired'}
+                </button>
+              ))}
+            </div>
+
             <Link 
               href="/builder"
-              className="px-12 py-6 bg-linear-to-r from-brand-action to-brand-secondary text-white rounded-[32px] font-black text-xl shadow-[0_20px_60px_-15px_rgba(37,99,235,0.5)] hover:shadow-[0_30px_80px_-15px_rgba(37,99,235,0.7)] hover:-translate-y-1 transition-all flex items-center space-x-4 active:scale-95 group"
+              className="px-8 py-5 bg-linear-to-r from-brand-action to-brand-secondary text-white rounded-[24px] font-black text-sm uppercase tracking-widest shadow-xl hover:-translate-y-1 transition-all flex items-center space-x-3 active:scale-95 group"
             >
-              <Plus size={32} className="group-hover:rotate-90 transition-transform duration-500" />
-              <span>Create New CV</span>
+              <Plus size={20} className="group-hover:rotate-90 transition-transform duration-500" />
+              <span>New CV</span>
             </Link>
           </motion.div>
         </header>
@@ -187,40 +206,50 @@ export default function DashboardPage() {
             </motion.div>
           ) : (
             <motion.div 
-              key="grid"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              key={`${activeTab}-grid`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12"
             >
-              {/* Add New Card */}
-              <Link href="/builder" className="group relative h-[420px] rounded-[56px] border-4 border-dashed border-border-custom hover:border-brand-action/40 transition-all flex flex-col items-center justify-center space-y-8 hover:bg-brand-action/5 active:scale-95 overflow-hidden">
-                <div className="w-28 h-28 bg-white/5 rounded-[36px] flex items-center justify-center text-foreground/10 group-hover:text-brand-action group-hover:bg-brand-action/20 group-hover:rotate-12 transition-all duration-700 shadow-inner">
-                  <Plus size={56} />
-                </div>
-                <div className="text-center space-y-1">
-                  <span className="text-3xl font-black text-foreground/20 group-hover:text-brand-action transition-colors block">Create New</span>
-                  <span className="text-xs font-black uppercase tracking-[0.5em] text-foreground/5 group-hover:text-brand-action/40">Start Building</span>
-                </div>
-              </Link>
+              {activeTab === 'DRAFT' && (
+                <Link href="/builder" className="group relative h-[420px] rounded-[56px] border-4 border-dashed border-border-custom hover:border-brand-action/40 transition-all flex flex-col items-center justify-center space-y-8 hover:bg-brand-action/5 active:scale-95 overflow-hidden">
+                  <div className="w-28 h-28 bg-white/5 rounded-[36px] flex items-center justify-center text-foreground/10 group-hover:text-brand-action group-hover:bg-brand-action/20 group-hover:rotate-12 transition-all duration-700 shadow-inner">
+                    <Plus size={56} />
+                  </div>
+                  <div className="text-center space-y-1">
+                    <span className="text-3xl font-black text-foreground/20 group-hover:text-brand-action transition-colors block">Create New</span>
+                    <span className="text-xs font-black uppercase tracking-[0.5em] text-foreground/5 group-hover:text-brand-action/40">Start Building</span>
+                  </div>
+                </Link>
+              )}
 
-              {/* CV Drafts */}
-              {cvs.map((cv, i) => (
+              {cvs.filter(cv => cv.status === activeTab).map((cv, i) => (
                 <motion.div
                    key={cv.id}
-                   initial={{ opacity: 0, y: 40 }}
-                   animate={{ opacity: 1, y: 0 }}
-                   transition={{ delay: 0.1 * (i + 1), duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                   layout
+                   initial={{ opacity: 0, scale: 0.9 }}
+                   animate={{ opacity: 1, scale: 1 }}
+                   transition={{ duration: 0.4 }}
                    className="relative h-[420px] bg-white/5 border border-border-custom rounded-[56px] p-12 hover:border-brand-action/50 hover:bg-white/10 transition-all group overflow-hidden shadow-2xl hover:shadow-brand-action/10"
                 >
-                  <div className="absolute top-10 right-12 z-20">
-                    <div className="px-5 py-2 bg-brand-action/10 text-brand-action text-[10px] font-black uppercase tracking-widest rounded-full border border-brand-action/20 backdrop-blur-md">
-                      Project v{cvs.length - i}.0
+                  <div className="absolute top-10 right-12 z-20 flex flex-col items-end gap-2">
+                    <div className={`px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-full border backdrop-blur-md ${
+                      cv.status === 'COMPLETED' ? 'bg-brand-success/10 text-brand-success border-brand-success/20' :
+                      cv.status === 'DOWNLOADED' ? 'bg-brand-secondary/10 text-brand-secondary border-brand-secondary/20' :
+                      'bg-brand-action/10 text-brand-action border-brand-action/20'
+                    }`}>
+                      {cv.status === 'COMPLETED' ? 'Finished' : cv.status === 'DOWNLOADED' ? 'Acquired' : 'Draft'}
                     </div>
                   </div>
                   
                   <div className="h-full flex flex-col justify-between relative z-10">
                     <div className="space-y-10">
-                      <div className="w-24 h-24 bg-brand-action/10 rounded-[32px] flex items-center justify-center text-brand-action group-hover:scale-110 group-hover:-rotate-3 transition-all duration-500 shadow-xl border border-brand-action/10">
+                      <div className={`w-24 h-24 rounded-[32px] flex items-center justify-center group-hover:scale-110 transition-all duration-500 shadow-xl border ${
+                        cv.status === 'COMPLETED' ? 'bg-brand-success/10 text-brand-success border-brand-success/10' :
+                        cv.status === 'DOWNLOADED' ? 'bg-brand-secondary/10 text-brand-secondary border-brand-secondary/10' :
+                        'bg-brand-action/10 text-brand-action border-brand-action/10'
+                      }`}>
                         <FileText size={48} />
                       </div>
                       
@@ -239,22 +268,32 @@ export default function DashboardPage() {
                          className="flex-1 h-20 bg-brand-action text-white hover:bg-white hover:text-brand-action transition-all rounded-[32px] flex items-center justify-center font-black text-sm uppercase tracking-widest shadow-2xl active:scale-95 group/btn"
                        >
                          <Edit3 size={24} className="mr-3 group-hover/btn:scale-120 transition-transform" />
-                         Edit CV
+                         {cv.status === 'DRAFT' ? 'Forge' : 'Refine'}
                        </Link>
                        <button 
                          onClick={() => showDeleteConfirm(cv.id)}
                          className="w-20 h-20 bg-white/5 border border-border-custom text-red-500/40 hover:bg-red-500 hover:text-white hover:border-transparent rounded-[32px] transition-all shadow-sm active:scale-95 flex items-center justify-center"
-                         title="Archive Blueprint"
                        >
                          <Trash2 size={28} />
                        </button>
                     </div>
                   </div>
 
-                  {/* Aesthetic Background Detail */}
                   <ArrowUpRight size={240} className="absolute -bottom-24 -right-24 text-foreground/5 group-hover:text-brand-action/10 transition-colors duration-1000 pointer-events-none stroke-3" />
                 </motion.div>
               ))}
+
+              {cvs.filter(cv => cv.status === activeTab).length === 0 && activeTab !== 'DRAFT' && (
+                <div className="col-span-full py-20 text-center space-y-6">
+                  <div className="w-32 h-32 bg-white/5 rounded-full flex items-center justify-center mx-auto text-foreground/10 border border-dashed border-border-custom">
+                    <FileText size={64} />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-2xl font-black text-foreground/40 italic">Nothing forged yet</h3>
+                    <p className="text-sm text-foreground/20 font-medium">Build your first CV to see it appear here.</p>
+                  </div>
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

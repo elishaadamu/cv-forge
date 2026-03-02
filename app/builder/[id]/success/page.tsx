@@ -17,13 +17,14 @@ import {
 import { ModernProfessional, CVData } from "@/components/templates/ModernProfessional"
 import { ClassicTable } from "@/components/templates/ClassicTable"
 import { ExecutiveTwoColumn } from "@/components/templates/ExecutiveTwoColumn"
-import { getCV } from "@/lib/actions"
+import { getCV, saveCV } from "@/lib/actions"
 import { useSession } from "next-auth/react"
 import { useEffect, useState, useRef } from "react"
 import html2canvas from "html2canvas-pro"
 import jsPDF from "jspdf"
 import Link from "next/link"
 import { useParams } from "next/navigation"
+import { message } from "antd"
 
 export default function SuccessPage() {
   const { data: session } = useSession()
@@ -66,6 +67,10 @@ export default function SuccessPage() {
     setExportError(null)
 
     try {
+      if (session?.user?.id) {
+         await saveCV(session.user.id, { ...cvData, templateId: cvData.templateId, status: "DOWNLOADED" }, id)
+      }
+
       const element = cvRef.current
 
       // Wait for all images in the template to fully load
@@ -159,31 +164,31 @@ export default function SuccessPage() {
   <p>${cvData.personalInfo.summary}</p>
 
   <h3>Experience</h3>
-  ${cvData.experience.map((e) => `
+  ${cvData.experience.map((e: any) => `
     <div style="margin-bottom:12pt">
       <div class="exp-header">
         <span class="role">${e.role}</span>
         <span class="duration">${e.duration}</span>
       </div>
       <div class="company">${e.company}</div>
-      <ul>${e.description.map((d) => `<li>${d}</li>`).join("")}</ul>
+      <ul>${e.description.map((d: any) => `<li>${d}</li>`).join("")}</ul>
     </div>
   `).join("")}
 
   <h3>Education</h3>
-  ${cvData.education.map((e) => `
+  ${cvData.education.map((e: any) => `
     <div style="margin-bottom:8pt">
       <strong>${e.school}</strong> — ${e.degree} <span class="duration">(${e.duration})</span>
     </div>
   `).join("")}
 
   <h3>Skills</h3>
-  ${cvData.skills.map((s) => `
+  ${cvData.skills.map((s: any) => `
     <p><span class="skill-cat">${s.category}:</span> ${s.items.join(", ")}</p>
   `).join("")}
 
   <h3>Projects</h3>
-  ${cvData.projects.map((p) => `
+  ${cvData.projects.map((p: any) => `
     <div style="margin-bottom:8pt">
       <span class="project-name">${p.name}</span>
       ${p.link ? ` — <span class="project-link">${p.link}</span>` : ""}
@@ -201,6 +206,7 @@ export default function SuccessPage() {
         document.body.removeChild(link)
         setTimeout(() => URL.revokeObjectURL(link.href), 1000)
       }
+      message.success("Asset Acquired Successfully!")
     } catch (error) {
       console.error("Export error:", error)
       setExportError("Export failed. Please try again.")

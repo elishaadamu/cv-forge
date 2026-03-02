@@ -144,7 +144,8 @@ export default function BuilderPage() {
     }
 
     try {
-      const res = await saveCV(session.user.id, { ...cvData, templateId: currentTemplate }, id as string)
+      const status = shouldRedirect ? "COMPLETED" : "DRAFT"
+      const res = await saveCV(session.user.id, { ...cvData, templateId: currentTemplate, status }, id as string)
       if (res.success && res.id) {
         message.success(shouldRedirect ? "CV Finished!" : "Draft Saved Successfully")
         if (shouldRedirect) {
@@ -858,6 +859,24 @@ export default function BuilderPage() {
                     >
                        <ShieldCheck size={18} />
                        <span className="hidden lg:inline">Audit</span>
+                    </button>
+                    <button 
+                      onClick={async () => {
+                        const loading = message.loading("Optimizing for download...", 0)
+                        try {
+                          await saveCV(session?.user?.id as string, { ...cvData, templateId: currentTemplate, status: "DOWNLOADED" }, id as string)
+                          window.print()
+                          message.success("CV ready for acquisition!")
+                        } catch (err) {
+                          message.error("Failed to prepare asset")
+                        } finally {
+                          loading()
+                        }
+                      }}
+                      className="flex items-center space-x-2 px-3 sm:px-4 h-9 sm:h-11 rounded-xl font-bold text-xs sm:text-sm bg-brand-action text-white hover:brightness-110 shadow-lg shadow-brand-action/20 transition-all active:scale-95"
+                    >
+                       <Download size={18} />
+                       <span className="hidden lg:inline">Download</span>
                     </button>
                     <button 
                       onClick={() => setIsPreview(!isPreview)}

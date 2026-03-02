@@ -230,6 +230,7 @@ export async function saveCV(userId: string, data: any, id?: string) {
     const baseData = {
       name: data.personalInfo.fullName ? `${data.personalInfo.fullName}'s CV` : "Untitled CV",
       templateId: data.templateId || "modern",
+      status: data.status || "DRAFT",
       userId,
     }
 
@@ -439,7 +440,8 @@ export async function listCVs(userId: string) {
         name: true,
         updatedAt: true,
         templateId: true,
-      }
+        status: true,
+      } as any
     })
 
     const timeoutPromise = new Promise((_, reject) => {

@@ -34,7 +34,7 @@ export function LoadingLine() {
               opacity: 0,
               transition: { duration: 0.3, ease: "easeOut" }
             }}
-            className="h-1 bg-linear-to-r from-[#e76f3c] via-[#ff8a5c] to-[#e76f3c] shadow-[0_0_15px_rgba(231,111,60,0.6)]"
+            className="h-1 bg-linear-to-r from-brand-action via-blue-400 to-brand-action shadow-[0_0_15px_rgba(37,99,235,0.6)]"
             transition={{ 
               duration: 3, 
               ease: [0.16, 1, 0.3, 1] 
