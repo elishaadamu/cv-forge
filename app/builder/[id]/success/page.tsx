@@ -21,6 +21,11 @@ import { MinimalATS } from "@/components/templates/MinimalATS"
 import { CreativePortfolio } from "@/components/templates/CreativePortfolio"
 import { StartupTech } from "@/components/templates/StartupTech"
 import { ExecutiveBoard } from "@/components/templates/ExecutiveBoard"
+import { MidnightElegance } from "@/components/templates/MidnightElegance"
+import { BoldImpact } from "@/components/templates/BoldImpact"
+import { CorporateClean } from "@/components/templates/CorporateClean"
+import { FreshMinimal } from "@/components/templates/FreshMinimal"
+import { RefinedClassic } from "@/components/templates/RefinedClassic"
 import { getCV, saveCV } from "@/lib/actions"
 import { useSession } from "next-auth/react"
 import { useEffect, useState, useRef } from "react"
@@ -235,6 +240,16 @@ export default function SuccessPage() {
         return <StartupTech data={cvData} />
       case "executive-board":
         return <ExecutiveBoard data={cvData} />
+      case "midnight":
+        return <MidnightElegance data={cvData} />
+      case "bold-impact":
+        return <BoldImpact data={cvData} />
+      case "corporate":
+        return <CorporateClean data={cvData} />
+      case "fresh":
+        return <FreshMinimal data={cvData} />
+      case "refined":
+        return <RefinedClassic data={cvData} />
       default:
         return <ModernProfessional data={cvData} />
     }

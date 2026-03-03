@@ -36,6 +36,11 @@ import { MinimalATS } from "@/components/templates/MinimalATS"
 import { CreativePortfolio } from "@/components/templates/CreativePortfolio"
 import { StartupTech } from "@/components/templates/StartupTech"
 import { ExecutiveBoard } from "@/components/templates/ExecutiveBoard"
+import { MidnightElegance } from "@/components/templates/MidnightElegance"
+import { BoldImpact } from "@/components/templates/BoldImpact"
+import { CorporateClean } from "@/components/templates/CorporateClean"
+import { FreshMinimal } from "@/components/templates/FreshMinimal"
+import { RefinedClassic } from "@/components/templates/RefinedClassic"
 import { ATSAuditPanel } from "@/components/ATSAuditPanel"
 import { refineTextWithAI, saveCV, getCV } from "@/lib/actions"
 import { message, Popconfirm } from "antd"
@@ -127,7 +132,7 @@ export default function BuilderPage() {
       email: session?.user?.email || "",
     }
   })
-  const [currentTemplate, setCurrentTemplate] = useState<"modern" | "classic" | "executive" | "minimal" | "creative" | "startup" | "executive-board">("modern")
+  const [currentTemplate, setCurrentTemplate] = useState<"modern" | "classic" | "executive" | "minimal" | "creative" | "startup" | "executive-board" | "midnight" | "bold-impact" | "corporate" | "fresh" | "refined">("modern")
   const [isTemplateDropdownOpen, setIsTemplateDropdownOpen] = useState(false)
   const [refiningId, setRefiningId] = useState<string | null>(null) // tracks which specific item is being AI-refined
   const [isSavingDraft, setIsSavingDraft] = useState(false)
@@ -364,6 +369,16 @@ export default function BuilderPage() {
         return <StartupTech data={cvData} />
       case "executive-board":
         return <ExecutiveBoard data={cvData} />
+      case "midnight":
+        return <MidnightElegance data={cvData} />
+      case "bold-impact":
+        return <BoldImpact data={cvData} />
+      case "corporate":
+        return <CorporateClean data={cvData} />
+      case "fresh":
+        return <FreshMinimal data={cvData} />
+      case "refined":
+        return <RefinedClassic data={cvData} />
       default:
         return <ModernProfessional data={cvData} />
     }
@@ -955,7 +970,12 @@ export default function BuilderPage() {
                                 { id: "minimal", img: "/modern.png" },
                                 { id: "creative", img: "/modern.png" },
                                 { id: "startup", img: "/modern.png" },
-                                { id: "executive-board", img: "/modern.png" }
+                                { id: "executive-board", img: "/modern.png" },
+                                { id: "midnight", img: "/modern.png" },
+                                { id: "bold-impact", img: "/modern.png" },
+                                { id: "corporate", img: "/modern.png" },
+                                { id: "fresh", img: "/modern.png" },
+                                { id: "refined", img: "/modern.png" }
                               ].find(t => t.id === currentTemplate)?.img || "/modern.png"
                             } 
                             className="w-full h-full object-cover" 
@@ -972,7 +992,12 @@ export default function BuilderPage() {
                                 { id: "minimal", name: "ATS" },
                                 { id: "creative", name: "Creative" },
                                 { id: "startup", name: "Startup" },
-                                { id: "executive-board", name: "Board" }
+                                { id: "executive-board", name: "Board" },
+                                { id: "midnight", name: "Midnight" },
+                                { id: "bold-impact", name: "Bold" },
+                                { id: "corporate", name: "Corporate" },
+                                { id: "fresh", name: "Fresh" },
+                                { id: "refined", name: "Refined" }
                               ].find(t => t.id === currentTemplate)?.name
                             }
                           </span>
@@ -996,7 +1021,12 @@ export default function BuilderPage() {
                                 { id: "minimal", name: "Minimal ATS", img: "/modern.png" },
                                 { id: "creative", name: "Creative Portfolio", img: "/modern.png" },
                                 { id: "startup", name: "Startup Tech", img: "/modern.png" },
-                                { id: "executive-board", name: "Executive Board", img: "/modern.png" }
+                                { id: "executive-board", name: "Executive Board", img: "/modern.png" },
+                                { id: "midnight", name: "Midnight Elegance", img: "/modern.png" },
+                                { id: "bold-impact", name: "Bold Impact", img: "/modern.png" },
+                                { id: "corporate", name: "Corporate Clean", img: "/modern.png" },
+                                { id: "fresh", name: "Fresh Minimal", img: "/modern.png" },
+                                { id: "refined", name: "Refined Classic", img: "/modern.png" }
                               ].map((t) => (
                                 <button
                                   key={t.id}

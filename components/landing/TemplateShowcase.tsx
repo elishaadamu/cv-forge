@@ -30,38 +30,30 @@ const templates = [
     color: "#0f172a", 
     desc: "High-contrast two-column layout for senior roles." 
   },
-  // { 
-  //   id: "minimal", 
-  //   name: "Minimal ATS", 
-  //   category: "Recruiter Choice", 
-  //   img: "/modern.png", 
-  //   color: "#000000", 
-  //   desc: "Ultra-clean layout optimized for parsing accuracy." 
-  // },
-  // { 
-  //   id: "creative", 
-  //   name: "Creative Portfolio", 
-  //   category: "Artistic", 
-  //   img: "/modern.png", 
-  //   color: "#9333ea", 
-  //   desc: "Bold aesthetics for designers and creative thinkers." 
-  // },
-  // { 
-  //   id: "startup", 
-  //   name: "Startup Tech", 
-  //   category: "Modern Tech", 
-  //   img: "/modern.png", 
-  //   color: "#1d4ed8", 
-  //   desc: "Fast-paced, modern design for the tech ecosystem." 
-  // },
-  // { 
-  //   id: "executive-board", 
-  //   name: "Executive Board", 
-  //   category: "Leadership", 
-  //   img: "/modern.png", 
-  //   color: "#111827", 
-  //   desc: "High-level professional design for leadership roles." 
-  // },
+  { 
+    id: "midnight", 
+    name: "Midnight Elegance", 
+    category: "Luxury", 
+    img: "/modern.png", 
+    color: "#302b63", 
+    desc: "Sophisticated serif design with a deep purple gradient header for senior professionals." 
+  },
+  { 
+    id: "bold-impact", 
+    name: "Bold Impact", 
+    category: "High Impact", 
+    img: "/modern.png", 
+    color: "#f97316", 
+    desc: "High-contrast, hard-hitting layout with dark navy and orange accents." 
+  },
+  { 
+    id: "refined", 
+    name: "Refined Classic", 
+    category: "Distinguished", 
+    img: "/modern.png", 
+    color: "#d97706", 
+    desc: "Elegant serif typography with gold accents, ideal for executive roles." 
+  },
 ]
 
 export function TemplateShowcase() {

@@ -1,21 +1,131 @@
 "use client"
 
 import { Navbar } from "@/components/Navbar"
-import { motion } from "framer-motion"
-import { Sparkles, Layout, ScanIcon, ChevronRight, CheckCircle, Flame, Star } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+import { Flame, CheckCircle, ChevronRight, Sparkles, Wand2, Info } from "lucide-react"
 import Link from "next/link"
+import { useState } from "react"
+import { TemplateDetailModal } from "@/components/TemplateDetailModal"
 
 const templates = [
-  { id: "modern", name: "Modern Professional", category: "Best Seller", img: "/modern.png", color: "#5C88A3", desc: "Clean, bold & ATS Optimized with structured skill grids." },
-  { id: "classic", name: "Classic Table", category: "ATS Gold", img: "/classic.png", color: "#1e293b", desc: "Highly structured table-based layout for maximum readability." },
-  { id: "executive", name: "Executive Two-Column", category: "Premium", img: "/executive.png", color: "#0f172a", desc: "High-contrast two-column layout for senior roles." },
-  { id: "minimal", name: "Minimal ATS", category: "Recruiter Choice", img: "/modern.png", color: "#000000", desc: "Ultra-clean layout optimized for parsing accuracy." },
-  { id: "creative", name: "Creative Portfolio", category: "Artistic", img: "/modern.png", color: "#9333ea", desc: "Bold aesthetics for designers and creative thinkers." },
-  { id: "startup", name: "Startup Tech", category: "Tech ecosystem", img: "/modern.png", color: "#1d4ed8", desc: "Fast-paced, modern design for the tech ecosystem." },
-  { id: "executive-board", name: "Executive Board", category: "Leadership", img: "/modern.png", color: "#111827", desc: "High-level professional design for leadership roles." },
+  { 
+    id: "modern", 
+    name: "Modern Professional", 
+    category: "Best Seller", 
+    img: "/modern.png", 
+    color: "#5C88A3", 
+    desc: "Clean, bold & ATS Optimized with structured skill grids.",
+    features: ["Industry-Standard ATS Layout", "Triple-Column Skill Grid", "Bold Header Typography", "Maximum Clarity Design"]
+  },
+  { 
+    id: "classic", 
+    name: "Classic Table", 
+    category: "ATS Gold", 
+    img: "/classic.png", 
+    color: "#1e293b", 
+    desc: "Highly structured table-based layout for maximum readability.",
+    features: ["Rigid Table Hierarchy", "Traditional Layout Standard", "Perfect for Finance", "Ultra-High ATS Score"]
+  },
+  { 
+    id: "executive", 
+    name: "Executive Two-Column", 
+    category: "Premium", 
+    img: "/executive.png", 
+    color: "#0f172a", 
+    desc: "High-contrast two-column layout for senior roles.",
+    features: ["Split-Column Profile Focus", "Leadership Action Verbs", "Seniority Highlighting", "Elegant Section Spacing"]
+  },
+  { 
+    id: "minimal", 
+    name: "Minimal ATS", 
+    category: "Recruiter Choice", 
+    img: "/modern.png", 
+    color: "#000000", 
+    desc: "Ultra-clean layout optimized for parsing accuracy.",
+    features: ["Zero Decor Parsability", "Recruiter-Preferred Speed", "Clean Sans-Serif Fonts", "Standard Top-Down Flow"]
+  },
+  { 
+    id: "creative", 
+    name: "Creative Portfolio", 
+    category: "Artistic", 
+    img: "/modern.png", 
+    color: "#9333ea", 
+    desc: "Bold aesthetics for designers and creative thinkers.",
+    features: ["Visual Flow Architecture", "Artistic Skill Charts", "Creative Color Accents", "Design-Focused Layout"]
+  },
+  { 
+    id: "startup", 
+    name: "Startup Tech", 
+    category: "Tech ecosystem", 
+    img: "/modern.png", 
+    color: "#1d4ed8", 
+    desc: "Fast-paced, modern design for the tech ecosystem.",
+    features: ["Modern UI Aesthetics", "Tech Skill Badges", "Dynamic Summary Section", "GitHub/Social Optimized"]
+  },
+  { 
+    id: "executive-board", 
+    name: "Executive Board", 
+    category: "Leadership", 
+    img: "/modern.png", 
+    color: "#111827", 
+    desc: "High-level professional design for leadership roles.",
+    features: ["High-Impact Board Focus", "Strategic Achievement Layout", "Elegant Serif Titles", "Formal Sectioning"]
+  },
+  { 
+    id: "midnight", 
+    name: "Midnight Elegance", 
+    category: "Luxury", 
+    img: "/modern.png", 
+    color: "#302b63", 
+    desc: "Sophisticated serif design with a deep purple gradient header.",
+    features: ["Deep Gradient Palette", "Luxurious Typography", "Refined Accent Colors", "Editorial Layout Flow"]
+  },
+  { 
+    id: "bold-impact", 
+    name: "Bold Impact", 
+    category: "High Impact", 
+    img: "/modern.png", 
+    color: "#f97316", 
+    desc: "High-contrast, hard-hitting layout with navy and orange.",
+    features: ["Confident High-Contrast", "Powerful Date Badges", "Authority Section Lines", "Bold Callouts"]
+  },
+  { 
+    id: "corporate", 
+    name: "Corporate Clean", 
+    category: "Enterprise", 
+    img: "/modern.png", 
+    color: "#0d9488", 
+    desc: "Modern corporate design with timeline-style experience.",
+    features: ["Timeline History Flow", "Enterprise Skill Tables", "Professional Teal Accents", "Corporate Hierarchy"]
+  },
+  { 
+    id: "fresh", 
+    name: "Fresh Minimal", 
+    category: "Contemporary", 
+    img: "/modern.png", 
+    color: "#10b981", 
+    desc: "Light, airy design with green accents and white space.",
+    features: ["Airy Modern Spacing", "Contemporary Pill Icons", "Soft Color Palette", "Clean Reading Experience"]
+  },
+  { 
+    id: "refined", 
+    name: "Refined Classic", 
+    category: "Distinguished", 
+    img: "/modern.png", 
+    color: "#d97706", 
+    desc: "Elegant serif typography with gold accents.",
+    features: ["Golden Classic Accents", "Elegant Serif Fonts", "Ornamental Dividers", "Centered Header Balance"]
+  },
 ]
 
 export default function TemplatesPage() {
+  const [selectedTemplate, setSelectedTemplate] = useState<typeof templates[0] | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const openModal = (template: typeof templates[0]) => {
+    setSelectedTemplate(template)
+    setIsModalOpen(true)
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -64,7 +174,10 @@ export default function TemplatesPage() {
               <div className="relative bg-white/5 border border-border-custom hover:border-brand-action/40 rounded-[48px] overflow-hidden transition-all duration-500 p-10 flex flex-col md:flex-row gap-10 items-center">
                 
                 {/* Visual Preview */}
-                <div className="w-full md:w-64 h-80 bg-background border border-border-custom rounded-3xl shadow-2xl relative overflow-hidden group/img transition-transform hover:scale-105 duration-500">
+                <div 
+                  className="w-full md:w-64 h-80 bg-background border border-border-custom rounded-3xl shadow-2xl relative overflow-hidden group/img transition-transform hover:scale-105 duration-500 cursor-zoom-in"
+                  onClick={() => openModal(template)}
+                >
                    <div 
                       className="absolute inset-x-0 top-0 h-1 z-30"
                       style={{ backgroundColor: template.color }}
@@ -75,8 +188,9 @@ export default function TemplatesPage() {
                       className="w-full h-full object-cover object-top opacity-80 group-hover:opacity-100 transition-opacity duration-500"
                    />
                    <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-6">
-                      <div className="bg-brand-action text-white text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-widest shadow-xl">
-                        View Detail
+                      <div className="bg-brand-action text-white text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-widest shadow-xl flex items-center space-x-2">
+                        <Info size={12} />
+                        <span>View Detail</span>
                       </div>
                    </div>
                 </div>
@@ -118,7 +232,7 @@ export default function TemplatesPage() {
         </section>
 
         {/* Brand/Social Proof */}
-        <section className="mt-40 text-center space-y-12">
+        <section className="mt-40 text-center space-y-12 pb-32">
            <h3 className="text-sm font-black uppercase tracking-[0.2em] text-foreground/20">Trusted by applicants at</h3>
            <div className="flex flex-wrap justify-center gap-x-12 gap-y-8 opacity-20 grayscale brightness-200">
                {["TECHGIANT", "CLOUDCO", "NEOSTACK", "MYJOBCORP", "GLOBALFIN"].map(brand => (
@@ -126,6 +240,12 @@ export default function TemplatesPage() {
                ))}
            </div>
         </section>
+
+        <TemplateDetailModal 
+          template={selectedTemplate}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
       </main>
     </div>
   )

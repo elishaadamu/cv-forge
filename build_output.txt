@@ -1,0 +1,72 @@
+﻿Γû▓ Next.js 16.1.6 (Turbopack)
+- Environments: .env
+
+node.exe : ΓÜá The 
+"middleware" file convention 
+is deprecated. Please use 
+"proxy" instead. Learn more: 
+https://nextjs.org/docs/messa
+ges/middleware-to-proxy
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
+    + CategoryInfo           
+   : NotSpecified: (ΓÜá The  
+   "middle...leware-to-pro   
+ xy:String) [], RemoteExc    
+eption
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+  Creating an optimized production build ...
+Γ£ô Compiled successfully in 45s
+  Running TypeScript ...
+Failed to compile.
+
+./app/dashboard/settings/page
+.tsx:164:65
+Type error: Cannot find name 
+'Sparkles'.
+
+[0m [90m 162 |[39m        
+         { id[33m:[39m [32
+m"profile"[39m[33m,[39m 
+label[33m:[39m [32m"Profil
+e"[39m[33m,[39m 
+icon[33m:[39m 
+[33mUser[39m }[33m,[39m
+ [90m 163 |[39m            
+     { id[33m:[39m [32m"pa
+ssword"[39m[33m,[39m 
+label[33m:[39m [32m"Securi
+ty"[39m[33m,[39m 
+icon[33m:[39m 
+[33mLock[39m }[33m,[39m
+[31m[1m>[22m[39m[90m 
+164 |[39m                 { 
+id[33m:[39m [32m"generator
+"[39m[33m,[39m 
+label[33m:[39m [32m"AI 
+Generator"[39m[33m,[39m 
+icon[33m:[39m 
+[33mSparkles[39m }
+ [90m     |[39m            
+                             
+                        
+[31m[1m^[22m[39m
+ [90m 165 |[39m            
+   ][33m.[39mmap((tab) 
+[33m=>[39m (
+ [90m 166 |[39m            
+     
+[33m<[39m[33mLink[39m
+ [90m 167 |[39m            
+       key[33m=[39m{tab[33
+m.[39mid}[0m
+Next.js build worker exited 
+with code: 1 and signal: null

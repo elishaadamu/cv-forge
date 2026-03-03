@@ -7,6 +7,11 @@ import { MinimalATS } from '@/components/templates/MinimalATS'
 import { CreativePortfolio } from '@/components/templates/CreativePortfolio'
 import { StartupTech } from '@/components/templates/StartupTech'
 import { ExecutiveBoard } from '@/components/templates/ExecutiveBoard'
+import { MidnightElegance } from '@/components/templates/MidnightElegance'
+import { BoldImpact } from '@/components/templates/BoldImpact'
+import { CorporateClean } from '@/components/templates/CorporateClean'
+import { FreshMinimal } from '@/components/templates/FreshMinimal'
+import { RefinedClassic } from '@/components/templates/RefinedClassic'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -39,6 +44,21 @@ export async function POST(req: Request) {
         break
       case 'executive-board':
         TableComponent = ExecutiveBoard
+        break
+      case 'midnight':
+        TableComponent = MidnightElegance
+        break
+      case 'bold-impact':
+        TableComponent = BoldImpact
+        break
+      case 'corporate':
+        TableComponent = CorporateClean
+        break
+      case 'fresh':
+        TableComponent = FreshMinimal
+        break
+      case 'refined':
+        TableComponent = RefinedClassic
         break
       default:
         TableComponent = ModernProfessional
