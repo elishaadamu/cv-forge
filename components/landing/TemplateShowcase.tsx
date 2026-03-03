@@ -3,6 +3,7 @@
 import { motion } from "framer-motion"
 import { ChevronRight, Flame, CheckCircle, Sparkles } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 const templates = [
   { 
@@ -79,10 +80,13 @@ export function TemplateShowcase() {
                   style={{ backgroundColor: template.color }}
                 />
                 <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/20 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <img 
+                <Image 
                   src={template.img} 
                   alt={template.name}
+                  fill
                   className="w-full h-full object-cover object-top opacity-90 group-hover:scale-110 transition-transform duration-1000"
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  quality={70}
                 />
                 <div className="absolute top-6 right-6 z-20">
                   <div className="bg-white/90 backdrop-blur-md text-brand-primary text-[10px] font-black px-4 py-2 rounded-xl uppercase tracking-widest shadow-xl flex items-center space-x-2">

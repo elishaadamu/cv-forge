@@ -226,10 +226,96 @@ export default function BlogPost() {
                />
             </motion.div>
 
-            <div className="prose prose-invert prose-2xl max-w-none prose-premium">
-               <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
-                 {blog.content}
-               </ReactMarkdown>
+            <div className="max-w-4xl mx-auto">
+              <div className="prose prose-invert prose-2xl prose-premium max-w-none 
+                [&>p:first-of-type]:first-letter:text-7xl 
+                [&>p:first-of-type]:first-letter:font-black 
+                [&>p:first-of-type]:first-letter:mr-3 
+                [&>p:first-of-type]:first-letter:float-left 
+                [&>p:first-of-type]:first-letter:text-brand-action
+                [&>p:first-of-type]:first-letter:leading-[0.8]">
+                <ReactMarkdown 
+                  remarkPlugins={[remarkGfm]} 
+                  rehypePlugins={[rehypeRaw]}
+                  components={{
+                    h2: ({node, onAnimationStart, onAnimationEnd, onAnimationIteration, onDrag, onDragStart, onDragEnd, ...props}) => (
+                      <motion.h2 
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        className="text-3xl md:text-5xl font-black tracking-tighter mt-16 mb-8 text-foreground" 
+                        {...props} 
+                      />
+                    ),
+                    h3: ({node, onAnimationStart, onAnimationEnd, onAnimationIteration, onDrag, onDragStart, onDragEnd, ...props}) => (
+                      <motion.h3 
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        className="text-2xl md:text-3xl font-black tracking-tight mt-12 mb-6 text-foreground/90" 
+                        {...props} 
+                      />
+                    ),
+                    p: ({node, onAnimationStart, onAnimationEnd, onAnimationIteration, onDrag, onDragStart, onDragEnd, ...props}) => (
+                      <motion.p 
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        className="text-lg md:text-xl text-foreground/70 leading-relaxed mb-8 font-medium" 
+                        {...props} 
+                      />
+                    ),
+                    blockquote: ({node, onAnimationStart, onAnimationEnd, onAnimationIteration, onDrag, onDragStart, onDragEnd, ...props}) => (
+                      <motion.blockquote 
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        className="relative my-12 p-8 md:p-12 bg-white/5 border-l-4 border-brand-action rounded-2xl md:rounded-3xl"
+                        {...props}
+                      >
+                        <Quote className="absolute -top-6 -left-6 w-12 h-12 text-brand-action/20 rotate-180" />
+                        <div className="relative z-10 italic text-2xl md:text-3xl font-black text-foreground tracking-tight">
+                          {props.children}
+                        </div>
+                      </motion.blockquote>
+                    ),
+                    ul: ({node, ...props}) => (
+                      <ul className="space-y-4 my-8 list-none pl-0" {...props} />
+                    ),
+                    li: ({node, onAnimationStart, onAnimationEnd, onAnimationIteration, onDrag, onDragStart, onDragEnd, ...props}) => (
+                      <motion.li 
+                        initial={{ opacity: 0, x: -10 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        className="flex items-start space-x-4 text-lg md:text-xl text-foreground/70 font-medium"
+                        {...props}
+                      >
+                        <div className="mt-2.5 w-2 h-2 rounded-full bg-brand-action shrink-0 shadow-[0_0_10px_rgba(37,99,235,0.5)]" />
+                        <span>{props.children}</span>
+                      </motion.li>
+                    ),
+                    code: ({node, className, children, ...props}) => {
+                      const match = /language-(\w+)/.exec(className || '')
+                      return !match ? (
+                        <code className="bg-brand-action/10 text-brand-action px-2 py-0.5 rounded-md font-bold text-sm" {...props}>
+                          {children}
+                        </code>
+                      ) : (
+                        <div className="relative group my-8">
+                          <div className="absolute -inset-2 bg-linear-to-r from-brand-action/20 to-brand-secondary/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                          <pre className="relative overflow-x-auto p-6 bg-[#0B0F1A] border border-white/10 rounded-[24px] font-mono text-sm leading-relaxed custom-scrollbar shadow-2xl">
+                            <code className={className} {...props}>
+                              {children}
+                            </code>
+                          </pre>
+                        </div>
+                      )
+                    }
+                  }}
+                >
+                  {blog.content}
+                </ReactMarkdown>
+              </div>
             </div>
 
             <div className="flex flex-wrap gap-3 pt-12">
@@ -324,7 +410,7 @@ export default function BlogPost() {
                        value={newComment}
                        onChange={(e) => setNewComment(e.target.value)}
                        placeholder="Share your strategic perspective..."
-                       className="w-full bg-white/5 border border-white/10 rounded-[32px] p-6 min-h-[120px] font-medium text-lg focus:outline-none focus:ring-2 focus:ring-brand-action/20 focus:border-brand-action transition-all resize-none"
+                       className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-[32px] p-6 min-h-[120px] font-medium text-lg focus:outline-none focus:ring-2 focus:ring-brand-action/20 focus:border-brand-action transition-all resize-none"
                        disabled={isSubmitting}
                      />
                      <button
@@ -337,7 +423,7 @@ export default function BlogPost() {
                    </div>
                  </form>
                ) : (
-                 <div className="bg-white/5 border border-dashed border-white/10 rounded-[32px] p-10 text-center space-y-6">
+                  <div className="bg-black/5 dark:bg-white/5 border border-dashed border-black/10 dark:border-white/10 rounded-[32px] p-10 text-center space-y-6">
                    <p className="text-foreground/60 font-medium">Join the professional conversation by unlocking your account.</p>
                    <Link 
                      href={`/login?redirectTo=/blog/${slug}`} 

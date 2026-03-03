@@ -49,8 +49,6 @@ export function Navbar() {
     return () => observer.disconnect()
   }, [])
  
-  if (!mounted) return null
- 
   const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark")
  
   return (
@@ -69,6 +67,8 @@ export function Navbar() {
                 fill 
                 className="object-contain p-2"
                 priority
+                sizes="48px"
+                quality={80}
               />
             </div>
             <div className="flex flex-col -space-y-1">
@@ -109,7 +109,7 @@ export function Navbar() {
                       transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
                       className="absolute top-full left-1/2 -translate-x-1/2 pt-2 z-50"
                     >
-                      <div className="w-80 bg-white dark:bg-brand-primary border border-white/10 rounded-[32px] shadow-2xl overflow-hidden p-3 transition-colors duration-500">
+                      <div className="w-80 bg-brand-primary border border-white/10 rounded-[32px] shadow-2xl overflow-hidden p-3 transition-colors duration-500">
                         <div className="grid grid-cols-1 gap-2">
                           {category.links.map((link) => (
                             <Link 
@@ -121,8 +121,8 @@ export function Navbar() {
                                 <link.icon size={20} />
                               </div>
                               <div className="flex flex-col">
-                                <span className="font-black text-sm text-foreground leading-tight tracking-tight">{link.name}</span>
-                                <span className="text-[10px] text-foreground/40 font-bold group-hover/link-item:text-foreground/60 transition-colors duration-500">{link.desc}</span>
+                                <span className="font-black text-sm text-white leading-tight tracking-tight">{link.name}</span>
+                                <span className="text-[10px] text-white/40 font-bold group-hover/link-item:text-white/60 transition-colors duration-500">{link.desc}</span>
                               </div>
                             </Link>
                           ))}
@@ -151,85 +151,92 @@ export function Navbar() {
               className="p-2.5 rounded-xl hover:bg-white/10 transition-all duration-500 outline-none"
               aria-label="Toggle Theme"
             >
-              {theme === "dark" ? <Sun size={20} className="text-amber-400" /> : <Moon size={20} className="text-white" />}
+              {mounted ? (
+                theme === "dark" ? <Sun size={20} className="text-amber-400" /> : <Moon size={20} className="text-white" />
+              ) : (
+                <div className="w-5 h-5 animate-pulse rounded-full bg-white/10" />
+              )}
             </button>
 
-            {status === "authenticated" ? (
-              <div className="relative group/dropdown py-6">
-                <button
-                  className="flex items-center space-x-3 bg-white/5 border border-white/10 pl-4 pr-5 py-2 rounded-[20px] hover:bg-white/10 transition-all duration-500 group"
-                >
-                  <div className="relative">
-                    {session.user?.image ? (
-                      <Image 
-                        src={session.user.image} 
-                        alt="" 
-                        width={36} 
-                        height={36} 
-                        className="rounded-xl shadow-lg border border-white/10 group-hover:scale-105 transition-transform duration-500"
-                      />
-                    ) : (
-                      <div className="w-9 h-9 rounded-xl bg-brand-action/20 flex items-center justify-center text-brand-action font-black shadow-inner">
-                        {session.user?.name?.charAt(0) || "U"}
-                      </div>
-                    )}
-                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-brand-success border-2 border-background rounded-full shadow-sm" />
-                  </div>
-                  <div className="flex flex-col -space-y-0.5 text-left">
-                    <span className="text-[9px] font-black tracking-widest leading-none text-brand-secondary uppercase opacity-80">Member</span>
-                    <span className="text-sm font-black text-white truncate max-w-[110px] tracking-tight">{session.user?.name || "Member"}</span>
-                  </div>
-                  <ChevronDown size={14} className="text-white/40 group-hover/dropdown:rotate-180 transition-transform duration-500" />
-                </button>
-
-                {/* Dropdown Menu */}
-                <div className="absolute right-0 top-full pt-2 opacity-0 translate-y-2 pointer-events-none group-hover/dropdown:opacity-100 group-hover/dropdown:translate-y-0 group-hover/dropdown:pointer-events-auto transition-all duration-500 z-210">
-                  <div className="w-64 bg-white dark:bg-brand-primary border border-white/10 rounded-[24px] shadow-2xl overflow-hidden p-2 transition-colors duration-500">
-                    <div className="px-4 py-3 border-b border-white/5 mb-2">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-brand-action mb-1">Account</p>
-                      <p className="text-sm font-black text-foreground truncate">{session.user?.email}</p>
+            {mounted ? (
+              status === "authenticated" ? (
+                <div className="relative group/dropdown py-6">
+                  <button
+                    className="flex items-center space-x-3 bg-white/5 border border-white/10 pl-4 pr-5 py-2 rounded-[20px] hover:bg-white/10 transition-all duration-500 group"
+                  >
+                    <div className="relative">
+                      {session?.user?.image ? (
+                        <Image 
+                          src={session.user.image} 
+                          alt="" 
+                          width={36} 
+                          height={36} 
+                          className="rounded-xl shadow-lg border border-white/10 group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-9 h-9 rounded-xl bg-brand-action/20 flex items-center justify-center text-brand-action font-black shadow-inner">
+                          {session?.user?.name?.charAt(0) || "U"}
+                        </div>
+                      )}
+                      <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-brand-success border-2 border-background rounded-full shadow-sm" />
                     </div>
-                    
-                    <Link 
-                      href="/dashboard/settings"
-                      className="flex items-center space-x-3 p-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-500 group/item"
-                    >
-                      <div className="w-10 h-10 rounded-lg bg-brand-action/20 flex items-center justify-center text-brand-action group-hover/item:bg-brand-action group-hover/item:text-white transition-all duration-500">
-                        <Settings size={18} />
-                      </div>
-                      <span className="font-bold text-sm">Settings</span>
-                    </Link>
+                    <div className="flex flex-col -space-y-0.5 text-left">
+                      <span className="text-[9px] font-black tracking-widest leading-none text-brand-secondary uppercase opacity-80">Member</span>
+                      <span className="text-sm font-black text-white truncate max-w-[110px] tracking-tight">{session?.user?.name || "Member"}</span>
+                    </div>
+                    <ChevronDown size={14} className="text-white/40 group-hover/dropdown:rotate-180 transition-transform duration-500" />
+                  </button>
 
-                    <button
-                      onClick={() => signOut()}
-                      className="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-red-500/10 transition-all duration-500 group/logout"
-                    >
-                      <div className="w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center text-red-500 group-hover/logout:bg-red-500 group-hover/logout:text-white transition-all duration-500">
-                        <LogOut size={18} />
+                  <div className="absolute right-0 top-full pt-2 opacity-0 translate-y-2 pointer-events-none group-hover/dropdown:opacity-100 group-hover/dropdown:translate-y-0 group-hover/dropdown:pointer-events-auto transition-all duration-500 z-210">
+                    <div className="w-64 bg-brand-primary border border-white/10 rounded-[24px] shadow-2xl overflow-hidden p-2 transition-colors duration-500">
+                      <div className="px-4 py-3 border-b border-white/5 mb-2">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-brand-action mb-1">Account</p>
+                        <p className="text-sm font-black text-white truncate">{session?.user?.email}</p>
                       </div>
-                      <span className="font-bold text-sm text-red-500">Sign Out</span>
-                    </button>
+                      
+                      <Link 
+                        href="/dashboard/settings"
+                        className="flex items-center space-x-3 p-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-500 group/item"
+                      >
+                        <div className="w-10 h-10 rounded-lg bg-brand-action/20 flex items-center justify-center text-brand-action group-hover/item:bg-brand-action group-hover/item:text-white transition-all duration-500">
+                          <Settings size={18} />
+                        </div>
+                        <span className="font-bold text-sm text-white">Settings</span>
+                      </Link>
+
+                      <button
+                        onClick={() => signOut()}
+                        className="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-red-500/10 transition-all duration-500 group/logout"
+                      >
+                        <div className="w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center text-red-500 group-hover/logout:bg-red-500 group-hover/logout:text-white transition-all duration-500">
+                          <LogOut size={18} />
+                        </div>
+                        <span className="font-bold text-sm text-red-500">Sign Out</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ) : status === "loading" ? (
-              <div className="w-32 h-10 bg-white/5 animate-pulse rounded-xl" />
+              ) : status === "loading" ? (
+                <div className="w-32 h-10 bg-white/5 animate-pulse rounded-xl" />
+              ) : (
+                <div className="flex items-center space-x-6">
+                  <Link
+                    href="/login"
+                    className="text-sm font-bold text-white/90 hover:text-white transition-colors duration-500"
+                  >
+                    Log In
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="px-6 py-2.5 bg-brand-action text-white rounded-xl font-bold hover:bg-brand-action/90 shadow-md active:scale-95 transition-all duration-500 flex items-center space-x-2"
+                  >
+                    <User size={18} />
+                    <span>Get Started</span>
+                  </Link>
+                </div>
+              )
             ) : (
-              <div className="flex items-center space-x-6">
-                <Link
-                  href="/login"
-                  className="text-sm font-bold text-white/90 hover:text-white transition-colors duration-500"
-                >
-                  Log In
-                </Link>
-                <Link
-                  href="/signup"
-                  className="px-6 py-2.5 bg-brand-action text-white rounded-xl font-bold hover:bg-brand-action/90 shadow-md active:scale-95 transition-all duration-500 flex items-center space-x-2"
-                >
-                  <User size={18} />
-                  <span>Get Started</span>
-                </Link>
-              </div>
+              <div className="w-48 h-10 bg-white/5 animate-pulse rounded-xl" />
             )}
           </div>
 

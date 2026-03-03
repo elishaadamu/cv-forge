@@ -86,6 +86,8 @@ export function RecentBlogs() {
                             alt={blog.title} 
                             fill 
                             className="object-cover" 
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            quality={75}
                           />
                         </motion.div>
                         <div className="absolute bottom-4 left-4 px-3 py-1.5 bg-white/10 backdrop-blur-md border border-white/10 rounded-xl text-[9px] font-black uppercase tracking-widest text-white">

@@ -70,6 +70,8 @@ export default function Home() {
                        alt="" 
                        fill 
                        className="object-contain p-2"
+                       sizes="56px"
+                       quality={80}
                      />
                    </div>
                    <div className="flex flex-col -space-y-1">

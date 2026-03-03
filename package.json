@@ -56,5 +56,10 @@
   },
   "overrides": {
     "nodemailer": "$nodemailer"
-  }
+  },
+  "browserslist": [
+    "last 2 versions",
+    "not dead",
+    "supports es6-module"
+  ]
 }

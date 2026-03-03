@@ -110,13 +110,8 @@ export function Hero() {
       </div>
 
       {/* Main Content Container */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-        <motion.div 
-          initial={{ opacity: 0, x: -30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="space-y-10 text-left"
-        >
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-0 items-center">
+        <div className="space-y-10 text-left">
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -163,7 +158,7 @@ export function Hero() {
                </div>
              ))}
           </div>
-        </motion.div>
+        </div>
 
         {/* Visual Right Side */}
         <motion.div 
@@ -172,8 +167,8 @@ export function Hero() {
           transition={{ duration: 1, delay: 0.2 }}
           className="relative"
         >
-          <div className="relative z-10 w-full aspect-square max-w-[600px] mx-auto group">
-            <div className="absolute inset-0 bg-brand-action/10 blur-[100px] rounded-full opacity-50 group-hover:opacity-70 transition-opacity" />
+          <div className="relative z-10 w-full aspect-square max-w-[1200px] mx-auto group">
+            <div className="absolute inset-0 bg-brand-action/10 blur-[120px] rounded-full opacity-50 group-hover:opacity-70 transition-opacity" />
             <div className="relative rounded-[40px] overflow-hidden border border-border-custom shadow-2xl bg-card-bg">
               <Image 
                 src="/hero.png" 
@@ -181,6 +176,9 @@ export function Hero() {
                 width={800} 
                 height={800} 
                 className="object-cover w-full h-full transform group-hover:scale-105 transition-transform duration-1000"
+                priority
+                sizes="(max-width: 1024px) 100vw, 800px"
+                quality={70}
               />
             </div>
 
