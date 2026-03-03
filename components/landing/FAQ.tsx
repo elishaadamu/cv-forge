@@ -35,7 +35,7 @@ export function FAQ() {
       <div className="max-w-3xl mx-auto space-y-12">
         <div className="text-center space-y-4">
           <h2 className="text-4xl font-black tracking-tight">Got Questions?</h2>
-          <p className="text-foreground/40 font-bold uppercase tracking-widest text-sm">Find your answers here</p>
+          <p className="text-foreground/70 font-bold uppercase tracking-widest text-sm underline decoration-brand-action decoration-2 underline-offset-8">Find your answers here</p>
         </div>
 
         <div className="space-y-4">
@@ -44,19 +44,24 @@ export function FAQ() {
                <button 
                   onClick={() => setOpenIndex(openIndex === i ? null : i)}
                   className="w-full flex items-center justify-between py-4 text-left group"
+                  aria-expanded={openIndex === i}
+                  aria-controls={`faq-answer-${i}`}
                >
-                  <span className="text-xl font-black tracking-tight group-hover:text-brand-action transition-colors">{faq.q}</span>
-                  <div className={`w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-foreground/40 transition-transform duration-300 ${openIndex === i ? "rotate-90 text-brand-action" : ""}`}>
-                     {openIndex === i ? <Minus size={18}/> : <Plus size={18}/>}
+                  <span id={`faq-question-${i}`} className="text-xl font-black tracking-tight group-hover:text-brand-action transition-colors">{faq.q}</span>
+                  <div className={`w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-foreground/60 transition-transform duration-300 ${openIndex === i ? "rotate-90 text-brand-action" : ""}`}>
+                     {openIndex === i ? <Minus size={18} aria-hidden="true"/> : <Plus size={18} aria-hidden="true"/>}
                   </div>
                </button>
                <AnimatePresence>
                  {openIndex === i && (
                    <motion.div 
+                     id={`faq-answer-${i}`}
                      initial={{ height: 0, opacity: 0 }}
                      animate={{ height: "auto", opacity: 1 }}
                      exit={{ height: 0, opacity: 0 }}
                      className="overflow-hidden"
+                     role="region"
+                     aria-labelledby={`faq-question-${i}`}
                    >
                      <p className="pb-6 text-foreground/60 leading-relaxed font-medium">
                         {faq.a}

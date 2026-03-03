@@ -580,3 +580,74 @@ export async function verifyOTPAndUpdatePassword(identifier: string, otp: string
     return { error: "Failed to update security." }
   }
 }
+
+export async function addComment(blogSlug: string, userId: string, content: string) {
+  if (!blogSlug || !userId || !content) return { error: "Missing required information" }
+
+  try {
+    const comment = await prisma.comment.create({
+      data: {
+        blogSlug,
+        userId,
+        content,
+      },
+      include: {
+        user: {
+          select: {
+            name: true,
+            image: true,
+          }
+        }
+      }
+    })
+
+    return { success: true, comment }
+  } catch (error) {
+    console.error("Add comment error:", error)
+    return { error: "Failed to post comment" }
+  }
+}
+
+export async function getComments(blogSlug: string) {
+  if (!blogSlug) return { error: "Missing blog slug" }
+
+  try {
+    const comments = await prisma.comment.findMany({
+      where: { blogSlug },
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: {
+          select: {
+            name: true,
+            image: true,
+          }
+        }
+      }
+    })
+
+    return { success: true, comments }
+  } catch (error) {
+    console.error("Get comments error:", error)
+    return { error: "Failed to fetch comments" }
+  }
+}
+
+export async function deleteComment(commentId: string, userId: string) {
+  try {
+    const comment = await prisma.comment.findUnique({
+      where: { id: commentId }
+    })
+
+    if (!comment) return { error: "Comment not found" }
+    if (comment.userId !== userId) return { error: "Unauthorized" }
+
+    await prisma.comment.delete({
+      where: { id: commentId }
+    })
+
+    return { success: true }
+  } catch (error) {
+    console.error("Delete comment error:", error)
+    return { error: "Failed to delete comment" }
+  }
+}

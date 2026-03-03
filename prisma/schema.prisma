@@ -23,6 +23,7 @@ model User {
   accounts         Account[]
   cvs              CV[]
   sessions         Session[]
+  comments         Comment[]
 }
 
 model Account {
@@ -125,4 +126,16 @@ model Project {
   cvId        String
   name        String
   cv          CV      @relation(fields: [cvId], references: [id], onDelete: Cascade)
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  blogSlug  String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([blogSlug])
 }
