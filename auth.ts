@@ -40,6 +40,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           name: user.name,
           email: user.email,
           image: user.image,
+          role: user.role,
         }
       }
     })
@@ -68,12 +69,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.sub = user.id
         token.name = user.name
         token.picture = user.image
+        token.role = (user as any).role
       }
       
       // Handle session updates (e.g. from update() on client)
       if (trigger === "update" && session?.user) {
         if (session.user.name) token.name = session.user.name
         if (session.user.image) token.picture = session.user.image
+        if (session.user.role) token.role = session.user.role
       }
       
       return token
@@ -83,6 +86,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = token.sub as string
         session.user.name = token.name
         session.user.image = token.picture as string
+        session.user.role = token.role as string
       }
       return session
     },

@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { AuthError } from "next-auth"
-import { signIn } from "@/auth"
+import { signIn, auth } from "@/auth"
 import { GoogleGenerativeAI } from "@google/generative-ai"
 import { sendPasswordChangedEmail, sendWelcomeEmail, sendOTPEmail } from "./mail"
 
@@ -694,5 +694,81 @@ export async function generateBlogAIContent(topic: string) {
   } catch (error: any) {
     console.error("AI Blog Generation Error:", error);
     return { success: false, error: error.message || "Neural Grid Timeout" };
+  }
+}
+
+export async function deleteUser(userId: string) {
+  const session = await auth()
+  if (!session?.user || (session.user as any).role !== "ADMIN") {
+    return { error: "Permission denied" }
+  }
+
+  try {
+    await prisma.user.delete({
+      where: { id: userId }
+    })
+    return { success: true, message: "Member account terminated" }
+  } catch (error) {
+    return { error: "Nuclear failure: User could not be removed" }
+  }
+}
+
+export async function updateUserRole(userId: string, role: "USER" | "ADMIN") {
+  const session = await auth()
+  if (!session?.user || (session.user as any).role !== "ADMIN") {
+    return { error: "Permission denied" }
+  }
+
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { role }
+    })
+    return { success: true, message: `Access level updated to ${role}` }
+  } catch (error) {
+    return { error: "Elevation failed: Registry lock" }
+  }
+}
+
+export async function adminDeleteCV(cvId: string) {
+  const session = await auth()
+  if (!session?.user || (session.user as any).role !== "ADMIN") {
+    return { error: "Permission denied" }
+  }
+
+  try {
+    await prisma.cV.delete({
+      where: { id: cvId }
+    })
+    return { success: true, message: "Asset purged from database" }
+  } catch (error) {
+    return { error: "Deletion failed: Protection fault" }
+  }
+}
+
+export async function adminCreateUser(data: { name: string, email: string, phone: string, role: "USER" | "ADMIN" }) {
+  const session = await auth()
+  if (!session?.user || (session.user as any).role !== "ADMIN") {
+    return { error: "Permission denied" }
+  }
+
+  try {
+    const existing = await prisma.user.findUnique({ where: { email: data.email } })
+    if (existing) return { error: "Identity conflict: User already exists" }
+
+    const hashedPassword = await bcrypt.hash(data.phone, 10)
+
+    await prisma.user.create({
+      data: {
+        name: data.name,
+        email: data.email,
+        password: hashedPassword,
+        role: data.role,
+        emailVerified: new Date(),
+      }
+    })
+    return { success: true, message: "New member manually registered" }
+  } catch (error) {
+    return { error: "Creation failed: Database rejection" }
   }
 }

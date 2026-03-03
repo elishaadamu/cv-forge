@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useTheme } from "next-themes"
-import { Menu, X, Sun, Moon, Sparkles, User, FileText, LayoutDashboard, SearchCode, MailQuestion, LogOut, Settings, ChevronDown, FilePen, Repeat } from "lucide-react"
+import { Menu, X, Sun, Moon, Sparkles, User, FileText, LayoutDashboard, SearchCode, MailQuestion, LogOut, Settings, ChevronDown, FilePen, Repeat, Shield } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useSession, signOut } from "next-auth/react"
 import Image from "next/image"
@@ -203,6 +203,18 @@ export function Navbar() {
                         </div>
                         <span className="font-bold text-sm text-white">Settings</span>
                       </Link>
+ 
+                      {session?.user?.role === "ADMIN" && (
+                        <Link 
+                          href="/admin/dashboard"
+                          className="flex items-center space-x-3 p-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-500 group/admin"
+                        >
+                          <div className="w-10 h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-500 group-hover/admin:bg-indigo-500 group-hover/admin:text-white transition-all duration-500">
+                            <Shield size={18} />
+                          </div>
+                          <span className="font-bold text-sm text-white">Admin Dashboard</span>
+                        </Link>
+                      )}
 
                       <button
                         onClick={() => signOut()}
@@ -317,7 +329,20 @@ export function Navbar() {
                      <span className="text-lg font-black tracking-tight">Dashboard</span>
                    </Link>
                 )}
-              </div>
+ 
+                 {status === "authenticated" && session?.user?.role === "ADMIN" && (
+                    <Link
+                      href="/admin/dashboard"
+                      onClick={() => setIsOpen(false)}
+                      className="flex items-center space-x-4 p-4 rounded-2xl bg-indigo-500/5 border border-indigo-500/10 active:scale-[0.98] transition-all duration-500"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-500">
+                        <Shield size={20} />
+                      </div>
+                      <span className="text-lg font-black tracking-tight text-indigo-500">Admin Dashboard</span>
+                    </Link>
+                 )}
+               </div>
               
               <div className="pt-8 border-t border-white/5">
                 {status === "authenticated" ? (
