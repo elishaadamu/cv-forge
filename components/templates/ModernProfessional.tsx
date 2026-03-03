@@ -1,17 +1,20 @@
-
-
-import { Phone, Mail, Linkedin, MapPin, Globe, Github } from "lucide-react"
+import { Phone, Mail, Linkedin, MapPin, Globe, Github, Facebook } from "lucide-react"
+import { MarkdownText } from "../MarkdownText"
 
 export interface CVData {
   personalInfo: {
     fullName: string
     jobTitle: string
     email: string
+    phoneCode?: string
     phone: string
+    country?: string
+    county?: string
     location: string
     website: string
     linkedin: string
     github: string
+    facebook?: string
     summary: string
     profileImage?: string
   }
@@ -60,13 +63,14 @@ export function ModernProfessional({ data }: { data: CVData }) {
     <div
       style={{
         background: "#fff",
-        width: "850px",
-        minHeight: "1100px",
+        width: "210mm",
+        minHeight: "297mm",
         fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
         fontSize: "13px",
         color: "#222",
         display: "flex",
         flexDirection: "row",
+        position: "relative",
       }}
     >
       {/* ── LEFT MAIN COLUMN ── */}
@@ -102,15 +106,14 @@ export function ModernProfessional({ data }: { data: CVData }) {
         {personalInfo.summary && (
           <div style={{ marginBottom: "28px" }}>
             <SectionHeading label="Professional Summary" />
-            <p
+            <MarkdownText 
+              content={personalInfo.summary}
               style={{
                 fontSize: "12.5px",
                 color: "#374151",
                 lineHeight: 1.7,
               }}
-            >
-              {personalInfo.summary}
-            </p>
+            />
           </div>
         )}
 
@@ -170,7 +173,7 @@ export function ModernProfessional({ data }: { data: CVData }) {
                           marginBottom: "3px",
                         }}
                       >
-                        {bullet}
+                        <MarkdownText content={bullet} />
                       </li>
                     ))}
                   </ul>
@@ -215,16 +218,15 @@ export function ModernProfessional({ data }: { data: CVData }) {
                     )}
                   </div>
                   {proj.description && (
-                    <p
+                    <MarkdownText 
+                      content={proj.description}
                       style={{
                         fontSize: "12px",
                         color: "#374151",
                         lineHeight: 1.6,
                         marginTop: "3px",
                       }}
-                    >
-                      {proj.description}
-                    </p>
+                    />
                   )}
                 </div>
               ))}
@@ -294,22 +296,28 @@ export function ModernProfessional({ data }: { data: CVData }) {
             }}
           >
             {personalInfo.phone && (
-              <ContactRow icon="📞" text={personalInfo.phone} href={`tel:${personalInfo.phone}`} />
+              <ContactRow icon={<Phone size={12} />} text={`${personalInfo.phoneCode || ''} ${personalInfo.phone}`} href={`tel:${personalInfo.phoneCode || ''}${personalInfo.phone}`} />
             )}
             {personalInfo.email && (
-              <ContactRow icon="✉" text={personalInfo.email} href={`mailto:${personalInfo.email}`} />
+              <ContactRow icon={<Mail size={12} />} text={personalInfo.email} href={`mailto:${personalInfo.email}`} />
             )}
             {personalInfo.linkedin && (
-              <ContactRow icon="in" text={personalInfo.linkedin} href={formatUrl(personalInfo.linkedin)} />
+              <ContactRow icon={<Linkedin size={12} />} text={personalInfo.linkedin} href={formatUrl(personalInfo.linkedin)} />
             )}
-            {personalInfo.location && (
-              <ContactRow icon="📍" text={personalInfo.location} />
+            {(personalInfo.location || personalInfo.county || personalInfo.country) && (
+              <ContactRow 
+                icon={<MapPin size={12} />} 
+                text={[personalInfo.location, personalInfo.county, personalInfo.country].filter(Boolean).join(", ")} 
+              />
             )}
             {personalInfo.website && (
-              <ContactRow icon="🌐" text={personalInfo.website} href={formatUrl(personalInfo.website)} />
+              <ContactRow icon={<Globe size={12} />} text={personalInfo.website} href={formatUrl(personalInfo.website)} />
             )}
             {personalInfo.github && (
-              <ContactRow icon="⌥" text={personalInfo.github} href={formatUrl(personalInfo.github)} />
+              <ContactRow icon={<Github size={12} />} text={personalInfo.github} href={formatUrl(personalInfo.github)} />
+            )}
+            {personalInfo.facebook && (
+              <ContactRow icon={<Facebook size={12} />} text={personalInfo.facebook} href={formatUrl(personalInfo.facebook)} />
             )}
           </div>
         </div>
@@ -430,7 +438,7 @@ function SidebarHeading({ label }: { label: string }) {
   )
 }
 
-function ContactRow({ icon, text, href }: { icon: string; text: string; href?: string }) {
+function ContactRow({ icon, text, href }: { icon: React.ReactNode; text: string; href?: string }) {
   const content = (
     <span
       style={{
@@ -439,7 +447,7 @@ function ContactRow({ icon, text, href }: { icon: string; text: string; href?: s
         overflow: "hidden",
         textOverflow: "ellipsis",
         whiteSpace: "nowrap",
-        textDecoration: href ? "underline" : "none",
+        textDecoration: "none",
       }}
     >
       {text}
@@ -448,7 +456,7 @@ function ContactRow({ icon, text, href }: { icon: string; text: string; href?: s
 
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "7px" }}>
-      <span style={{ fontSize: "11px", flexShrink: 0, width: "14px" }}>
+      <span style={{ fontSize: "11px", flexShrink: 0, width: "14px", display: "flex", alignItems: "center", justifyContent: "center", color: "#6b7280" }}>
         {icon}
       </span>
       {href ? (

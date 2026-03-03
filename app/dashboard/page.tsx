@@ -51,7 +51,7 @@ export default function DashboardPage() {
       }
     } catch (err) {
       console.error("DASHBOARD_FETCH: Fatal Error:", err)
-      setError("The Forge is experiencing a heavy load. Please retry in a moment.")
+      setError("The system is experiencing a heavy load. Please retry in a moment.")
     } finally {
       setIsLoading(false)
     }
@@ -75,7 +75,7 @@ export default function DashboardPage() {
     Modal.confirm({
       title: "Delete this CV?",
       icon: <ExclamationCircleFilled />,
-      content: "This action will permanently remove your forged CV. This cannot be undone.",
+      content: "This action will permanently remove your created CV. This cannot be undone.",
       okText: "Yes, Delete",
       okType: "danger",
       cancelText: "No",
@@ -268,7 +268,7 @@ export default function DashboardPage() {
                          className="flex-1 h-20 bg-brand-action text-white hover:bg-white hover:text-brand-action transition-all rounded-[32px] flex items-center justify-center font-black text-sm uppercase tracking-widest shadow-2xl active:scale-95 group/btn"
                        >
                          <Edit3 size={24} className="mr-3 group-hover/btn:scale-120 transition-transform" />
-                         {cv.status === 'DRAFT' ? 'Forge' : 'Refine'}
+                         {cv.status === 'DRAFT' ? 'Modify' : 'Refine'}
                        </Link>
                        <button 
                          onClick={() => showDeleteConfirm(cv.id)}
@@ -289,7 +289,7 @@ export default function DashboardPage() {
                     <FileText size={64} />
                   </div>
                   <div className="space-y-2">
-                    <h3 className="text-2xl font-black text-foreground/40 italic">Nothing forged yet</h3>
+                    <h3 className="text-2xl font-black text-foreground/40 italic">Nothing created yet</h3>
                     <p className="text-sm text-foreground/20 font-medium">Build your first CV to see it appear here.</p>
                   </div>
                 </div>

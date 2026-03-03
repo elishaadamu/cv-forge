@@ -14,6 +14,7 @@ import {
   ChevronRight
 } from "lucide-react"
 import { analyzeCVATS } from "@/lib/actions"
+import { MarkdownText } from "./MarkdownText"
 
 interface ATSAuditPanelProps {
   isOpen: boolean
@@ -187,7 +188,7 @@ export function ATSAuditPanel({ isOpen, onClose, cvData }: ATSAuditPanelProps) {
                         </div>
                         <div className="space-y-1">
                           <p className="text-sm font-bold leading-none">{check.label}</p>
-                          <p className="text-xs text-foreground/40 leading-relaxed font-medium">{check.message}</p>
+                          <MarkdownText content={check.message} className="text-xs text-foreground/40 leading-relaxed font-medium" />
                         </div>
                       </div>
                     ))}
@@ -200,7 +201,7 @@ export function ATSAuditPanel({ isOpen, onClose, cvData }: ATSAuditPanelProps) {
                       {result.suggestions.map((s: string, i: number) => (
                         <li key={i} className="flex items-start gap-3 text-sm text-foreground/70 font-medium">
                           <ChevronRight size={16} className="mt-0.5 text-brand-action shrink-0" />
-                          <span>{s}</span>
+                          <MarkdownText content={s} />
                         </li>
                       ))}
                     </ul>

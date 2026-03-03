@@ -3,6 +3,10 @@ import puppeteer from 'puppeteer'
 import { ModernProfessional } from '@/components/templates/ModernProfessional'
 import { ClassicTable } from '@/components/templates/ClassicTable'
 import { ExecutiveTwoColumn } from '@/components/templates/ExecutiveTwoColumn'
+import { MinimalATS } from '@/components/templates/MinimalATS'
+import { CreativePortfolio } from '@/components/templates/CreativePortfolio'
+import { StartupTech } from '@/components/templates/StartupTech'
+import { ExecutiveBoard } from '@/components/templates/ExecutiveBoard'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -23,6 +27,18 @@ export async function POST(req: Request) {
         break
       case 'executive':
         TableComponent = ExecutiveTwoColumn
+        break
+      case 'minimal':
+        TableComponent = MinimalATS
+        break
+      case 'creative':
+        TableComponent = CreativePortfolio
+        break
+      case 'startup':
+        TableComponent = StartupTech
+        break
+      case 'executive-board':
+        TableComponent = ExecutiveBoard
         break
       default:
         TableComponent = ModernProfessional
@@ -49,7 +65,7 @@ export async function POST(req: Request) {
           </style>
         </head>
         <body>
-          <div id="cv-root" style="width: 850px; margin: 0 auto;">
+          <div id="cv-root" style="width: 210mm; margin: 0 auto;">
             ${contentHtml}
           </div>
         </body>

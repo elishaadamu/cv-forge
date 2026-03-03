@@ -34,7 +34,7 @@ export default function ForgotPasswordPage() {
   const handleIdentify = (e: React.FormEvent) => {
     e.preventDefault()
     if (!email) {
-      message.error("Please enter your email forge identity.")
+      message.error("Please enter your account email address.")
       return
     }
     setStep("captcha")
@@ -138,14 +138,14 @@ export default function ForgotPasswordPage() {
                       <KeyRound size={48} />
                    </div>
                    <div className="space-y-1">
-                      <h1 className="text-4xl font-black tracking-tight">Recover <span className="text-brand-action">Forge</span></h1>
+                      <h1 className="text-4xl font-black tracking-tight">Recover <span className="text-brand-action">Access</span></h1>
                       <p className="text-foreground/40 font-medium">Identify your email to begin the recovery quest.</p>
                    </div>
                 </div>
 
                 <form onSubmit={handleIdentify} className="space-y-6">
                    <div className="space-y-2">
-                      <label className="text-xs font-black uppercase tracking-widest text-foreground/40 ml-1">Forge Email</label>
+                      <label className="text-xs font-black uppercase tracking-widest text-foreground/40 ml-1">Account Email</label>
                       <input 
                         type="email"
                         value={email}
@@ -180,7 +180,7 @@ export default function ForgotPasswordPage() {
                    </div>
                    <div className="space-y-1">
                       <h1 className="text-4xl font-black tracking-tight">Are you <span className="text-brand-action">Human?</span></h1>
-                      <p className="text-foreground/40 font-medium">Complete this forge challenge to dispatch the code.</p>
+                      <p className="text-foreground/40 font-medium">Complete this verification challenge to dispatch the code.</p>
                    </div>
                 </div>
 
@@ -310,7 +310,7 @@ export default function ForgotPasswordPage() {
                   </div>
                   <div className="space-y-4">
                      <h1 className="text-5xl font-black tracking-tight leading-none">Access <span className="text-brand-success">Restored</span></h1>
-                     <p className="text-foreground/40 font-medium text-lg">Your forge security has been successfully updated. Your new password is now seals.</p>
+                     <p className="text-foreground/40 font-medium text-lg">Your account security has been successfully updated. Your new password is now seals.</p>
                   </div>
                   <Link 
                     href="/login"

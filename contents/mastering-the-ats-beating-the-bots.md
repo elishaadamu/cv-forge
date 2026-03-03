@@ -4,7 +4,7 @@ category: "ATS Intelligence"
 tags: ["ATS", "AI", "Recruitment", "Algorithms"]
 excerpt: "Understanding the underlying logic of modern recruitment algorithms to maintain professional visibility in an automated world."
 image: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=2070&auto=format&fit=crop"
-author: "Career Forge Team"
+author: "Career Builder Team"
 createdAt: "2024-02-15"
 ---
 

@@ -18,7 +18,7 @@ export function Workflow() {
       color: "text-brand-secondary"
     },
     {
-      title: "Forge & Export",
+      title: "Create & Export",
       desc: "Download your high-fidelity, watermark-free PDF instantly. Ready for any application.",
       icon: Download,
       color: "text-brand-success"

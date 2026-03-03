@@ -160,11 +160,18 @@ export default function SettingsPage() {
            <aside className="w-full md:w-64 space-y-2">
               {[
                 { id: "profile", label: "Profile", icon: User },
-                { id: "password", label: "Security", icon: Lock }
+                { id: "password", label: "Security", icon: Lock },
+                { id: "generator", label: "AI Generator", icon: Sparkles }
               ].map((tab) => (
-                <button
+                <Link
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
+                  href={tab.id === "generator" ? "/dashboard/generator" : "#"}
+                  onClick={(e) => {
+                    if (tab.id !== "generator") {
+                      e.preventDefault();
+                      setActiveTab(tab.id as any);
+                    }
+                  }}
                   className={`w-full flex items-center space-x-3 px-6 py-4 rounded-2xl font-bold transition-all ${
                     activeTab === tab.id 
                     ? "bg-brand-action text-white shadow-lg shadow-brand-action/20" 
@@ -173,7 +180,7 @@ export default function SettingsPage() {
                 >
                   <tab.icon size={20} />
                   <span>{tab.label}</span>
-                </button>
+                </Link>
               ))}
            </aside>
 

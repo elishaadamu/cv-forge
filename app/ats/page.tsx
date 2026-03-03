@@ -104,7 +104,7 @@ export default function ATSPage() {
            <div className="space-y-8">
               {[
                 { title: "Smart Keywords", desc: "We identify the missing skills recruiters are looking for in your niche.", icon: Search, col: "text-brand-action" },
-                { title: "Instant Feedback", desc: "Get real-time scoring as you type your CV in our forge.", icon: Zap, col: "text-brand-secondary" },
+                { title: "Instant Feedback", desc: "Get real-time scoring as you type your CV in our builder.", icon: Zap, col: "text-brand-secondary" },
                 { title: "Trusted by Pros", desc: "Our engine is modeled after the top 5 ATS systems worldwide.", icon: CheckCircle2, col: "text-brand-success" },
               ].map((f, i) => (
                 <motion.div 

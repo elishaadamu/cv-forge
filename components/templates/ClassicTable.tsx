@@ -1,6 +1,6 @@
-
-
+import { Phone, Mail, Linkedin, MapPin, Globe, Github, Facebook } from "lucide-react"
 import { CVData } from "./ModernProfessional"
+import { MarkdownText } from "../MarkdownText"
 
 function formatUrl(url: string) {
   if (!url) return ""
@@ -21,13 +21,14 @@ export function ClassicTable({ data }: { data: CVData }) {
     <div
       style={{
         background: "#fff",
-        width: "850px",
-        minHeight: "1100px",
+        width: "210mm",
+        minHeight: "297mm",
         fontFamily: "'Times New Roman', 'Georgia', serif",
         fontSize: "13px",
         color: "#000",
         padding: "56px 64px",
         boxSizing: "border-box",
+        position: "relative",
       }}
     >
       {/* ── HEADER ── */}
@@ -63,65 +64,43 @@ export function ClassicTable({ data }: { data: CVData }) {
             {personalInfo.jobTitle}
           </p>
         )}
-        <p
+        <div
           style={{
-            fontSize: "12px",
+            fontSize: "11.5px",
             color: "#333",
             display: "flex",
             flexWrap: "wrap",
             justifyContent: "center",
-            gap: "8px",
+            gap: "12px",
+            marginTop: "10px",
             alignItems: "center"
           }}
         >
-          {personalInfo.location && <span>{personalInfo.location}</span>}
-          {personalInfo.location && (personalInfo.phone || personalInfo.email || personalInfo.website) && <span>|</span>}
-          
           {personalInfo.phone && (
-            <a href={`tel:${personalInfo.phone}`} style={{ color: "#1a3a5c", textDecoration: "none" }}>
-              ({personalInfo.phone})
-            </a>
+            <ContactItem icon={<Phone size={11} />} text={`${personalInfo.phoneCode || ''} ${personalInfo.phone}`} href={`tel:${personalInfo.phoneCode || ''}${personalInfo.phone}`} />
           )}
-          {personalInfo.phone && (personalInfo.email || personalInfo.website) && <span>|</span>}
-
           {personalInfo.email && (
-            <a href={`mailto:${personalInfo.email}`} style={{ color: "#1a3a5c", textDecoration: "none" }}>
-              {personalInfo.email}
-            </a>
+            <ContactItem icon={<Mail size={11} />} text={personalInfo.email} href={`mailto:${personalInfo.email}`} />
           )}
-          {personalInfo.email && personalInfo.website && <span>|</span>}
-
+          {personalInfo.linkedin && (
+            <ContactItem icon={<Linkedin size={11} />} text={personalInfo.linkedin} href={formatUrl(personalInfo.linkedin)} />
+          )}
+          {(personalInfo.location || personalInfo.county || personalInfo.country) && (
+            <ContactItem 
+              icon={<MapPin size={11} />} 
+              text={[personalInfo.location, personalInfo.county, personalInfo.country].filter(Boolean).join(", ")} 
+            />
+          )}
           {personalInfo.website && (
-            <a href={formatUrl(personalInfo.website)} target="_blank" rel="noopener noreferrer" style={{ color: "#1a3a5c", textDecoration: "none" }}>
-              {personalInfo.website}
-            </a>
+            <ContactItem icon={<Globe size={11} />} text={personalInfo.website} href={formatUrl(personalInfo.website)} />
           )}
-        </p>
-        {(personalInfo.linkedin || personalInfo.github) && (
-          <p
-            style={{
-              fontSize: "11.5px",
-              color: "#555",
-              fontStyle: "italic",
-              marginTop: "4px",
-              display: "flex",
-              justifyContent: "center",
-              gap: "10px"
-            }}
-          >
-            {personalInfo.linkedin && (
-              <a href={formatUrl(personalInfo.linkedin)} target="_blank" rel="noopener noreferrer" style={{ color: "#1a3a5c", textDecoration: "none" }}>
-                LinkedIn: {personalInfo.linkedin}
-              </a>
-            )}
-            {personalInfo.linkedin && personalInfo.github && <span>|</span>}
-            {personalInfo.github && (
-              <a href={formatUrl(personalInfo.github)} target="_blank" rel="noopener noreferrer" style={{ color: "#1a3a5c", textDecoration: "none" }}>
-                GitHub: {personalInfo.github}
-              </a>
-            )}
-          </p>
-        )}
+          {personalInfo.github && (
+            <ContactItem icon={<Github size={11} />} text={personalInfo.github} href={formatUrl(personalInfo.github)} />
+          )}
+          {personalInfo.facebook && (
+            <ContactItem icon={<Facebook size={11} />} text={personalInfo.facebook} href={formatUrl(personalInfo.facebook)} />
+          )}
+        </div>
       </div>
 
       {/* ── EDUCATION ── */}
@@ -172,16 +151,15 @@ export function ClassicTable({ data }: { data: CVData }) {
       {/* ── PROFESSIONAL SUMMARY ── */}
       {personalInfo.summary && (
         <Section label="Professional Summary">
-          <p
+          <MarkdownText 
+            content={personalInfo.summary}
             style={{
               fontSize: "13px",
               lineHeight: 1.7,
               color: "#111",
               textAlign: "justify",
             }}
-          >
-            {personalInfo.summary}
-          </p>
+          />
         </Section>
       )}
 
@@ -282,7 +260,7 @@ export function ClassicTable({ data }: { data: CVData }) {
                         textAlign: "justify",
                       }}
                     >
-                      {bullet}
+                      <MarkdownText content={bullet} />
                     </li>
                   ))}
                 </ul>
@@ -324,7 +302,8 @@ export function ClassicTable({ data }: { data: CVData }) {
                   )}
                 </div>
                 {proj.description && (
-                  <p
+                  <MarkdownText 
+                    content={proj.description}
                     style={{
                       fontSize: "12.5px",
                       color: "#333",
@@ -332,9 +311,7 @@ export function ClassicTable({ data }: { data: CVData }) {
                       marginTop: "3px",
                       fontStyle: "italic",
                     }}
-                  >
-                    {proj.description}
-                  </p>
+                  />
                 )}
               </div>
             ))}
@@ -369,6 +346,27 @@ function Section({
         {label}
       </h3>
       {children}
+    </div>
+  )
+}
+
+function ContactItem({ icon, text, href }: { icon: React.ReactNode; text: string; href?: string }) {
+  const content = (
+    <span style={{ color: href ? "#1a3a5c" : "#333", textDecoration: "none" }}>
+      {text}
+    </span>
+  )
+
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+      <span style={{ display: "flex", alignItems: "center", color: "#666" }}>{icon}</span>
+      {href ? (
+        <a href={href} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+          {content}
+        </a>
+      ) : (
+        content
+      )}
     </div>
   )
 }

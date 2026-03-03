@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/components/AuthProvider";
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { LoadingLine } from "@/components/LoadingLine";
+import { CookieConsent } from "@/components/CookieConsent";
 import { Suspense } from "react";
 import Script from "next/script";
 
@@ -72,6 +73,7 @@ export default function RootLayout({
               <Suspense fallback={null}>
                 <LoadingLine />
               </Suspense>
+              <CookieConsent />
               {children}
             </AntdRegistry>
           </ThemeProvider>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useSession } from "next-auth/react"
 import { Navbar } from "@/components/Navbar"
 import { motion, AnimatePresence } from "framer-motion"
@@ -23,13 +23,18 @@ import {
   Camera,
   Image as ImageIcon,
   ArrowUpRight,
-  ShieldCheck
+  ShieldCheck,
+  ChevronDown
 } from "lucide-react"
 import { CldUploadWidget } from "next-cloudinary"
 
 import { ModernProfessional, CVData } from "@/components/templates/ModernProfessional"
 import { ClassicTable } from "@/components/templates/ClassicTable"
 import { ExecutiveTwoColumn } from "@/components/templates/ExecutiveTwoColumn"
+import { MinimalATS } from "@/components/templates/MinimalATS"
+import { CreativePortfolio } from "@/components/templates/CreativePortfolio"
+import { StartupTech } from "@/components/templates/StartupTech"
+import { ExecutiveBoard } from "@/components/templates/ExecutiveBoard"
 import { ATSAuditPanel } from "@/components/ATSAuditPanel"
 import { refineTextWithAI, saveCV } from "@/lib/actions"
 import { useRouter } from "next/navigation"
@@ -42,16 +47,32 @@ const sections = [
   { id: "projects", title: "Projects", icon: FolderGit2 },
 ]
 
+const countryCodes = [
+  { code: "+1", label: "US (+1)" },
+  { code: "+44", label: "UK (+44)" },
+  { code: "+353", label: "IE (+353)" },
+  { code: "+91", label: "IN (+91)" },
+  { code: "+234", label: "NG (+234)" },
+  { code: "+971", label: "AE (+971)" },
+  { code: "+27", label: "ZA (+27)" },
+  { code: "+1", label: "CA (+1)" },
+  { code: "+61", label: "AU (+61)" },
+]
+
 const INITIAL_DATA: CVData = {
   personalInfo: {
     fullName: "Alex Sterling",
     jobTitle: "Senior Product Designer",
     email: "alex.sterling@cvmyjob.online",
-    phone: "+353 87 123 4567",
-    location: "Dublin, Ireland",
+    phoneCode: "+353",
+    phone: "87 123 4567",
+    country: "Ireland",
+    county: "Dublin",
+    location: "City Centre",
     website: "alexsterling.design",
     linkedin: "linkedin.com/in/alexsterling",
     github: "github.com/asterling",
+    facebook: "",
     summary: "Strategic Product Designer with 8+ years of experience in building high-scale digital ecosystems. Expert in bridging the gap between complex engineering requirements and intuitive user experiences. Proven track record of leading design teams to deliver award-winning platforms that serve millions of active users.",
     profileImage: "",
   },
@@ -127,10 +148,28 @@ export default function BuilderPage() {
       email: session?.user?.email || "",
     }
   })
-  const [currentTemplate, setCurrentTemplate] = useState<"modern" | "classic" | "executive">("modern")
+  const [currentTemplate, setCurrentTemplate] = useState<"modern" | "classic" | "executive" | "minimal" | "creative" | "startup" | "executive-board">("modern")
+  const [isTemplateDropdownOpen, setIsTemplateDropdownOpen] = useState(false)
   const [isRefining, setIsRefining] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [pageCount, setPageCount] = useState(1)
+  const previewRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
+
+  useEffect(() => {
+    const updatePageCount = () => {
+      if (previewRef.current) {
+        const height = previewRef.current.offsetHeight
+        // 1122.5px is roughly 297mm at 96dpi
+        const pages = Math.ceil(height / 1122)
+        setPageCount(pages || 1)
+      }
+    }
+    updatePageCount()
+    const observer = new ResizeObserver(updatePageCount)
+    if (previewRef.current) observer.observe(previewRef.current)
+    return () => observer.disconnect()
+  }, [cvData, currentTemplate])
 
   useEffect(() => {
     if (isPreview) {
@@ -293,6 +332,14 @@ export default function BuilderPage() {
         return <ClassicTable data={cvData} />
       case "executive":
         return <ExecutiveTwoColumn data={cvData} />
+      case "minimal":
+        return <MinimalATS data={cvData} />
+      case "creative":
+        return <CreativePortfolio data={cvData} />
+      case "startup":
+        return <StartupTech data={cvData} />
+      case "executive-board":
+        return <ExecutiveBoard data={cvData} />
       default:
         return <ModernProfessional data={cvData} />
     }
@@ -420,15 +467,81 @@ export default function BuilderPage() {
                              className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
                           />
                         </div>
-                        <div className="space-y-1.5">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Phone</label>
-                          <input 
-                            value={cvData.personalInfo.phone}
-                            onChange={(e) => updatePersonalInfo("phone", e.target.value)}
-                            className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                          />
-                        </div>
-                      </div>
+                         <div className="space-y-1.5 overflow-visible">
+                           <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Phone Number</label>
+                           <div className="flex space-x-2">
+                             <select 
+                               value={cvData.personalInfo.phoneCode}
+                               onChange={(e) => updatePersonalInfo("phoneCode", e.target.value)}
+                               className="w-24 h-11 px-2 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold appearance-none cursor-pointer"
+                             >
+                               {countryCodes.map(c => (
+                                 <option key={c.label} value={c.code} className="bg-background">{c.label}</option>
+                               ))}
+                             </select>
+                             <input 
+                               value={cvData.personalInfo.phone}
+                               onChange={(e) => updatePersonalInfo("phone", e.target.value)}
+                               placeholder="123 4567"
+                               className="flex-1 h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                             />
+                           </div>
+                         </div>
+                         <div className="space-y-1.5">
+                           <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Country</label>
+                           <input 
+                             value={cvData.personalInfo.country}
+                             onChange={(e) => updatePersonalInfo("country", e.target.value)}
+                             placeholder="e.g. Ireland"
+                             className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                           />
+                         </div>
+                         <div className="space-y-1.5">
+                           <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">County / State</label>
+                           <input 
+                             value={cvData.personalInfo.county}
+                             onChange={(e) => updatePersonalInfo("county", e.target.value)}
+                             placeholder="e.g. Dublin"
+                             className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                           />
+                         </div>
+                         <div className="space-y-1.5">
+                           <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Town / Area</label>
+                           <input 
+                             value={cvData.personalInfo.location}
+                             onChange={(e) => updatePersonalInfo("location", e.target.value)}
+                             placeholder="e.g. City Centre"
+                             className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                           />
+                         </div>
+                         <div className="space-y-1.5">
+                           <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Portfolio Website</label>
+                           <input 
+                             value={cvData.personalInfo.website}
+                             onChange={(e) => updatePersonalInfo("website", e.target.value)}
+                             placeholder="URL"
+                             className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                           />
+                         </div>
+                         <div className="space-y-1.5">
+                           <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">GitHub URL</label>
+                           <input 
+                             value={cvData.personalInfo.github}
+                             onChange={(e) => updatePersonalInfo("github", e.target.value)}
+                             placeholder="URL"
+                             className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                           />
+                         </div>
+                         <div className="space-y-1.5">
+                           <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Facebook URL</label>
+                           <input 
+                             value={cvData.personalInfo.facebook}
+                             onChange={(e) => updatePersonalInfo("facebook", e.target.value)}
+                             placeholder="URL"
+                             className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                           />
+                         </div>
+                       </div>
                         <div className="flex items-center justify-between">
                           <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Summary</label>
                           <button 
@@ -758,29 +871,90 @@ export default function BuilderPage() {
                ? "h-auto py-4 sm:h-22 border-b" 
                : "h-auto py-3 sm:h-20 border-b"
              }`}>
-                 <div className="flex items-center space-x-3 sm:space-x-5">
-                    <div className="flex items-center space-x-1 sm:space-x-2 bg-white/5 p-1 rounded-2xl border border-border-custom">
-                       {[
-                         { id: "modern", name: "Modern", img: "/modern.png" },
-                         { id: "classic", name: "Classic", img: "/classic.png" },
-                         { id: "executive", name: "Exec", img: "/executive.png" }
-                       ].map((t) => (
-                         <button 
-                           key={t.id}
-                           onClick={() => setCurrentTemplate(t.id as any)}
-                           className={`group relative w-16 sm:w-20 h-8 sm:h-10 rounded-xl overflow-hidden transition-all border-2 ${currentTemplate === t.id ? "border-brand-action scale-105 shadow-lg shadow-brand-action/20" : "border-transparent opacity-40 hover:opacity-100"}`}
-                         >
-                           <img src={t.img} className="w-full h-full object-cover" alt={t.name} />
-                           <div className={`absolute inset-0 flex items-center justify-center bg-black/40 transition-opacity ${currentTemplate === t.id ? "opacity-0" : "group-hover:opacity-0"}`}>
-                              <span className="text-[7px] sm:text-[8px] font-black uppercase tracking-tighter text-white">{t.name}</span>
-                           </div>
-                         </button>
-                       ))}
+                  <div className="flex items-center space-x-3 sm:space-x-5">
+                    <div 
+                      className="relative"
+                      onMouseEnter={() => setIsTemplateDropdownOpen(true)}
+                      onMouseLeave={() => setIsTemplateDropdownOpen(false)}
+                    >
+                      <button className="flex items-center space-x-3 px-4 h-11 bg-white/5 hover:bg-white/10 border border-border-custom rounded-2xl transition-all active:scale-95 group">
+                        <div className="w-8 h-5 rounded-md overflow-hidden border border-white/10 hidden xs:block">
+                          <img 
+                            src={
+                              [
+                                { id: "modern", img: "/modern.png" },
+                                { id: "classic", img: "/classic.png" },
+                                { id: "executive", img: "/executive.png" },
+                                { id: "minimal", img: "/modern.png" },
+                                { id: "creative", img: "/modern.png" },
+                                { id: "startup", img: "/modern.png" },
+                                { id: "executive-board", img: "/modern.png" }
+                              ].find(t => t.id === currentTemplate)?.img || "/modern.png"
+                            } 
+                            className="w-full h-full object-cover" 
+                            alt="Current Template" 
+                          />
+                        </div>
+                        <span className="text-[11px] font-black uppercase tracking-widest text-foreground/80">
+                          Template: <span className="text-brand-action ml-1">
+                            {
+                              [
+                                { id: "modern", name: "Modern" },
+                                { id: "classic", name: "Classic" },
+                                { id: "executive", name: "Executive" },
+                                { id: "minimal", name: "ATS" },
+                                { id: "creative", name: "Creative" },
+                                { id: "startup", name: "Startup" },
+                                { id: "executive-board", name: "Board" }
+                              ].find(t => t.id === currentTemplate)?.name
+                            }
+                          </span>
+                        </span>
+                        <ChevronDown size={14} className={`text-foreground/40 transition-transform duration-300 ${isTemplateDropdownOpen ? 'rotate-180' : ''}`} />
+                      </button>
+
+                      <AnimatePresence>
+                        {isTemplateDropdownOpen && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                            className="absolute top-full left-0 mt-2 w-56 bg-[#0a0a0a] border border-white/15 rounded-[28px] shadow-2xl p-2 z-100"
+                          >
+                            <div className="grid gap-1">
+                              {[
+                                { id: "modern", name: "Modern Professional", img: "/modern.png" },
+                                { id: "classic", name: "Classic Table", img: "/classic.png" },
+                                { id: "executive", name: "Executive Two-Column", img: "/executive.png" },
+                                { id: "minimal", name: "Minimal ATS", img: "/modern.png" },
+                                { id: "creative", name: "Creative Portfolio", img: "/modern.png" },
+                                { id: "startup", name: "Startup Tech", img: "/modern.png" },
+                                { id: "executive-board", name: "Executive Board", img: "/modern.png" }
+                              ].map((t) => (
+                                <button
+                                  key={t.id}
+                                  onClick={() => {
+                                    setCurrentTemplate(t.id as any)
+                                    setIsTemplateDropdownOpen(false)
+                                  }}
+                                  className={`flex items-center space-x-3 w-full p-2.5 rounded-2xl transition-all group ${currentTemplate === t.id ? 'bg-brand-action/15 text-brand-action border border-brand-action/20' : 'hover:bg-white/5 text-foreground/60 hover:text-foreground'}`}
+                                >
+                                  <div className={`w-12 h-7 rounded-lg overflow-hidden border transition-all ${currentTemplate === t.id ? 'border-brand-action/40' : 'border-white/10 group-hover:border-white/20'} shrink-0`}>
+                                    <img src={t.img} className="w-full h-full object-cover" alt={t.name} />
+                                  </div>
+                                  <span className="text-[10px] font-black uppercase tracking-widest leading-none text-left">{t.name}</span>
+                                </button>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
-                    <div className="hidden md:flex items-center space-x-2 text-brand-success text-[10px] font-black uppercase tracking-[0.2em] border-l border-border-custom pl-5">
-                       <div className="w-1.5 h-1.5 bg-brand-success rounded-full animate-pulse" />
-                       <span className="hidden lg:inline">Live Sync Active</span>
-                    </div>
+                     <div className="hidden md:flex items-center space-x-2 text-brand-success text-[10px] font-black uppercase tracking-[0.2em] border-l border-border-custom pl-5">
+                        <div className="w-1.5 h-1.5 bg-brand-success rounded-full animate-pulse" />
+                        <span className="hidden lg:inline">Live Sync Active</span>
+                        <span className="ml-4 border-l border-border-custom pl-4 text-foreground/40">{pageCount} A4 {pageCount > 1 ? 'Pages' : 'Page'}</span>
+                     </div>
                  </div>
 
                  <div className="flex items-center space-x-2 sm:space-x-4">
@@ -802,12 +976,28 @@ export default function BuilderPage() {
                  </div>
              </div>
 
-               {/* Preview Container - Responsive scaling */}
-               <div className={`flex-1 w-full overflow-auto bg-slate-100/5 custom-scrollbar relative z-10 flex justify-center py-10 ${isPreview ? "p-0 pb-24" : ""}`}>
-                <div className={`origin-top transition-transform duration-500 scale-[0.4] xs:scale-[0.5] sm:scale-75 md:scale-[0.85] lg:scale-[0.75] xl:scale-95 ${isPreview ? "scale-[0.4] xs:scale-[0.55] sm:scale-100 mt-4 mb-20" : "my-0"}`}>
-                   {renderTemplate()}
+              {/* Preview Container - Responsive scaling */}
+             <div className={`flex-1 w-full overflow-auto bg-[#050505] custom-scrollbar relative z-10 flex justify-center py-10 px-4 ${isPreview ? "pb-24" : ""}`}>
+                <div 
+                  className={`origin-top transition-transform duration-500 scale-[0.4] xs:scale-[0.5] sm:scale-75 md:scale-[0.85] lg:scale-[0.75] xl:scale-95 ${isPreview ? "scale-[0.4] xs:scale-[0.55] sm:scale-100 mt-4 mb-20 shadow-2xl" : "scale-90"}`}
+                  style={{ width: "210mm" }}
+                >
+                   <div ref={previewRef} className="relative bg-white shadow-2xl">
+                     {renderTemplate()}
+                     
+                     {/* Page Jump Overlay (Visual only) */}
+                     {Array.from({ length: pageCount }).map((_, i) => (
+                       <div 
+                         key={i}
+                         className="absolute right-[-60px] flex items-center justify-center w-10 h-10 rounded-full bg-white/5 border border-white/10 text-[10px] font-black text-foreground/40"
+                         style={{ top: `${i * 297}mm` }}
+                       >
+                         {i + 1}
+                       </div>
+                     ))}
+                   </div>
                 </div>
-              </div>
+             </div>
 
              {/* Background Decoration */}
              <div className="absolute inset-0 pointer-events-none opacity-10 overflow-hidden">

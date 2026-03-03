@@ -9,6 +9,10 @@ const templates = [
   { id: "modern", name: "Modern Professional", category: "Best Seller", img: "/modern.png", color: "#5C88A3", desc: "Clean, bold & ATS Optimized with structured skill grids." },
   { id: "classic", name: "Classic Table", category: "ATS Gold", img: "/classic.png", color: "#1e293b", desc: "Highly structured table-based layout for maximum readability." },
   { id: "executive", name: "Executive Two-Column", category: "Premium", img: "/executive.png", color: "#0f172a", desc: "High-contrast two-column layout for senior roles." },
+  { id: "minimal", name: "Minimal ATS", category: "Recruiter Choice", img: "/modern.png", color: "#000000", desc: "Ultra-clean layout optimized for parsing accuracy." },
+  { id: "creative", name: "Creative Portfolio", category: "Artistic", img: "/modern.png", color: "#9333ea", desc: "Bold aesthetics for designers and creative thinkers." },
+  { id: "startup", name: "Startup Tech", category: "Tech ecosystem", img: "/modern.png", color: "#1d4ed8", desc: "Fast-paced, modern design for the tech ecosystem." },
+  { id: "executive-board", name: "Executive Board", category: "Leadership", img: "/modern.png", color: "#111827", desc: "High-level professional design for leadership roles." },
 ]
 
 export default function TemplatesPage() {
@@ -55,7 +59,7 @@ export default function TemplatesPage() {
               className="group relative"
             >
               {/* Card Decoration */}
-              <div className="absolute inset-0 bg-gradient-to-br from-brand-action/5 to-transparent rounded-[48px] -rotate-1 group-hover:rotate-0 transition-transform duration-500" />
+              <div className="absolute inset-0 bg-linear-to-br from-brand-action/5 to-transparent rounded-[48px] -rotate-1 group-hover:rotate-0 transition-transform duration-500" />
               
               <div className="relative bg-white/5 border border-border-custom hover:border-brand-action/40 rounded-[48px] overflow-hidden transition-all duration-500 p-10 flex flex-col md:flex-row gap-10 items-center">
                 

@@ -153,7 +153,7 @@ export async function refineTextWithAI(text: string, type: "summary" | "experien
   if (!text) return { error: "No text provided" }
   
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
     
     const prompt = type === "summary" 
       ? `Refine the following professional CV summary to be more impactful, professional, and concise. Maintain the original meaning but improve the vocabulary and flow: "${text}"`
@@ -175,7 +175,7 @@ export async function analyzeCVATS(cvData: any, jobDescription?: string) {
   
   try {
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
+      model: "gemini-2.5-flash",
       generationConfig: { responseMimeType: "application/json" }
     })
     
@@ -518,7 +518,7 @@ export async function sendSecurityOTP(identifier: string) {
       }
     }) as any
 
-    if (!user || !user.email) return { error: "Identify your forge. User not found." }
+    if (!user || !user.email) return { error: "Identify your identity. User not found." }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString()
     const expiry = new Date(Date.now() + 10 * 60 * 1000) // 10 mins
@@ -574,7 +574,7 @@ export async function verifyOTPAndUpdatePassword(identifier: string, otp: string
       await sendPasswordChangedEmail(user.email)
     }
 
-    return { success: true, message: "Forge security updated. Password changed successfully." }
+    return { success: true, message: "Security updated. Password changed successfully." }
   } catch (error) {
     console.error("Password update error:", error)
     return { error: "Failed to update security." }
@@ -645,9 +645,54 @@ export async function deleteComment(commentId: string, userId: string) {
       where: { id: commentId }
     })
 
-    return { success: true }
+    return { success: true };
   } catch (error) {
-    console.error("Delete comment error:", error)
-    return { error: "Failed to delete comment" }
+    console.error("Delete comment error:", error);
+    return { success: false, error: "Failed to delete comment" };
+  }
+}
+
+export async function generateBlogAIContent(topic: string) {
+  try {
+    if (!process.env.GEMINI_API_KEY) {
+      return { success: false, error: "AI Hub Offline: API Key Missing" };
+    }
+
+    // Initialize the 2.5 Pro model
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+    const prompt = `
+      You are CV my job AI, an elite career strategist and resume expert. 
+      Create a high-quality blog post draft about: "${topic}".
+      
+      Requirements:
+      1. Return the result in valid Markdown format.
+      2. Provide a Title, Excerpt, and Full Content.
+      3. Focus on actionable career advice, resume optimization, or job search strategies.
+      
+      Format your response exactly as follows:
+      TITLE: [The Title]
+      EXCERPT: [The Excerpt]
+      CONTENT:
+      [The Full Markdown Content]
+    `;
+
+    const result = await model.generateContent(prompt);
+    const text = await result.response.text();
+
+    // Improved parsing using regex to handle potential extra whitespace or formatting
+    const title = text.match(/TITLE:\s*(.*)/i)?.[1]?.trim() || "Solar Evolution";
+    const excerpt = text.match(/EXCERPT:\s*([\s\S]*?)(?=CONTENT:)/i)?.[1]?.trim() || "";
+    const content = text.split(/CONTENT:/i)[1]?.trim() || text;
+
+    return { 
+      success: true, 
+      title, 
+      excerpt, 
+      content 
+    };
+  } catch (error: any) {
+    console.error("AI Blog Generation Error:", error);
+    return { success: false, error: error.message || "Neural Grid Timeout" };
   }
 }

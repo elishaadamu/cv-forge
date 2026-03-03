@@ -1,6 +1,5 @@
-
-
 import { CVData } from "./ModernProfessional"
+import { MarkdownText } from "../MarkdownText"
 
 function formatUrl(url: string) {
   if (!url) return ""
@@ -21,13 +20,14 @@ export function ExecutiveTwoColumn({ data }: { data: CVData }) {
     <div
       style={{
         background: "#fff",
-        width: "850px",
-        minHeight: "1100px",
+        width: "210mm",
+        minHeight: "297mm",
         fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
         fontSize: "13px",
         color: "#111",
         display: "flex",
         flexDirection: "row",
+        position: "relative",
       }}
     >
       {/* ── LEFT DARK SIDEBAR ── */}
@@ -98,7 +98,7 @@ export function ExecutiveTwoColumn({ data }: { data: CVData }) {
             }}
           >
             {personalInfo.phone && (
-              <SidebarContact label="Phone:" value={personalInfo.phone} href={`tel:${personalInfo.phone}`} />
+              <SidebarContact label="Phone:" value={`${personalInfo.phoneCode || ''} ${personalInfo.phone}`} href={`tel:${personalInfo.phoneCode || ''}${personalInfo.phone}`} />
             )}
             {personalInfo.email && (
               <SidebarContact label="Email:" value={personalInfo.email} href={`mailto:${personalInfo.email}`} />
@@ -106,14 +106,20 @@ export function ExecutiveTwoColumn({ data }: { data: CVData }) {
             {personalInfo.linkedin && (
               <SidebarContact label="LinkedIn:" value={personalInfo.linkedin} href={formatUrl(personalInfo.linkedin)} />
             )}
-            {personalInfo.location && (
-              <SidebarContact label="Location:" value={personalInfo.location} />
+            {(personalInfo.location || personalInfo.county || personalInfo.country) && (
+              <SidebarContact 
+                label="Location:" 
+                value={[personalInfo.location, personalInfo.county, personalInfo.country].filter(Boolean).join(", ")} 
+              />
             )}
             {personalInfo.website && (
               <SidebarContact label="Website:" value={personalInfo.website} href={formatUrl(personalInfo.website)} />
             )}
             {personalInfo.github && (
               <SidebarContact label="GitHub:" value={personalInfo.github} href={formatUrl(personalInfo.github)} />
+            )}
+            {personalInfo.facebook && (
+              <SidebarContact label="Facebook:" value={personalInfo.facebook} href={formatUrl(personalInfo.facebook)} />
             )}
           </div>
         </div>
@@ -166,16 +172,15 @@ export function ExecutiveTwoColumn({ data }: { data: CVData }) {
         {personalInfo.summary && (
           <div style={{ marginBottom: "28px" }}>
             <MainHeading label="Summary" />
-            <p
+            <MarkdownText 
+              content={personalInfo.summary}
               style={{
                 fontSize: "12.5px",
                 color: "#374151",
                 lineHeight: 1.75,
                 textAlign: "justify",
               }}
-            >
-              {personalInfo.summary}
-            </p>
+            />
           </div>
         )}
 
@@ -238,7 +243,7 @@ export function ExecutiveTwoColumn({ data }: { data: CVData }) {
                           marginBottom: "3px",
                         }}
                       >
-                        {bullet}
+                        <MarkdownText content={bullet} />
                       </li>
                     ))}
                   </ul>
@@ -338,7 +343,8 @@ export function ExecutiveTwoColumn({ data }: { data: CVData }) {
                     )}
                   </div>
                   {proj.description && (
-                    <p
+                    <MarkdownText 
+                      content={proj.description}
                       style={{
                         fontSize: "12px",
                         color: "#374151",
@@ -346,9 +352,7 @@ export function ExecutiveTwoColumn({ data }: { data: CVData }) {
                         marginTop: "3px",
                         fontStyle: "italic",
                       }}
-                    >
-                      "{proj.description}"
-                    </p>
+                    />
                   )}
                 </div>
               ))}

@@ -17,6 +17,10 @@ import {
 import { ModernProfessional, CVData } from "@/components/templates/ModernProfessional"
 import { ClassicTable } from "@/components/templates/ClassicTable"
 import { ExecutiveTwoColumn } from "@/components/templates/ExecutiveTwoColumn"
+import { MinimalATS } from "@/components/templates/MinimalATS"
+import { CreativePortfolio } from "@/components/templates/CreativePortfolio"
+import { StartupTech } from "@/components/templates/StartupTech"
+import { ExecutiveBoard } from "@/components/templates/ExecutiveBoard"
 import { getCV, saveCV } from "@/lib/actions"
 import { useSession } from "next-auth/react"
 import { useEffect, useState, useRef } from "react"
@@ -223,6 +227,14 @@ export default function SuccessPage() {
         return <ClassicTable data={cvData} />
       case "executive":
         return <ExecutiveTwoColumn data={cvData} />
+      case "minimal":
+        return <MinimalATS data={cvData} />
+      case "creative":
+        return <CreativePortfolio data={cvData} />
+      case "startup":
+        return <StartupTech data={cvData} />
+      case "executive-board":
+        return <ExecutiveBoard data={cvData} />
       default:
         return <ModernProfessional data={cvData} />
     }
@@ -303,7 +315,7 @@ export default function SuccessPage() {
               className="text-5xl md:text-6xl font-black tracking-tight"
             >
               CV{" "}
-              <span className="text-brand-success">Forged Successfully.</span>
+              <span className="text-brand-success">Created Successfully.</span>
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 20 }}

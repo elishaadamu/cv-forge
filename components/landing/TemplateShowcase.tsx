@@ -30,6 +30,38 @@ const templates = [
     color: "#0f172a", 
     desc: "High-contrast two-column layout for senior roles." 
   },
+  // { 
+  //   id: "minimal", 
+  //   name: "Minimal ATS", 
+  //   category: "Recruiter Choice", 
+  //   img: "/modern.png", 
+  //   color: "#000000", 
+  //   desc: "Ultra-clean layout optimized for parsing accuracy." 
+  // },
+  // { 
+  //   id: "creative", 
+  //   name: "Creative Portfolio", 
+  //   category: "Artistic", 
+  //   img: "/modern.png", 
+  //   color: "#9333ea", 
+  //   desc: "Bold aesthetics for designers and creative thinkers." 
+  // },
+  // { 
+  //   id: "startup", 
+  //   name: "Startup Tech", 
+  //   category: "Modern Tech", 
+  //   img: "/modern.png", 
+  //   color: "#1d4ed8", 
+  //   desc: "Fast-paced, modern design for the tech ecosystem." 
+  // },
+  // { 
+  //   id: "executive-board", 
+  //   name: "Executive Board", 
+  //   category: "Leadership", 
+  //   img: "/modern.png", 
+  //   color: "#111827", 
+  //   desc: "High-level professional design for leadership roles." 
+  // },
 ]
 
 export function TemplateShowcase() {
@@ -63,7 +95,7 @@ export function TemplateShowcase() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {templates.map((template, i) => (
             <motion.div
               key={template.id}
