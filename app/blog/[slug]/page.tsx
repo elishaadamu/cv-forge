@@ -26,7 +26,7 @@ import remarkGfm from "remark-gfm"
 import rehypeRaw from "rehype-raw"
 import { message } from "antd"
 import { useSession } from "next-auth/react"
-import { addComment, getComments, deleteComment } from "@/lib/actions"
+import { addComment, getComments, deleteComment, refineTextWithAI } from "@/lib/actions"
 import { User, MessageSquare, Send, Trash2 } from "lucide-react"
 
 export default function BlogPost() {
@@ -40,6 +40,7 @@ export default function BlogPost() {
   const [newComment, setNewComment] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isFetchingComments, setIsFetchingComments] = useState(true)
+  const [isRefining, setIsRefining] = useState(false)
 
   useEffect(() => {
     const fetchBlog = async () => {
@@ -90,6 +91,18 @@ export default function BlogPost() {
       message.error(res.error || "Failed to post comment")
     }
     setIsSubmitting(false)
+  }
+  const handleRefineComment = async () => {
+    if (!newComment.trim()) return
+    setIsRefining(true)
+    const res = await refineTextWithAI(newComment, "comment")
+    if (res.success && res.refinedText) {
+      setNewComment(res.refinedText)
+      message.success("Comment refined by AI")
+    } else {
+      message.error(res.error || "Failed to refine comment")
+    }
+    setIsRefining(false)
   }
 
   const handleDeleteComment = async (commentId: string) => {
@@ -410,16 +423,27 @@ export default function BlogPost() {
                        value={newComment}
                        onChange={(e) => setNewComment(e.target.value)}
                        placeholder="Share your strategic perspective..."
-                       className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-[32px] p-6 min-h-[120px] font-medium text-lg focus:outline-none focus:ring-2 focus:ring-brand-action/20 focus:border-brand-action transition-all resize-none"
-                       disabled={isSubmitting}
+                       className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-[32px] p-6 min-h-[140px] font-medium text-lg focus:outline-none focus:ring-2 focus:ring-brand-action/20 focus:border-brand-action transition-all resize-none"
+                       disabled={isSubmitting || isRefining}
                      />
-                     <button
-                       type="submit"
-                       disabled={isSubmitting || !newComment.trim()}
-                       className="absolute bottom-4 right-4 p-4 rounded-2xl bg-brand-action text-white shadow-lg shadow-brand-action/20 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100 transition-all"
-                     >
-                       {isSubmitting ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
-                     </button>
+                     <div className="absolute bottom-4 right-4 flex items-center space-x-2">
+                       <button
+                         type="button"
+                         onClick={handleRefineComment}
+                         disabled={isSubmitting || isRefining || !newComment.trim()}
+                         className="p-4 rounded-2xl bg-brand-action/10 text-brand-action hover:bg-brand-action hover:text-white disabled:opacity-50 transition-all flex items-center justify-center"
+                         title="Refine with AI"
+                       >
+                         {isRefining ? <Loader2 size={20} className="animate-spin" /> : <Sparkles size={20} />}
+                       </button>
+                       <button
+                         type="submit"
+                         disabled={isSubmitting || isRefining || !newComment.trim()}
+                         className="p-4 rounded-2xl bg-brand-action text-white shadow-lg shadow-brand-action/20 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100 transition-all flex items-center justify-center"
+                       >
+                         {isSubmitting ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
+                       </button>
+                     </div>
                    </div>
                  </form>
                ) : (

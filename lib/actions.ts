@@ -149,19 +149,37 @@ export async function loginUser(
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "")
 
-export async function refineTextWithAI(text: string, type: "summary" | "experience") {
+export async function refineTextWithAI(text: string, type: "summary" | "experience" | "comment") {
   if (!text) return { error: "No text provided" }
   
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
     
-    const prompt = type === "summary" 
-      ? `Refine the following professional CV summary to be more impactful, professional, and concise. Maintain the original meaning but improve the vocabulary and flow: "${text}"`
-      : `Refine the following job description/experience bullet points for a CV. Make them more action-oriented, professional, and clear. Maintain the original achievements: "${text}"`
+    let prompt = ""
+    if (type === "summary") {
+      prompt = `Refine the following professional CV summary to be more impactful, professional, and concise. Maintain the original meaning but improve the vocabulary and flow: "${text}"`
+    } else if (type === "experience") {
+      prompt = `Refine the following job description/experience bullet points for a CV. Make them more action-oriented, professional, and clear. Maintain the original achievements: "${text}"`
+    } else if (type === "comment") {
+      prompt = `Refine the following blog comment to be elegant, professional, and insightful, aligned with a career-focused website goal. 
+      Maintain the original sentiment but improve the vocabulary and tone. 
+      Output ONLY the refined text as a single, impactful sentence. 
+      Do NOT provide options. 
+      Do NOT use any markdown formatting (no bold, no italics, no quotes). 
+      Comment: "${text}"`
+    }
 
     const result = await model.generateContent(prompt)
     const response = await result.response
-    const refinedText = response.text()
+    let refinedText = response.text().trim()
+
+    // Clean up potential markdown formatting if Gemini ignored instructions
+    if (refinedText.startsWith("```")) {
+      refinedText = refinedText.replace(/^```[a-z]*\n/i, "").replace(/\n```$/g, "").trim()
+    }
+    
+    // Remove surrounding quotes if present
+    refinedText = refinedText.replace(/^["'](.*)["']$/g, "$1")
 
     return { success: true, refinedText: refinedText.trim() }
   } catch (error) {
