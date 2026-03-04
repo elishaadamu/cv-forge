@@ -71,10 +71,11 @@ export function ModernProfessional({ data }: { data: CVData }) {
         display: "flex",
         flexDirection: "row",
         position: "relative",
+        boxSizing: "border-box",
       }}
     >
       {/* ── LEFT MAIN COLUMN ── */}
-      <div style={{ flex: 1, padding: "48px 36px 48px 48px" }}>
+      <div style={{ flex: 1, padding: "48px 36px 48px 48px", boxSizing: "border-box" }}>
         {/* Name + Title */}
         <div style={{ marginBottom: "28px" }}>
           <h1
@@ -245,6 +246,7 @@ export function ModernProfessional({ data }: { data: CVData }) {
           flexDirection: "column",
           gap: "24px",
           flexShrink: 0,
+          boxSizing: "border-box",
         }}
       >
         {/* Profile photo */}

@@ -34,7 +34,7 @@ const templates = [
     id: "midnight", 
     name: "Midnight Elegance", 
     category: "Luxury", 
-    img: "/modern.png", 
+    img: "/midnight.png", 
     color: "#302b63", 
     desc: "Sophisticated serif design with a deep purple gradient header for senior professionals." 
   },
@@ -42,7 +42,7 @@ const templates = [
     id: "bold-impact", 
     name: "Bold Impact", 
     category: "High Impact", 
-    img: "/modern.png", 
+    img: "/bold.png", 
     color: "#f97316", 
     desc: "High-contrast, hard-hitting layout with dark navy and orange accents." 
   },
@@ -50,7 +50,7 @@ const templates = [
     id: "refined", 
     name: "Refined Classic", 
     category: "Distinguished", 
-    img: "/modern.png", 
+    img: "/refined.png", 
     color: "#d97706", 
     desc: "Elegant serif typography with gold accents, ideal for executive roles." 
   },

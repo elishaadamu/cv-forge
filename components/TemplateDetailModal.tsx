@@ -126,10 +126,6 @@ export function TemplateDetailModal({ template, isOpen, onClose }: TemplateDetai
                    <span>Start Building</span>
                    <ArrowRight size={20} className="ml-2" />
                  </Link>
-                 <button className="h-16 px-8 border border-white/10 rounded-2xl flex items-center justify-center gap-2 font-black text-sm uppercase tracking-widest hover:bg-white/5 transition-all text-foreground/60 hover:text-foreground">
-                   <Zap size={18} className="text-amber-400" />
-                   <span>Preview Live</span>
-                 </button>
                </div>
             </div>
           </motion.div>

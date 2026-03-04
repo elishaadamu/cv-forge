@@ -849,3 +849,69 @@ export async function getSavedAiGenerations() {
     return { error: "Failed to fetch AI generations" }
   }
 }
+
+export async function getCVPreview(id: string) {
+  try {
+    const cv = await (prisma.cV as any).findUnique({
+      where: { id },
+      include: {
+        personalInfo: true,
+        experiences: true,
+        educations: true,
+        skills: true,
+        projects: true,
+      }
+    }) as any
+
+    if (!cv) return { error: "CV not found" }
+
+    // Transform to UI structure
+    const transformedData = {
+      personalInfo: {
+        fullName: cv.personalInfo?.fullName || "",
+        jobTitle: cv.personalInfo?.jobTitle || "",
+        email: cv.personalInfo?.email || "",
+        phoneCode: cv.personalInfo?.phoneCode || "",
+        phone: cv.personalInfo?.phone || "",
+        country: cv.personalInfo?.country || "",
+        county: cv.personalInfo?.county || "",
+        location: cv.personalInfo?.location || "",
+        website: cv.personalInfo?.website || "",
+        linkedin: cv.personalInfo?.linkedin || "",
+        github: cv.personalInfo?.github || "",
+        facebook: cv.personalInfo?.facebook || "",
+        summary: cv.personalInfo?.summary || "",
+        profileImage: cv.personalInfo?.profileImage || "",
+      },
+      experience: cv.experiences.map((e: any) => ({
+        id: e.id,
+        role: e.role,
+        company: e.company,
+        duration: e.duration,
+        description: e.description,
+      })),
+      education: cv.educations.map((e: any) => ({
+        id: e.id,
+        degree: e.degree,
+        school: e.school,
+        duration: e.duration,
+      })),
+      skills: cv.skills.map((s: any) => ({
+        category: s.category,
+        items: s.items,
+      })),
+      projects: cv.projects.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        description: p.description || "",
+        link: p.link || "",
+      })),
+      templateId: cv.templateId,
+    }
+
+    return { success: true, data: transformedData }
+  } catch (error) {
+    console.error("Get CV Preview error:", error)
+    return { error: "Failed to fetch CV preview" }
+  }
+}

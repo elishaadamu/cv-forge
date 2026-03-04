@@ -12,8 +12,9 @@ export function MinimalATS({ data }: { data: CVData }) {
         width: "210mm",
         minHeight: "297mm",
         padding: "3rem",
+        boxSizing: "border-box",
         margin: "0 auto",
-        fontFamily: "sans-serif",
+        fontFamily: "'Inter', 'Helvetica Neue', sans-serif",
         fontSize: "13px",
         color: "#000",
         position: "relative"
@@ -21,9 +22,11 @@ export function MinimalATS({ data }: { data: CVData }) {
     >
       
       {/* 1. Contact Information */}
-      <header className="text-center mb-8">
-        <h1 className="text-2xl font-bold uppercase mb-2">{personalInfo.fullName}</h1>
-        <div className="text-xs flex flex-wrap justify-center gap-x-2 gap-y-1">
+      <header style={{ textAlign: "center", marginBottom: "32px" }}>
+        <h1 style={{ fontSize: "24px", fontWeight: "bold", textTransform: "uppercase", marginBottom: "8px" }}>
+          {personalInfo.fullName}
+        </h1>
+        <div style={{ fontSize: "11px", display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "8px" }}>
           {[
             [personalInfo.county, personalInfo.country, personalInfo.location].filter(Boolean).join(", "),
             personalInfo.phone ? `${personalInfo.phoneCode || ''} ${personalInfo.phone}` : null,
@@ -35,7 +38,7 @@ export function MinimalATS({ data }: { data: CVData }) {
           ].filter(Boolean).map((item, i, arr) => (
             <React.Fragment key={i}>
               <span>{item}</span>
-              {i < arr.length - 1 && <span className="text-gray-400">|</span>}
+              {i < arr.length - 1 && <span style={{ color: "#9ca3af" }}>|</span>}
             </React.Fragment>
           ))}
         </div>
@@ -43,42 +46,44 @@ export function MinimalATS({ data }: { data: CVData }) {
 
       {/* 2. Professional Summary */}
       {personalInfo.summary && (
-        <section className="mb-8">
-          <h2 className="font-bold uppercase text-sm border-b-2 border-black pb-1 mb-3">
+        <section style={{ marginBottom: "32px" }}>
+          <h2 style={{ fontWeight: "bold", textTransform: "uppercase", fontSize: "14px", borderBottom: "2px solid black", paddingBottom: "4px", marginBottom: "12px" }}>
             Professional Summary
           </h2>
-          <MarkdownText content={personalInfo.summary} className="leading-normal" />
+          <MarkdownText content={personalInfo.summary} style={{ lineHeight: "1.5" }} />
         </section>
       )}
 
       {/* 3. Core Skills / Technical Skills */}
       {skills.length > 0 && (
-        <section className="mb-8">
-          <h2 className="font-bold uppercase text-sm border-b-2 border-black pb-1 mb-3">
+        <section style={{ marginBottom: "32px" }}>
+          <h2 style={{ fontWeight: "bold", textTransform: "uppercase", fontSize: "14px", borderBottom: "2px solid black", paddingBottom: "4px", marginBottom: "12px" }}>
             Core Skills
           </h2>
-          {skills.map((skill, i) => (
-            <p key={i} className="mb-1">
-              <strong>{skill.category}:</strong> {skill.items.join(", ")}
-            </p>
-          ))}
+          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+            {skills.map((skill, i) => (
+              <p key={i} style={{ margin: 0 }}>
+                <strong style={{ fontWeight: "bold" }}>{skill.category}:</strong> {skill.items.join(", ")}
+              </p>
+            ))}
+          </div>
         </section>
       )}
 
       {/* 4. Professional Experience */}
       {experience.length > 0 && (
-        <section className="mb-8">
-          <h2 className="font-bold uppercase text-sm border-b-2 border-black pb-1 mb-3">
+        <section style={{ marginBottom: "32px" }}>
+          <h2 style={{ fontWeight: "bold", textTransform: "uppercase", fontSize: "14px", borderBottom: "2px solid black", paddingBottom: "4px", marginBottom: "12px" }}>
             Professional Experience
           </h2>
           {experience.map((exp) => (
-            <div key={exp.id} className="mb-5 last:mb-0">
-              <div className="flex justify-between items-baseline font-bold">
-                <span className="text-sm">{exp.role}</span>
-                <span className="text-xs font-normal">{exp.duration}</span>
+            <div key={exp.id} style={{ marginBottom: "20px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", fontWeight: "bold" }}>
+                <span style={{ fontSize: "14px" }}>{exp.role}</span>
+                <span style={{ fontSize: "11px", fontWeight: "normal" }}>{exp.duration}</span>
               </div>
-              <div className="text-xs italic mb-2">{exp.company}</div>
-              <ul className="list-disc ml-5 space-y-1">
+              <div style={{ fontSize: "12px", fontStyle: "italic", marginBottom: "8px" }}>{exp.company}</div>
+              <ul style={{ paddingLeft: "16px", margin: 0, listStyleType: "disc", display: "flex", flexDirection: "column", gap: "4px" }}>
                 {exp.description.map((bullet, i) => (
                   <li key={i}>
                     <MarkdownText content={bullet} />
@@ -92,17 +97,17 @@ export function MinimalATS({ data }: { data: CVData }) {
 
       {/* 7. Projects (Tech focused) */}
       {projects && projects.length > 0 && (
-        <section className="mb-8">
-          <h2 className="font-bold uppercase text-sm border-b-2 border-black pb-1 mb-3">
+        <section style={{ marginBottom: "32px" }}>
+          <h2 style={{ fontWeight: "bold", textTransform: "uppercase", fontSize: "14px", borderBottom: "2px solid black", paddingBottom: "4px", marginBottom: "12px" }}>
             Technical Projects
           </h2>
           {projects.map((project) => (
-            <div key={project.id} className="mb-4 last:mb-0">
-              <div className="flex justify-between items-baseline font-bold">
-                <span className="text-sm">{project.name}</span>
-                {project.link && <span className="text-xs font-normal">{project.link.replace(/^https?:\/\/(www\.)?/, "")}</span>}
+            <div key={project.id} style={{ marginBottom: "16px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", fontWeight: "bold" }}>
+                <span style={{ fontSize: "14px" }}>{project.name}</span>
+                {project.link && <span style={{ fontSize: "11px", fontWeight: "normal" }}>{project.link.replace(/^https?:\/\/(www\.)?/, "")}</span>}
               </div>
-              <ul className="list-disc ml-5 mt-1 space-y-0.5">
+              <ul style={{ paddingLeft: "16px", margin: "4px 0 0 0", listStyleType: "disc", display: "flex", flexDirection: "column", gap: "2px" }}>
                 {project.description.split('\n').filter(line => line.trim()).map((bullet, i) => (
                   <li key={i}>
                     <MarkdownText content={bullet.replace(/^[•\-\*]\s*/, "")} />
@@ -116,18 +121,18 @@ export function MinimalATS({ data }: { data: CVData }) {
 
       {/* 5. Education */}
       {education.length > 0 && (
-        <section className="mb-8">
-          <h2 className="font-bold uppercase text-sm border-b-2 border-black pb-1 mb-3">
+        <section style={{ marginBottom: "32px" }}>
+          <h2 style={{ fontWeight: "bold", textTransform: "uppercase", fontSize: "14px", borderBottom: "2px solid black", paddingBottom: "4px", marginBottom: "12px" }}>
             Education
           </h2>
           {education.map((edu) => (
-            <div key={edu.id} className="flex justify-between items-baseline mb-2">
+            <div key={edu.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "8px" }}>
               <div>
-                <span className="font-bold">{edu.degree}</span>
-                <span className="mx-2">|</span>
+                <span style={{ fontWeight: "bold" }}>{edu.degree}</span>
+                <span style={{ margin: "0 8px", color: "#6b7280" }}>|</span>
                 <span>{edu.school}</span>
               </div>
-              <span className="text-xs">{edu.duration}</span>
+              <span style={{ fontSize: "11px" }}>{edu.duration}</span>
             </div>
           ))}
         </section>

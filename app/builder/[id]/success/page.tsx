@@ -12,7 +12,14 @@ import {
   Share2,
   ExternalLink,
   Zap,
-  Loader2
+  Loader2,
+  Copy,
+  Mail,
+  Twitter,
+  Facebook,
+  Linkedin,
+  Link as LinkIcon,
+  MessageCircle
 } from "lucide-react"
 import { ModernProfessional, CVData } from "@/components/templates/ModernProfessional"
 import { ClassicTable } from "@/components/templates/ClassicTable"
@@ -33,7 +40,7 @@ import html2canvas from "html2canvas-pro"
 import jsPDF from "jspdf"
 import Link from "next/link"
 import { useParams } from "next/navigation"
-import { message } from "antd"
+import { message, Dropdown, MenuProps } from "antd"
 
 export default function SuccessPage() {
   const { data: session } = useSession()
@@ -45,6 +52,78 @@ export default function SuccessPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isReady, setIsReady] = useState(false) // true after off-screen template has painted
   const cvRef = useRef<HTMLDivElement>(null)
+
+  const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/preview/${id}` : ""
+  const shareTitle = "Check out my new CV created on CV Forge!"
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(shareUrl)
+    message.success("Link copied to clipboard!")
+  }
+
+  const handleNativeShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "My Professional CV",
+          text: shareTitle,
+          url: shareUrl,
+        })
+      } catch (err) {
+        console.log("Share failed:", err)
+      }
+    } else {
+      handleCopyLink()
+    }
+  }
+
+  const shareItems: MenuProps['items'] = [
+    {
+      key: 'native',
+      label: 'Share via App',
+      icon: <Share2 size={16} />,
+      onClick: handleNativeShare
+    },
+    {
+      type: 'divider',
+    },
+    {
+      key: 'copy',
+      label: 'Copy Link',
+      icon: <Copy size={16} />,
+      onClick: handleCopyLink
+    },
+    {
+      key: 'whatsapp',
+      label: 'WhatsApp',
+      icon: <MessageCircle size={16} />,
+      onClick: () => window.open(`https://wa.me/?text=${encodeURIComponent(shareTitle + " " + shareUrl)}`, '_blank')
+    },
+    {
+      key: 'email',
+      label: 'Email',
+      icon: <Mail size={16} />,
+      onClick: () => window.open(`mailto:?subject=${encodeURIComponent("My Professional CV")}&body=${encodeURIComponent(shareTitle + "\n\n" + shareUrl)}`, '_blank')
+    },
+    {
+      key: 'facebook',
+      label: 'Facebook',
+      icon: <Facebook size={16} />,
+      onClick: () => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank')
+    },
+    {
+      key: 'linkedin',
+      label: 'LinkedIn',
+      icon: <Linkedin size={16} />,
+      onClick: () => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`, '_blank')
+    },
+    {
+      key: 'twitter',
+      label: 'Twitter / X',
+      icon: <Twitter size={16} />,
+      onClick: () => window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareTitle)}`, '_blank')
+    }
+  ]
 
   useEffect(() => {
     if (!session) return // still loading session
@@ -137,83 +216,23 @@ export default function SuccessPage() {
         document.body.removeChild(link)
         window.URL.revokeObjectURL(url)
       } else if (type === ".docx") {
-        // Rich HTML that Word/Google Docs can open
-        const htmlContent = `<!DOCTYPE html>
-<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
-<head>
-  <meta charset="utf-8">
-  <title>${cvData.personalInfo.fullName} — CV</title>
-  <style>
-    body { font-family: Calibri, sans-serif; font-size: 11pt; color: #1e293b; margin: 1in; }
-    h1 { font-size: 24pt; margin-bottom: 2pt; }
-    h2 { font-size: 13pt; color: #64748b; font-weight: normal; margin-top: 0; }
-    h3 { font-size: 12pt; border-bottom: 1px solid #e2e8f0; padding-bottom: 4pt; margin-top: 16pt; color: #0f172a; text-transform: uppercase; letter-spacing: 1pt; }
-    .contact { font-size: 10pt; color: #475569; margin-bottom: 16pt; }
-    .exp-header { display: flex; justify-content: space-between; }
-    .role { font-weight: bold; font-size: 11pt; }
-    .company { color: #e76f3c; font-size: 10pt; }
-    .duration { color: #94a3b8; font-size: 10pt; }
-    ul { margin-top: 4pt; }
-    li { margin-bottom: 3pt; }
-    .skill-cat { font-weight: bold; color: #475569; font-size: 10pt; }
-    .project-name { font-weight: bold; }
-    .project-link { color: #3b82f6; font-size: 9pt; }
-  </style>
-</head>
-<body>
-  <h1>${cvData.personalInfo.fullName}</h1>
-  <h2>${cvData.personalInfo.jobTitle}</h2>
-  <p class="contact">
-    ${cvData.personalInfo.email} &nbsp;|&nbsp; ${cvData.personalInfo.phone} &nbsp;|&nbsp; ${cvData.personalInfo.location}
-    ${cvData.personalInfo.linkedin ? ` &nbsp;|&nbsp; ${cvData.personalInfo.linkedin}` : ""}
-    ${cvData.personalInfo.github ? ` &nbsp;|&nbsp; ${cvData.personalInfo.github}` : ""}
-  </p>
+        const response = await fetch("/api/generate-docx", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cvData }),
+        })
 
-  <h3>Summary</h3>
-  <p>${cvData.personalInfo.summary}</p>
+        if (!response.ok) throw new Error("Failed to generate DOCX")
 
-  <h3>Experience</h3>
-  ${cvData.experience.map((e: any) => `
-    <div style="margin-bottom:12pt">
-      <div class="exp-header">
-        <span class="role">${e.role}</span>
-        <span class="duration">${e.duration}</span>
-      </div>
-      <div class="company">${e.company}</div>
-      <ul>${e.description.map((d: any) => `<li>${d}</li>`).join("")}</ul>
-    </div>
-  `).join("")}
-
-  <h3>Education</h3>
-  ${cvData.education.map((e: any) => `
-    <div style="margin-bottom:8pt">
-      <strong>${e.school}</strong> — ${e.degree} <span class="duration">(${e.duration})</span>
-    </div>
-  `).join("")}
-
-  <h3>Skills</h3>
-  ${cvData.skills.map((s: any) => `
-    <p><span class="skill-cat">${s.category}:</span> ${s.items.join(", ")}</p>
-  `).join("")}
-
-  <h3>Projects</h3>
-  ${cvData.projects.map((p: any) => `
-    <div style="margin-bottom:8pt">
-      <span class="project-name">${p.name}</span>
-      ${p.link ? ` — <span class="project-link">${p.link}</span>` : ""}
-      <p style="margin-top:2pt">${p.description}</p>
-    </div>
-  `).join("")}
-</body>
-</html>`
-        const blob = new Blob([htmlContent], { type: "application/msword" })
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
         const link = document.createElement("a")
-        link.href = URL.createObjectURL(blob)
-        link.download = `${cvData.personalInfo.fullName.replace(/\s+/g, "_") || "CV"}_CV.doc`
+        link.href = url
+        link.download = `${cvData.personalInfo.fullName.replace(/\s+/g, "_") || "CV"}_CV.docx`
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
-        setTimeout(() => URL.revokeObjectURL(link.href), 1000)
+        window.URL.revokeObjectURL(url)
       }
       message.success("Asset Acquired Successfully!")
     } catch (error) {
@@ -293,18 +312,49 @@ export default function SuccessPage() {
           position: "fixed",
           left: "-9999px",
           top: "0px",
-          width: "850px",
+          width: "210mm",
           pointerEvents: "none",
           overflow: "hidden",
         }}
       >
-        <div ref={cvRef}>{renderTemplate()}</div>
+        <div ref={cvRef} style={{ width: "210mm" }}>{renderTemplate()}</div>
       </div>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
+        
+        {/* Navigation Links moved to the Top */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-12 py-6 border-b border-border-custom px-4">
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-2.5 text-foreground/40 hover:text-brand-action font-black uppercase tracking-widest text-xs transition-all duration-200 hover:-translate-x-1"
+          >
+            <LayoutDashboard size={18} />
+            <span>Back to Dashboard</span>
+          </Link>
+
+          <div className="flex items-center gap-6">
+            <Link
+              href={`/builder/${id}`}
+              className="flex items-center gap-2.5 text-foreground/40 hover:text-brand-action font-black uppercase tracking-widest text-xs transition-all duration-200"
+            >
+              <ArrowLeft size={18} />
+              <span>Continue Editing</span>
+            </Link>
+            
+            <div className="w-1.5 h-1.5 bg-border-custom rounded-full" />
+            
+            <Dropdown menu={{ items: shareItems }} placement="bottomRight" trigger={['click']}>
+              <button className="flex items-center gap-2.5 text-foreground/40 hover:text-brand-action font-black uppercase tracking-widest text-xs transition-all duration-200 outline-none">
+                <Share2 size={18} />
+                <span>Share Link</span>
+              </button>
+            </Dropdown>
+          </div>
+        </div>
+
         {/* Loading state */}
         {isLoading && (
-          <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
+          <div className="flex flex-col items-center justify-center min-h-[50vh] gap-6">
             <div className="w-16 h-16 rounded-2xl bg-brand-action/10 flex items-center justify-center">
               <Loader2 size={32} className="animate-spin text-brand-action" />
             </div>
@@ -410,30 +460,6 @@ export default function SuccessPage() {
               <div className="absolute -bottom-16 -right-16 w-40 h-40 bg-white/3 rounded-full blur-3xl group-hover:bg-brand-action/10 transition-all duration-500 pointer-events-none" />
             </motion.button>
           ))}
-        </div>
-
-        {/* Nav Links */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-20">
-          <Link
-            href="/dashboard"
-            className="flex items-center gap-2 text-foreground/40 hover:text-brand-action font-black uppercase tracking-widest text-xs transition-colors duration-200"
-          >
-            <LayoutDashboard size={16} />
-            <span>Back to Dashboard</span>
-          </Link>
-          <div className="w-1.5 h-1.5 bg-border-custom rounded-full hidden sm:block" />
-          <Link
-            href={`/builder/${id}`}
-            className="flex items-center gap-2 text-foreground/40 hover:text-brand-action font-black uppercase tracking-widest text-xs transition-colors duration-200"
-          >
-            <ArrowLeft size={16} />
-            <span>Continue Editing</span>
-          </Link>
-          <div className="w-1.5 h-1.5 bg-border-custom rounded-full hidden sm:block" />
-          <button className="flex items-center gap-2 text-foreground/40 hover:text-brand-action font-black uppercase tracking-widest text-xs transition-colors duration-200">
-            <Share2 size={16} />
-            <span>Share Link</span>
-          </button>
         </div>
 
         {/* Pro Tip */}

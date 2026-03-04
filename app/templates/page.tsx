@@ -39,7 +39,7 @@ const templates = [
     id: "minimal", 
     name: "Minimal ATS", 
     category: "Recruiter Choice", 
-    img: "/modern.png", 
+    img: "/ats.png", 
     color: "#000000", 
     desc: "Ultra-clean layout optimized for parsing accuracy.",
     features: ["Zero Decor Parsability", "Recruiter-Preferred Speed", "Clean Sans-Serif Fonts", "Standard Top-Down Flow"]
@@ -48,7 +48,7 @@ const templates = [
     id: "creative", 
     name: "Creative Portfolio", 
     category: "Artistic", 
-    img: "/modern.png", 
+    img: "/creative.png", 
     color: "#9333ea", 
     desc: "Bold aesthetics for designers and creative thinkers.",
     features: ["Visual Flow Architecture", "Artistic Skill Charts", "Creative Color Accents", "Design-Focused Layout"]
@@ -57,7 +57,7 @@ const templates = [
     id: "startup", 
     name: "Startup Tech", 
     category: "Tech ecosystem", 
-    img: "/modern.png", 
+    img: "/startup.png", 
     color: "#1d4ed8", 
     desc: "Fast-paced, modern design for the tech ecosystem.",
     features: ["Modern UI Aesthetics", "Tech Skill Badges", "Dynamic Summary Section", "GitHub/Social Optimized"]
@@ -66,7 +66,7 @@ const templates = [
     id: "executive-board", 
     name: "Executive Board", 
     category: "Leadership", 
-    img: "/modern.png", 
+    img: "/board.png", 
     color: "#111827", 
     desc: "High-level professional design for leadership roles.",
     features: ["High-Impact Board Focus", "Strategic Achievement Layout", "Elegant Serif Titles", "Formal Sectioning"]
@@ -75,7 +75,7 @@ const templates = [
     id: "midnight", 
     name: "Midnight Elegance", 
     category: "Luxury", 
-    img: "/modern.png", 
+    img: "/midnight.png", 
     color: "#302b63", 
     desc: "Sophisticated serif design with a deep purple gradient header.",
     features: ["Deep Gradient Palette", "Luxurious Typography", "Refined Accent Colors", "Editorial Layout Flow"]
@@ -84,7 +84,7 @@ const templates = [
     id: "bold-impact", 
     name: "Bold Impact", 
     category: "High Impact", 
-    img: "/modern.png", 
+    img: "/bold.png", 
     color: "#f97316", 
     desc: "High-contrast, hard-hitting layout with navy and orange.",
     features: ["Confident High-Contrast", "Powerful Date Badges", "Authority Section Lines", "Bold Callouts"]
@@ -93,7 +93,7 @@ const templates = [
     id: "corporate", 
     name: "Corporate Clean", 
     category: "Enterprise", 
-    img: "/modern.png", 
+    img: "/corporate.png", 
     color: "#0d9488", 
     desc: "Modern corporate design with timeline-style experience.",
     features: ["Timeline History Flow", "Enterprise Skill Tables", "Professional Teal Accents", "Corporate Hierarchy"]
@@ -102,7 +102,7 @@ const templates = [
     id: "fresh", 
     name: "Fresh Minimal", 
     category: "Contemporary", 
-    img: "/modern.png", 
+    img: "/fresh.png", 
     color: "#10b981", 
     desc: "Light, airy design with green accents and white space.",
     features: ["Airy Modern Spacing", "Contemporary Pill Icons", "Soft Color Palette", "Clean Reading Experience"]
@@ -111,7 +111,7 @@ const templates = [
     id: "refined", 
     name: "Refined Classic", 
     category: "Distinguished", 
-    img: "/modern.png", 
+    img: "/refined.png", 
     color: "#d97706", 
     desc: "Elegant serif typography with gold accents.",
     features: ["Golden Classic Accents", "Elegant Serif Fonts", "Ornamental Dividers", "Centered Header Balance"]

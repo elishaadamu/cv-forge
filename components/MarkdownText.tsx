@@ -24,10 +24,10 @@ export function MarkdownText({ content, className, style }: MarkdownTextProps) {
           // Render paragraphs as spans to maintain inline/flex flow in CVs
           p: ({ node, ...props }) => <span {...props} />,
           // Ensure lists are styled if they appear
-          ul: ({ node, ...props }) => <ul className="list-disc ml-4" {...props} />,
+          ul: ({ node, ...props }) => <ul style={{ listStyleType: "disc", marginLeft: "1rem" }} {...props} />,
           li: ({ node, ...props }) => <li {...props} />,
           // Support links if any
-          a: ({ node, ...props }) => <a className="text-blue-600 underline" target="_blank" rel="noopener noreferrer" {...props} />,
+          a: ({ node, ...props }) => <a style={{ color: "#2563eb", textDecoration: "underline" }} target="_blank" rel="noopener noreferrer" {...props} />,
         }}
       >
         {content}

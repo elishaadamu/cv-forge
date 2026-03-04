@@ -28,6 +28,7 @@ export function ExecutiveTwoColumn({ data }: { data: CVData }) {
         display: "flex",
         flexDirection: "row",
         position: "relative",
+        boxSizing: "border-box",
       }}
     >
       {/* ── LEFT DARK SIDEBAR ── */}
@@ -36,11 +37,12 @@ export function ExecutiveTwoColumn({ data }: { data: CVData }) {
           width: "260px",
           background: "#1b2a4a",
           color: "#fff",
-          padding: "48px 28px",
+          padding: "48px 32px",
           display: "flex",
           flexDirection: "column",
           gap: "28px",
           flexShrink: 0,
+          boxSizing: "border-box",
         }}
       >
         {/* Photo */}
@@ -167,7 +169,7 @@ export function ExecutiveTwoColumn({ data }: { data: CVData }) {
       </div>
 
       {/* ── RIGHT MAIN CONTENT ── */}
-      <div style={{ flex: 1, padding: "48px 40px", background: "#fff" }}>
+      <div style={{ flex: 1, padding: "48px 32px", background: "#fff", boxSizing: "border-box" }}>
         {/* Summary */}
         {personalInfo.summary && (
           <div style={{ marginBottom: "28px" }}>

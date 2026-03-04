@@ -12,19 +12,20 @@ export function StartupTech({ data }: { data: CVData }) {
         width: "210mm",
         minHeight: "297mm",
         padding: "3rem",
+        boxSizing: "border-box",
         margin: "0 auto",
-        fontFamily: "sans-serif",
+        fontFamily: "'Courier New', Courier, monospace",
         color: "#000",
         position: "relative"
       }}
     >
       
-      <header className="mb-4">
-        <h1 className="text-3xl font-bold">{personalInfo.fullName}</h1>
-        <p className="text-gray-600">{personalInfo.jobTitle}</p>
+      <header style={{ marginBottom: "16px" }}>
+        <h1 style={{ fontSize: "30px", fontWeight: "bold", margin: "0 0 4px 0" }}>{personalInfo.fullName}</h1>
+        <p style={{ color: "#4b5563", margin: 0 }}>{personalInfo.jobTitle}</p>
       </header>
 
-      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 mb-8 font-mono border-b pb-4">
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", fontSize: "11px", color: "#6b7280", marginBottom: "32px", paddingBottom: "16px", borderBottom: "1px solid #e5e7eb" }}>
         {personalInfo.email && <span>{personalInfo.email}</span>}
         {personalInfo.phone && <span>{personalInfo.phoneCode || ''} {personalInfo.phone}</span>}
         {(personalInfo.location || personalInfo.county || personalInfo.country) && (
@@ -37,16 +38,16 @@ export function StartupTech({ data }: { data: CVData }) {
       </div>
 
       {experience.map((exp) => (
-        <div key={exp.id} className="mb-6">
-          <div className="flex justify-between font-semibold">
+        <div key={exp.id} style={{ marginBottom: "24px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", fontWeight: "600", marginBottom: "4px" }}>
             <span>{exp.role} @ {exp.company}</span>
-            <span className="text-sm text-gray-500">
+            <span style={{ fontSize: "12px", color: "#6b7280" }}>
               {exp.duration}
             </span>
           </div>
-          <ul className="list-disc ml-5 mt-1">
+          <ul style={{ paddingLeft: "20px", margin: 0, listStyleType: "disc" }}>
             {exp.description.map((d, i) => (
-              <li key={i}>
+              <li key={i} style={{ marginBottom: "2px" }}>
                 <MarkdownText content={d} />
               </li>
             ))}
@@ -54,13 +55,13 @@ export function StartupTech({ data }: { data: CVData }) {
         </div>
       ))}
 
-      <section className="mb-6">
-        <h2 className="font-bold mb-2">Tech Stack</h2>
-        <div className="flex flex-wrap gap-2">
+      <section style={{ marginBottom: "24px" }}>
+        <h2 style={{ fontWeight: "bold", fontSize: "16px", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "1px" }}>Tech Stack</h2>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
           {skills.flatMap((s) => s.items).map((item, i) => (
             <span
               key={i}
-              className="px-3 py-1 text-xs bg-black/5 rounded-md"
+              style={{ padding: "4px 12px", fontSize: "11px", background: "rgba(0,0,0,0.05)", borderRadius: "4px" }}
             >
               {item}
             </span>
@@ -70,11 +71,11 @@ export function StartupTech({ data }: { data: CVData }) {
 
       {projects.length > 0 && (
         <section>
-          <h2 className="font-bold mb-2">Projects</h2>
+          <h2 style={{ fontWeight: "bold", fontSize: "16px", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "1px" }}>Projects</h2>
           {projects.map((proj) => (
-            <div key={proj.id} className="mb-3">
-              <p className="font-semibold">{proj.name}</p>
-              <MarkdownText content={proj.description} className="text-sm" />
+            <div key={proj.id} style={{ marginBottom: "12px" }}>
+              <p style={{ fontWeight: "600", margin: "0 0 2px 0" }}>{proj.name}</p>
+              <MarkdownText content={proj.description} style={{ fontSize: "13px", color: "#374151" }} />
             </div>
           ))}
         </section>
