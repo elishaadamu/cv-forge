@@ -198,23 +198,42 @@ export default function SuccessPage() {
         link.click()
         document.body.removeChild(link)
       } else if (type === ".pdf") {
-        const response = await fetch("/api/generate-pdf", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ cvData, templateId: cvData.templateId }),
+        // Client-side PDF generation using html2canvas + jsPDF
+        const a4WidthPx = element.scrollWidth // already 210mm wide
+        const a4HeightMM = 297
+        const a4WidthMM = 210
+        const scaleFactor = a4WidthMM / a4WidthPx
+
+        const pdf = new jsPDF({
+          orientation: "portrait",
+          unit: "mm",
+          format: "a4",
         })
 
-        if (!response.ok) throw new Error("Failed to generate PDF")
+        const totalHeightPx = element.scrollHeight
+        const pageHeightPx = a4HeightMM / scaleFactor
+        const totalPages = Math.ceil(totalHeightPx / pageHeightPx)
 
-        const blob = await response.blob()
-        const url = window.URL.createObjectURL(blob)
-        const link = document.createElement("a")
-        link.href = url
-        link.download = `${cvData.personalInfo.fullName.replace(/\s+/g, "_") || "CV"}_CV.pdf`
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-        window.URL.revokeObjectURL(url)
+        for (let page = 0; page < totalPages; page++) {
+          if (page > 0) pdf.addPage()
+
+          const pageCanvas = await html2canvas(element, {
+            scale: 1.5,
+            useCORS: true,
+            allowTaint: true,
+            logging: false,
+            backgroundColor: "#ffffff",
+            width: a4WidthPx,
+            height: pageHeightPx,
+            y: page * pageHeightPx,
+            windowHeight: pageHeightPx,
+          })
+
+          const pageImgData = pageCanvas.toDataURL("image/jpeg", 0.8)
+          pdf.addImage(pageImgData, "JPEG", 0, 0, a4WidthMM, a4HeightMM, undefined, "FAST")
+        }
+
+        pdf.save(`${cvData.personalInfo.fullName.replace(/\s+/g, "_") || "CV"}_CV.pdf`)
       } else if (type === ".docx") {
         const response = await fetch("/api/generate-docx", {
           method: "POST",
