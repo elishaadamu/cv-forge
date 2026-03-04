@@ -28,7 +28,7 @@ export function StartupTech({ data }: { data: CVData }) {
         {personalInfo.email && <span>{personalInfo.email}</span>}
         {personalInfo.phone && <span>{personalInfo.phoneCode || ''} {personalInfo.phone}</span>}
         {(personalInfo.location || personalInfo.county || personalInfo.country) && (
-          <span>{[personalInfo.location, personalInfo.county, personalInfo.country].filter(Boolean).join(", ")}</span>
+          <span>{[personalInfo.county, personalInfo.country, personalInfo.location].filter(Boolean).join(", ")}</span>
         )}
         {personalInfo.website && <span>{personalInfo.website.replace(/^https?:\/\//, "")}</span>}
         {personalInfo.github && <span>github.com/{personalInfo.github.split('/').pop()}</span>}

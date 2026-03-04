@@ -1,16 +1,42 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Navbar } from "@/components/Navbar"
 import { motion, AnimatePresence } from "framer-motion"
-import { Sparkles, Loader2, Send, FileText, Globe, Zap, AlertCircle } from "lucide-react"
-import { generateBlogAIContent } from "@/lib/actions"
+import { Sparkles, Loader2, Send, FileText, Globe, Zap, AlertCircle, ShieldCheck } from "lucide-react"
+import { generateBlogAIContent, getSavedAtsAudits, getSavedAiGenerations } from "@/lib/actions"
 import { message } from "antd"
 
 export default function BlogGeneratorPage() {
   const [topic, setTopic] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
   const [result, setResult] = useState<any>(null)
+  
+  const [historyTab, setHistoryTab] = useState<"AI" | "ATS">("AI")
+  const [aiHistory, setAiHistory] = useState<any[]>([])
+  const [atsHistory, setAtsHistory] = useState<any[]>([])
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true)
+
+  const fetchHistory = async () => {
+    setIsLoadingHistory(true)
+    try {
+      const [aiRes, atsRes] = await Promise.all([
+        getSavedAiGenerations(),
+        getSavedAtsAudits()
+      ])
+      if (aiRes.success) setAiHistory(aiRes.generations || [])
+      if (atsRes.success) setAtsHistory(atsRes.audits || [])
+    } catch (e) {
+      console.error("Failed to load history", e)
+    } finally {
+      setIsLoadingHistory(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchHistory()
+  }, [])
+
 
   const handleGenerate = async () => {
     if (!topic.trim()) {
@@ -32,6 +58,7 @@ export default function BlogGeneratorPage() {
       message.error("The service is offline. Please retry.")
     } finally {
       setIsGenerating(false)
+      fetchHistory() // Refresh the history list
     }
   }
 
@@ -155,6 +182,76 @@ export default function BlogGeneratorPage() {
           </div>
 
           <div className="absolute top-0 right-0 w-96 h-96 bg-brand-action/10 blur-[150px] pointer-events-none rounded-full" />
+        </section>
+
+        {/* History Section */}
+        <section className="mt-16 bg-white/5 border border-border-custom rounded-[48px] p-8 md:p-12 shadow-2xl relative overflow-hidden backdrop-blur-3xl">
+          <div className="space-y-8 relative z-10">
+            <div className="flex border-b border-white/10">
+              <button 
+                onClick={() => setHistoryTab("AI")}
+                className={`py-4 px-8 font-black uppercase tracking-widest text-xs transition-colors border-b-2 ${historyTab === "AI" ? "border-brand-action text-brand-action" : "border-transparent text-foreground/40 hover:text-foreground/80"}`}
+              >
+                AI Insights History
+              </button>
+              <button 
+                onClick={() => setHistoryTab("ATS")}
+                className={`py-4 px-8 font-black uppercase tracking-widest text-xs transition-colors border-b-2 ${historyTab === "ATS" ? "border-brand-action text-brand-action" : "border-transparent text-foreground/40 hover:text-foreground/80"}`}
+              >
+                ATS Audit History
+              </button>
+            </div>
+
+            {isLoadingHistory ? (
+              <div className="py-20 flex justify-center opacity-40">
+                <Loader2 size={32} className="animate-spin text-brand-action" />
+              </div>
+            ) : historyTab === "AI" ? (
+              <div className="space-y-4">
+                {aiHistory.length === 0 ? (
+                  <p className="text-foreground/40 font-medium italic">No AI insights generated yet.</p>
+                ) : (
+                  aiHistory.map(item => (
+                    <div key={item.id} className="p-6 bg-black/20 border border-white/5 rounded-[32px] space-y-4 cursor-pointer hover:bg-black/40 transition-colors" onClick={() => setResult(item)}>
+                      <div className="flex justify-between items-start">
+                        <h4 className="font-bold text-lg text-brand-action">{item.title || "CV Insight"}</h4>
+                        <span className="text-[10px] text-foreground/40 font-black uppercase tracking-widest">{new Date(item.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      <p className="text-sm text-foreground/60 italic">"{item.topic}"</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {atsHistory.length === 0 ? (
+                  <p className="text-foreground/40 font-medium italic">No ATS audits ran yet.</p>
+                ) : (
+                  atsHistory.map(item => {
+                    const data = JSON.parse(item.analysisData || "{}")
+                    return (
+                      <div key={item.id} className="p-6 bg-black/20 border border-white/5 rounded-[32px] flex items-center justify-between hover:bg-black/40 transition-colors">
+                        <div className="space-y-1">
+                          <h4 className="font-bold text-lg">Scan completed</h4>
+                          <span className="text-[10px] text-foreground/40 font-black uppercase tracking-widest">{new Date(item.createdAt).toLocaleString()}</span>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <div className="text-right">
+                            <p className="text-xs text-foreground/40 uppercase tracking-widest font-black">Score</p>
+                            <p className={`text-3xl font-black ${item.score >= 80 ? 'text-brand-success' : item.score >= 50 ? 'text-amber-400' : 'text-red-400'}`}>{item.score}</p>
+                          </div>
+                          <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center">
+                            <ShieldCheck size={20} className={item.score >= 80 ? 'text-brand-success' : item.score >= 50 ? 'text-amber-400' : 'text-red-400'} />
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })
+                )}
+              </div>
+            )}
+          </div>
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-action/5 blur-[150px] pointer-events-none rounded-full" />
         </section>
       </main>
     </div>

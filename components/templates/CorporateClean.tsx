@@ -119,7 +119,7 @@ export function CorporateClean({ data }: { data: CVData }) {
               <ContactPill icon={<Linkedin size={10} />} text={personalInfo.linkedin} href={formatUrl(personalInfo.linkedin)} />
             )}
             {(personalInfo.location || personalInfo.county || personalInfo.country) && (
-              <ContactPill icon={<MapPin size={10} />} text={[personalInfo.location, personalInfo.county, personalInfo.country].filter(Boolean).join(", ")} />
+              <ContactPill icon={<MapPin size={10} />} text={[personalInfo.county, personalInfo.country, personalInfo.location].filter(Boolean).join(", ")} />
             )}
             {personalInfo.website && (
               <ContactPill icon={<Globe size={10} />} text={personalInfo.website} href={formatUrl(personalInfo.website)} />

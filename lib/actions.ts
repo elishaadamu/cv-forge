@@ -216,6 +216,22 @@ export async function analyzeCVATS(cvData: any, jobDescription?: string) {
 
     const analysis = JSON.parse(text)
 
+    const session = await auth()
+    if (session?.user?.id) {
+      try {
+        await prisma.atsAudit.create({
+          data: {
+            userId: session.user.id,
+            jobDescription: jobDescription || null,
+            score: analysis.score,
+            analysisData: JSON.stringify(analysis)
+          }
+        })
+      } catch (e) {
+        console.error("Failed to save ATS audit to db:", e)
+      }
+    }
+
     return { success: true, analysis }
   } catch (error) {
     console.error("ATS analysis error:", error)
@@ -685,6 +701,23 @@ export async function generateBlogAIContent(topic: string) {
     const excerpt = text.match(/EXCERPT:\s*([\s\S]*?)(?=CONTENT:)/i)?.[1]?.trim() || "";
     const content = text.split(/CONTENT:/i)[1]?.trim() || text;
 
+    const session = await auth()
+    if (session?.user?.id) {
+      try {
+        await prisma.aiGeneration.create({
+          data: {
+            userId: session.user.id,
+            topic,
+            title,
+            excerpt,
+            content
+          }
+        })
+      } catch (e) {
+        console.error("Failed to save AI generation to db:", e)
+      }
+    }
+
     return { 
       success: true, 
       title, 
@@ -770,5 +803,33 @@ export async function adminCreateUser(data: { name: string, email: string, phone
     return { success: true, message: "New member manually registered" }
   } catch (error) {
     return { error: "Creation failed: Database rejection" }
+  }
+}
+
+export async function getSavedAtsAudits() {
+  const session = await auth()
+  if (!session?.user?.id) return { error: "Unauthenticated" }
+  try {
+    const audits = await prisma.atsAudit.findMany({
+      where: { userId: session.user.id },
+      orderBy: { createdAt: "desc" }
+    })
+    return { success: true, audits }
+  } catch (error) {
+    return { error: "Failed to fetch ATS audits" }
+  }
+}
+
+export async function getSavedAiGenerations() {
+  const session = await auth()
+  if (!session?.user?.id) return { error: "Unauthenticated" }
+  try {
+    const generations = await prisma.aiGeneration.findMany({
+      where: { userId: session.user.id },
+      orderBy: { createdAt: "desc" }
+    })
+    return { success: true, generations }
+  } catch (error) {
+    return { error: "Failed to fetch AI generations" }
   }
 }

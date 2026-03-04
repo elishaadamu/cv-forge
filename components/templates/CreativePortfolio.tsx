@@ -31,7 +31,7 @@ export function CreativePortfolio({ data }: { data: CVData }) {
               {personalInfo.email && <p>{personalInfo.email}</p>}
               {personalInfo.phone && <p>{personalInfo.phoneCode || ''} {personalInfo.phone}</p>}
               {(personalInfo.location || personalInfo.county || personalInfo.country) && (
-                <p>{[personalInfo.location, personalInfo.county, personalInfo.country].filter(Boolean).join(", ")}</p>
+                <p>{[personalInfo.county, personalInfo.country, personalInfo.location].filter(Boolean).join(", ")}</p>
               )}
               {personalInfo.website && <p>{personalInfo.website}</p>}
               {personalInfo.linkedin && <p>In: {personalInfo.linkedin.replace(/^https?:\/\/(www\.)?/, "")}</p>}

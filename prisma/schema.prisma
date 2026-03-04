@@ -30,6 +30,8 @@ model User {
   cvs              CV[]
   sessions         Session[]
   comments         Comment[]
+  atsAudits        AtsAudit[]
+  aiGenerations    AiGeneration[]
 }
 
 model Account {
@@ -144,4 +146,25 @@ model Comment {
   updatedAt DateTime @updatedAt
 
   @@index([blogSlug])
+}
+
+model AtsAudit {
+  id              String   @id @default(cuid())
+  userId          String
+  jobDescription  String?  @db.Text
+  score           Int
+  analysisData    String   @db.Text // JSON string of checks, suggestions, etc.
+  createdAt       DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AiGeneration {
+  id          String   @id @default(cuid())
+  userId      String
+  topic       String   @db.Text
+  title       String
+  excerpt     String   @db.Text
+  content     String   @db.Text
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

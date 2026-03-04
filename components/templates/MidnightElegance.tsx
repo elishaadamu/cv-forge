@@ -106,7 +106,7 @@ export function MidnightElegance({ data }: { data: CVData }) {
           <ContactChip icon={<Linkedin size={10} />} text={personalInfo.linkedin} href={formatUrl(personalInfo.linkedin)} />
         )}
         {(personalInfo.location || personalInfo.county || personalInfo.country) && (
-          <ContactChip icon={<MapPin size={10} />} text={[personalInfo.location, personalInfo.county, personalInfo.country].filter(Boolean).join(", ")} />
+          <ContactChip icon={<MapPin size={10} />} text={[personalInfo.county, personalInfo.country, personalInfo.location].filter(Boolean).join(", ")} />
         )}
         {personalInfo.website && (
           <ContactChip icon={<Globe size={10} />} text={personalInfo.website} href={formatUrl(personalInfo.website)} />

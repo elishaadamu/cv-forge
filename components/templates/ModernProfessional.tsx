@@ -307,7 +307,7 @@ export function ModernProfessional({ data }: { data: CVData }) {
             {(personalInfo.location || personalInfo.county || personalInfo.country) && (
               <ContactRow 
                 icon={<MapPin size={12} />} 
-                text={[personalInfo.location, personalInfo.county, personalInfo.country].filter(Boolean).join(", ")} 
+                text={[personalInfo.county, personalInfo.country, personalInfo.location].filter(Boolean).join(", ")} 
               />
             )}
             {personalInfo.website && (
@@ -444,10 +444,8 @@ function ContactRow({ icon, text, href }: { icon: React.ReactNode; text: string;
       style={{
         fontSize: "11px",
         color: href ? "#3b82c4" : "#374151",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-        whiteSpace: "nowrap",
         textDecoration: "none",
+        wordBreak: "break-word",
       }}
     >
       {text}
@@ -464,7 +462,7 @@ function ContactRow({ icon, text, href }: { icon: React.ReactNode; text: string;
           href={href} 
           target="_blank" 
           rel="noopener noreferrer" 
-          style={{ textDecoration: "none", overflow: "hidden", display: "flex" }}
+          style={{ textDecoration: "none", display: "flex", wordBreak: "break-word" }}
         >
           {content}
         </a>

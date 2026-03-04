@@ -109,7 +109,7 @@ export function ExecutiveTwoColumn({ data }: { data: CVData }) {
             {(personalInfo.location || personalInfo.county || personalInfo.country) && (
               <SidebarContact 
                 label="Location:" 
-                value={[personalInfo.location, personalInfo.county, personalInfo.country].filter(Boolean).join(", ")} 
+                value={[personalInfo.county, personalInfo.country, personalInfo.location].filter(Boolean).join(", ")} 
               />
             )}
             {personalInfo.website && (
@@ -388,10 +388,8 @@ function SidebarContact({ label, value, href }: { label: string; value: string; 
       style={{
         fontSize: "11px",
         color: href ? "#60a5fa" : "#cbd5e1",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-        whiteSpace: "nowrap",
         textDecoration: href ? "underline" : "none",
+        wordBreak: "break-word",
       }}
     >
       {value}
@@ -416,7 +414,7 @@ function SidebarContact({ label, value, href }: { label: string; value: string; 
           href={href} 
           target="_blank" 
           rel="noopener noreferrer" 
-          style={{ textDecoration: "none", overflow: "hidden" }}
+          style={{ textDecoration: "none" }}
         >
           {content}
         </a>

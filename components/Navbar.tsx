@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useTheme } from "next-themes"
 import { Menu, X, Sun, Moon, Sparkles, User, FileText, LayoutDashboard, SearchCode, MailQuestion, LogOut, Settings, ChevronDown, FilePen, Repeat, Shield } from "lucide-react"
@@ -30,11 +30,21 @@ const navCategories = [
 export function Navbar() {
   const [mounted, setMounted] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
-  const [hoveredCategory, setHoveredCategory] = useState<string | null>(null)
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const [isBuilderFullscreen, setIsBuilderFullscreen] = useState(false)
+  const navRef = useRef<HTMLElement>(null)
   const { theme, setTheme } = useTheme()
   const { data: session, status } = useSession()
  
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(event.target as Node)) {
+        setOpenDropdown(null)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
   useEffect(() => {
     setMounted(true)
     const observer = new MutationObserver((mutations) => {
@@ -52,7 +62,9 @@ export function Navbar() {
   const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark")
  
   return (
-    <nav className={`fixed left-0 right-0 z-[200] glass-nav transition-all duration-500 ease-in-out ${
+    <nav 
+      ref={navRef}
+      className={`fixed left-0 right-0 z-200 glass-nav transition-all duration-500 ease-in-out ${
       isBuilderFullscreen 
       ? "bottom-0 top-auto shadow-[0_-4px_30px_rgba(0,0,0,0.1)] rounded-t-[32px] border-b-0 border-t" 
       : "top-0 shadow-sm border-t-0 border-b"
@@ -92,16 +104,17 @@ export function Navbar() {
               <div 
                 key={category.name} 
                 className="relative py-6"
-                onMouseEnter={() => setHoveredCategory(category.name)}
-                onMouseLeave={() => setHoveredCategory(null)}
               >
-                <button className="flex items-center space-x-1.5 px-4 py-2 text-sm font-bold text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-all duration-500 outline-none">
+                <button 
+                  onClick={() => setOpenDropdown(openDropdown === category.name ? null : category.name)}
+                  className="flex items-center space-x-1.5 px-4 py-2 text-sm font-bold text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-all duration-500 outline-none"
+                >
                   <span>{category.name}</span>
-                  <ChevronDown size={14} className={`transition-transform duration-500 opacity-40 ${hoveredCategory === category.name ? 'rotate-180' : ''}`} />
+                  <ChevronDown size={14} className={`transition-transform duration-500 opacity-40 ${openDropdown === category.name ? 'rotate-180' : ''}`} />
                 </button>
 
                 <AnimatePresence>
-                  {hoveredCategory === category.name && (
+                  {openDropdown === category.name && (
                     <motion.div 
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -160,8 +173,9 @@ export function Navbar() {
 
             {mounted ? (
               status === "authenticated" ? (
-                <div className="relative group/dropdown py-6">
+                <div className="relative py-6">
                   <button
+                    onClick={() => setOpenDropdown(openDropdown === "user" ? null : "user")}
                     className="flex items-center space-x-3 bg-white/5 border border-white/10 pl-4 pr-5 py-2 rounded-[20px] hover:bg-white/10 transition-all duration-500 group"
                   >
                     <div className="relative">
@@ -184,10 +198,18 @@ export function Navbar() {
                       <span className="text-[9px] font-black tracking-widest leading-none text-brand-secondary uppercase opacity-80">Member</span>
                       <span className="text-sm font-black text-white truncate max-w-[110px] tracking-tight">{session?.user?.name || "Member"}</span>
                     </div>
-                    <ChevronDown size={14} className="text-white/40 group-hover/dropdown:rotate-180 transition-transform duration-500" />
+                    <ChevronDown size={14} className={`text-white/40 transition-transform duration-500 ${openDropdown === "user" ? "rotate-180" : ""}`} />
                   </button>
-
-                  <div className="absolute right-0 top-full pt-2 opacity-0 translate-y-2 pointer-events-none group-hover/dropdown:opacity-100 group-hover/dropdown:translate-y-0 group-hover/dropdown:pointer-events-auto transition-all duration-500 z-210">
+ 
+                  <AnimatePresence>
+                    {openDropdown === "user" && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+                      className="absolute right-0 top-full pt-2 z-210"
+                    >
                     <div className="w-64 bg-brand-primary border border-white/10 rounded-[24px] shadow-2xl overflow-hidden p-2 transition-colors duration-500">
                       <div className="px-4 py-3 border-b border-white/5 mb-2">
                         <p className="text-[10px] font-black uppercase tracking-widest text-brand-action mb-1">Account</p>
@@ -226,7 +248,9 @@ export function Navbar() {
                         <span className="font-bold text-sm text-red-500">Sign Out</span>
                       </button>
                     </div>
-                  </div>
+                  </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               ) : status === "loading" ? (
                 <div className="w-32 h-10 bg-white/5 animate-pulse rounded-xl" />

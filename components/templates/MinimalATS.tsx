@@ -25,7 +25,7 @@ export function MinimalATS({ data }: { data: CVData }) {
         <h1 className="text-2xl font-bold uppercase mb-2">{personalInfo.fullName}</h1>
         <div className="text-xs flex flex-wrap justify-center gap-x-2 gap-y-1">
           {[
-            [personalInfo.location, personalInfo.county, personalInfo.country].filter(Boolean).join(", "),
+            [personalInfo.county, personalInfo.country, personalInfo.location].filter(Boolean).join(", "),
             personalInfo.phone ? `${personalInfo.phoneCode || ''} ${personalInfo.phone}` : null,
             personalInfo.email,
             personalInfo.website,

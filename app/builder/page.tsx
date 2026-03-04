@@ -1,8 +1,10 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, Suspense } from "react"
+import { useSearchParams, useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { Navbar } from "@/components/Navbar"
+import countriesData from "@/lib/countries-data.json"
 import { motion, AnimatePresence } from "framer-motion"
 import { 
   Save, 
@@ -24,7 +26,9 @@ import {
   Image as ImageIcon,
   ArrowUpRight,
   ShieldCheck,
-  ChevronDown
+  ChevronDown,
+  Search,
+  GripVertical
 } from "lucide-react"
 import { CldUploadWidget } from "next-cloudinary"
 
@@ -42,7 +46,6 @@ import { FreshMinimal } from "@/components/templates/FreshMinimal"
 import { RefinedClassic } from "@/components/templates/RefinedClassic"
 import { ATSAuditPanel } from "@/components/ATSAuditPanel"
 import { refineTextWithAI, saveCV } from "@/lib/actions"
-import { useRouter } from "next/navigation"
 
 const sections = [
   { id: "personal", title: "Personal Info", icon: User },
@@ -52,28 +55,17 @@ const sections = [
   { id: "projects", title: "Projects", icon: FolderGit2 },
 ]
 
-const countryCodes = [
-  { code: "+1", label: "US (+1)" },
-  { code: "+44", label: "UK (+44)" },
-  { code: "+353", label: "IE (+353)" },
-  { code: "+91", label: "IN (+91)" },
-  { code: "+234", label: "NG (+234)" },
-  { code: "+971", label: "AE (+971)" },
-  { code: "+27", label: "ZA (+27)" },
-  { code: "+1", label: "CA (+1)" },
-  { code: "+61", label: "AU (+61)" },
-]
 
 const INITIAL_DATA: CVData = {
   personalInfo: {
     fullName: "Alex Sterling",
     jobTitle: "Senior Product Designer",
     email: "alex.sterling@cvmyjob.online",
-    phoneCode: "+353",
+    phoneCode: "+1",
     phone: "87 123 4567",
-    country: "Ireland",
-    county: "Dublin",
-    location: "City Centre",
+    country: "United States",
+    county: "New York",
+    location: "",
     website: "alexsterling.design",
     linkedin: "linkedin.com/in/alexsterling",
     github: "github.com/asterling",
@@ -140,8 +132,10 @@ const INITIAL_DATA: CVData = {
   ]
 }
 
-export default function BuilderPage() {
+function BuilderContent() {
   const { data: session } = useSession()
+  const searchParams = useSearchParams()
+  const templateParam = searchParams.get("template")
   const [activeSection, setActiveSection] = useState("personal")
   const [isPreview, setIsPreview] = useState(false)
   const [isAuditOpen, setIsAuditOpen] = useState(false)
@@ -156,10 +150,33 @@ export default function BuilderPage() {
   const [currentTemplate, setCurrentTemplate] = useState<"modern" | "classic" | "executive" | "minimal" | "creative" | "startup" | "executive-board" | "midnight" | "bold-impact" | "corporate" | "fresh" | "refined">("modern")
   const [isTemplateDropdownOpen, setIsTemplateDropdownOpen] = useState(false)
   const [isRefining, setIsRefining] = useState(false)
+  const [isPhoneDropdownOpen, setIsPhoneDropdownOpen] = useState(false)
+  const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false)
+  const [isStateDropdownOpen, setIsStateDropdownOpen] = useState(false)
+  const [countrySearch, setCountrySearch] = useState("")
+  const [phoneSearch, setPhoneSearch] = useState("")
+  const [stateSearch, setStateSearch] = useState("")
+  const countries = countriesData
   const [isSaving, setIsSaving] = useState(false)
+  const [skillInput, setSkillInput] = useState("")
+  const [draggedSkillIndex, setDraggedSkillIndex] = useState<number | null>(null)
+  const [dragOverSkillIndex, setDragOverSkillIndex] = useState<number | null>(null)
   const [pageCount, setPageCount] = useState(1)
   const previewRef = useRef<HTMLDivElement>(null)
+  const templateDropdownRef = useRef<HTMLDivElement>(null)
+  const phoneDropdownRef = useRef<HTMLDivElement>(null)
+  const countryDropdownRef = useRef<HTMLDivElement>(null)
+  const stateDropdownRef = useRef<HTMLDivElement>(null)
+  const activeItemRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
+  useEffect(() => {
+    if (templateParam) {
+      const validTemplates = ["modern", "classic", "executive", "minimal", "creative", "startup", "executive-board", "midnight", "bold-impact", "corporate", "fresh", "refined"]
+      if (validTemplates.includes(templateParam)) {
+        setCurrentTemplate(templateParam as any)
+      }
+    }
+  }, [templateParam])
 
   useEffect(() => {
     const updatePageCount = () => {
@@ -184,6 +201,32 @@ export default function BuilderPage() {
     }
     return () => document.body.classList.remove("builder-fullscreen") // Cleanup on unmount
   }, [isPreview])
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (templateDropdownRef.current && !templateDropdownRef.current.contains(event.target as Node)) {
+        setIsTemplateDropdownOpen(false)
+      }
+      if (phoneDropdownRef.current && !phoneDropdownRef.current.contains(event.target as Node)) {
+        setIsPhoneDropdownOpen(false)
+      }
+      if (countryDropdownRef.current && !countryDropdownRef.current.contains(event.target as Node)) {
+        setIsCountryDropdownOpen(false)
+      }
+      if (stateDropdownRef.current && !stateDropdownRef.current.contains(event.target as Node)) {
+        setIsStateDropdownOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  // Scroll to active item when dropdowns open
+  useEffect(() => {
+    if ((isPhoneDropdownOpen || isCountryDropdownOpen || isStateDropdownOpen) && activeItemRef.current) {
+      activeItemRef.current.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    }
+  }, [isPhoneDropdownOpen, isCountryDropdownOpen, isStateDropdownOpen])
 
   const handleSave = async (shouldRedirect = false) => {
     if (!session?.user?.id) return
@@ -283,30 +326,36 @@ export default function BuilderPage() {
     }))
   }
 
-  const updateSkill = (index: number, field: "category" | "items", value: any) => {
+  const addSkill = (skill: string) => {
+    const trimmed = skill.trim()
+    if (!trimmed) return
     setCvData(prev => {
-      const newSkills = [...prev.skills]
-      if (field === "items" && typeof value === "string") {
-        newSkills[index] = { ...newSkills[index], items: value.split(",").map(i => i.trim()).filter(i => i) }
-      } else {
-        newSkills[index] = { ...newSkills[index], [field]: value }
-      }
+      // Add to first group, or create a new group
+      const newSkills = prev.skills.length > 0 ? [...prev.skills] : [{ category: "Skills", items: [] }]
+      const alreadyExists = newSkills[0].items.some(s => s.toLowerCase() === trimmed.toLowerCase())
+      if (alreadyExists) return prev
+      newSkills[0] = { ...newSkills[0], items: [...newSkills[0].items, trimmed] }
       return { ...prev, skills: newSkills }
     })
   }
 
-  const addSkillGroup = () => {
-    setCvData(prev => ({
-      ...prev,
-      skills: [...prev.skills, { category: "", items: [] }]
-    }))
+  const removeSkill = (skillToRemove: string) => {
+    setCvData(prev => {
+      const newSkills = prev.skills.map(group => ({
+        ...group,
+        items: group.items.filter(s => s !== skillToRemove)
+      })).filter(group => group.items.length > 0)
+      return { ...prev, skills: newSkills }
+    })
   }
 
-  const removeSkillGroup = (index: number) => {
-    setCvData(prev => ({
-      ...prev,
-      skills: prev.skills.filter((_, i) => i !== index)
-    }))
+  const reorderSkill = (sourceIndex: number, destinationIndex: number) => {
+    setCvData(prev => {
+      const allSkills = prev.skills.flatMap(g => g.items)
+      const [movedItem] = allSkills.splice(sourceIndex, 1)
+      allSkills.splice(destinationIndex, 0, movedItem)
+      return { ...prev, skills: [{ category: "Skills", items: allSkills }] }
+    })
   }
 
   const updateProject = (id: string, field: keyof CVData["projects"][0], value: string) => {
@@ -482,50 +531,190 @@ export default function BuilderPage() {
                              className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
                           />
                         </div>
-                         <div className="space-y-1.5 overflow-visible">
-                           <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Phone Number</label>
-                           <div className="flex space-x-2">
-                             <select 
-                               value={cvData.personalInfo.phoneCode}
-                               onChange={(e) => updatePersonalInfo("phoneCode", e.target.value)}
-                               className="w-24 h-11 px-2 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold appearance-none cursor-pointer"
-                             >
-                               {countryCodes.map(c => (
-                                 <option key={c.label} value={c.code} className="bg-background">{c.label}</option>
-                               ))}
-                             </select>
-                             <input 
-                               value={cvData.personalInfo.phone}
-                               onChange={(e) => updatePersonalInfo("phone", e.target.value)}
-                               placeholder="123 4567"
-                               className="flex-1 h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                             />
-                           </div>
-                         </div>
+                          <div className="space-y-1.5 overflow-visible">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Phone Number</label>
+                            <div className="flex space-x-2 min-w-0">
+                              <div className="relative" ref={phoneDropdownRef}>
+                                <div 
+                                  onClick={() => setIsPhoneDropdownOpen(!isPhoneDropdownOpen)}
+                                  className="w-[90px] shrink-0 h-11 px-2 bg-white/5 border border-border-custom rounded-xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all text-sm font-bold focus:border-brand-action"
+                                >
+                                  <div className="flex items-center gap-2 overflow-hidden">
+                                    <span className="truncate">{cvData.personalInfo.phoneCode || "+000"}</span>
+                                  </div>
+                                  <ChevronDown size={14} className={`shrink-0 transition-transform ${isPhoneDropdownOpen ? 'rotate-180' : ''}`} />
+                                </div>
+
+                                <AnimatePresence>
+                                  {isPhoneDropdownOpen && (
+                                    <motion.div 
+                                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                      className="absolute z-150 left-0 mt-2 w-[220px] bg-card/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden shadow-brand-action/10"
+                                    >
+                                      <div className="p-2 border-b border-white/5 flex items-center gap-2 px-3">
+                                        <Search size={14} className="text-muted-foreground" />
+                                        <input 
+                                          autoFocus
+                                          placeholder="Search code..."
+                                          value={phoneSearch}
+                                          onChange={(e) => setPhoneSearch(e.target.value)}
+                                          className="w-full bg-transparent border-none outline-none text-[11px] font-bold h-8"
+                                        />
+                                      </div>
+                                      <div className="max-h-[250px] overflow-y-auto overflow-x-hidden p-0">
+                                        {countries
+                                          .filter(c => 
+                                            c.name.toLowerCase().includes(phoneSearch.toLowerCase()) || 
+                                            (c.phonecode || "").includes(phoneSearch)
+                                          )
+                                          .map(c => (
+                                          <div 
+                                            key={`${c.isoCode}-${c.phonecode}`}
+                                            ref={`+${c.phonecode}` === cvData.personalInfo.phoneCode ? activeItemRef : null}
+                                            onClick={() => {
+                                              updatePersonalInfo("phoneCode", `+${c.phonecode}`);
+                                              setIsPhoneDropdownOpen(false);
+                                              setPhoneSearch("");
+                                            }}
+                                            className={`flex items-center gap-2 p-2 px-3 hover:bg-brand-action/10 cursor-pointer transition-colors group ${`+${c.phonecode}` === cvData.personalInfo.phoneCode ? 'bg-brand-action text-white' : ''}`}
+                                          >
+                                            <span className={`text-[11px] font-bold ${`+${c.phonecode}` === cvData.personalInfo.phoneCode ? 'text-white' : 'text-foreground/80 group-hover:text-foreground'}`}>+{c.phonecode}</span>
+                                            <span className={`text-[10px] truncate ${`+${c.phonecode}` === cvData.personalInfo.phoneCode ? 'text-white/80' : 'text-muted-foreground group-hover:text-foreground/60'}`}>{c.name}</span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
+                              </div>
+                              <input 
+                                type="tel"
+                                inputMode="numeric"
+                                maxLength={11}
+                                value={cvData.personalInfo.phone}
+                                onChange={(e) => updatePersonalInfo("phone", e.target.value.replace(/\D/g, "").slice(0, 11))}
+                                placeholder="08012345678"
+                                className="flex-1 min-w-0 h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                              />
+                            </div>
+                          </div>
+                          <div className="space-y-1.5 relative" ref={countryDropdownRef}>
+                            <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Country</label>
+                            <div 
+                              onClick={() => setIsCountryDropdownOpen(!isCountryDropdownOpen)}
+                              className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all text-sm font-bold focus-within:border-brand-action"
+                            >
+                              <div className="flex items-center gap-2">
+                                <span>{cvData.personalInfo.country || "Select Country"}</span>
+                              </div>
+                              <ChevronDown size={14} className={`transition-transform duration-300 ${isCountryDropdownOpen ? 'rotate-180' : ''}`} />
+                            </div>
+                            
+                            <AnimatePresence>
+                              {isCountryDropdownOpen && (
+                                <motion.div 
+                                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                  className="absolute z-100 left-0 right-0 mt-2 bg-card/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden max-h-[300px] flex flex-col shadow-brand-action/10"
+                                >
+                                  <div className="p-3 border-b border-white/5 flex items-center gap-2 bg-white/5">
+                                    <Search size={16} className="text-muted-foreground" />
+                                    <input 
+                                      autoFocus
+                                      placeholder="Search countries..."
+                                      value={countrySearch}
+                                      className="w-full bg-transparent outline-none text-sm font-bold h-8"
+                                      onChange={(e) => setCountrySearch(e.target.value)}
+                                    />
+                                  </div>
+                                  <div className="overflow-y-auto p-0 overflow-x-hidden">
+                                    {countries.filter(c => c.name.toLowerCase().includes(countrySearch.toLowerCase())).map(c => (
+                                      <div 
+                                        key={c.isoCode}
+                                        ref={c.name === cvData.personalInfo.country ? activeItemRef : null}
+                                        onClick={() => {
+                                          updatePersonalInfo("country", c.name);
+                                          // Reset state when country changes
+                                          updatePersonalInfo("county", "");
+                                          setIsCountryDropdownOpen(false);
+                                          setCountrySearch("");
+                                        }}
+                                        className={`flex items-center gap-3 px-4 py-2 hover:bg-brand-action/10 cursor-pointer transition-colors group ${c.name === cvData.personalInfo.country ? 'bg-brand-action text-white' : ''}`}
+                                      >
+                                        <span className={`text-sm font-bold ${c.name === cvData.personalInfo.country ? 'text-white' : 'text-foreground/80 group-hover:text-foreground'}`}>{c.name}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                          <div className="space-y-1.5 relative" ref={stateDropdownRef}>
+                            <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">County / State</label>
+                            <div 
+                              onClick={() => setIsStateDropdownOpen(!isStateDropdownOpen)}
+                              className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all text-sm font-bold focus-within:border-brand-action"
+                            >
+                              <span>{cvData.personalInfo.county || "Select State"}</span>
+                              <ChevronDown size={14} className={`transition-transform duration-300 ${isStateDropdownOpen ? 'rotate-180' : ''}`} />
+                            </div>
+                            
+                            <AnimatePresence>
+                              {isStateDropdownOpen && (
+                                <motion.div 
+                                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                  className="absolute z-100 left-0 right-0 mt-2 bg-card/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden max-h-[300px] flex flex-col shadow-brand-action/10"
+                                >
+                                  <div className="p-3 border-b border-white/5 flex items-center gap-2 bg-white/5">
+                                    <Search size={16} className="text-muted-foreground" />
+                                    <input 
+                                      autoFocus
+                                      placeholder="Search states..."
+                                      value={stateSearch}
+                                      className="w-full bg-transparent outline-none text-sm font-bold h-8"
+                                      onChange={(e) => setStateSearch(e.target.value)}
+                                    />
+                                  </div>
+                                  <div className="overflow-y-auto p-1 overflow-x-hidden">
+                                    {countries
+                                      .find(c => c.name === cvData.personalInfo.country)
+                                      ?.states
+                                      .filter(s => s.name.toLowerCase().includes(stateSearch.toLowerCase()))
+                                      .map(s => (
+                                      <div 
+                                        key={s.code}
+                                        ref={s.name === cvData.personalInfo.county ? activeItemRef : null}
+                                        onClick={() => {
+                                          updatePersonalInfo("county", s.name);
+                                          setIsStateDropdownOpen(false);
+                                          setStateSearch("");
+                                        }}
+                                        className={`flex items-center gap-3 px-4 py-2 hover:bg-brand-action/10 cursor-pointer transition-colors group ${s.name === cvData.personalInfo.county ? 'bg-brand-action text-white' : ''}`}
+                                      >
+                                        <span className={`text-sm font-bold ${s.name === cvData.personalInfo.county ? 'text-white' : 'text-foreground/80 group-hover:text-foreground'}`}>{s.name}</span>
+                                      </div>
+                                    ))}
+                                    {(!cvData.personalInfo.country || (countries.find(c => c.name === cvData.personalInfo.country)?.states.length === 0)) && (
+                                      <div className="p-4 text-center text-xs text-muted-foreground italic">
+                                        No states available for selected country
+                                      </div>
+                                    )}
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
                          <div className="space-y-1.5">
-                           <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Country</label>
-                           <input 
-                             value={cvData.personalInfo.country}
-                             onChange={(e) => updatePersonalInfo("country", e.target.value)}
-                             placeholder="e.g. Ireland"
-                             className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                           />
-                         </div>
-                         <div className="space-y-1.5">
-                           <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">County / State</label>
-                           <input 
-                             value={cvData.personalInfo.county}
-                             onChange={(e) => updatePersonalInfo("county", e.target.value)}
-                             placeholder="e.g. Dublin"
-                             className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                           />
-                         </div>
-                         <div className="space-y-1.5">
-                           <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Town / Area</label>
+                           <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Zip / Postal Code</label>
                            <input 
                              value={cvData.personalInfo.location}
                              onChange={(e) => updatePersonalInfo("location", e.target.value)}
-                             placeholder="e.g. City Centre"
+                             placeholder="e.g. 10001"
                              className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
                            />
                          </div>
@@ -727,48 +916,79 @@ export default function BuilderPage() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="space-y-8"
+                      className="space-y-6"
                     >
-                      <div className="flex items-center justify-between mb-4">
-                         <h3 className="text-xl font-black">Expertise</h3>
-                         <button 
-                            onClick={addSkillGroup}
-                            className="flex items-center space-x-2 px-4 py-2 bg-brand-action text-white rounded-xl text-xs font-black uppercase tracking-widest hover:shadow-lg hover:shadow-brand-action/20 transition-all active:scale-95"
-                         >
-                            <Plus size={14} />
-                            <span>Add Group</span>
-                         </button>
+                      <h3 className="text-xl font-black">Skills & Expertise</h3>
+                      
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Add a Skill</label>
+                        <div className="flex space-x-2">
+                          <input 
+                            value={skillInput}
+                            onChange={(e) => setSkillInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault()
+                                addSkill(skillInput)
+                                setSkillInput("")
+                              }
+                            }}
+                            placeholder="Type a skill and press Enter"
+                            className="flex-1 h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                          />
+                          <button 
+                            onClick={() => { addSkill(skillInput); setSkillInput("") }}
+                            disabled={!skillInput.trim()}
+                            className="h-11 px-4 bg-brand-action  text-white rounded-xl text-xs font-black uppercase tracking-widest hover:shadow-lg hover:shadow-brand-action/20 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+                          >
+                            <Plus size={16} />
+                          </button>
+                        </div>
                       </div>
-                      <div className="space-y-6">
-                        {cvData.skills.map((skill, idx) => (
-                          <div key={idx} className="p-6 bg-white/5 border border-border-custom rounded-3xl space-y-4 relative group">
+
+                      <div className="flex flex-wrap gap-2 min-h-[44px] p-4 bg-white/5 border border-border-custom rounded-2xl">
+                        {cvData.skills.flatMap(group => group.items).length === 0 && (
+                          <span className="text-xs text-foreground/20 italic">No skills added yet. Type above and press Enter.</span>
+                        )}
+                        {cvData.skills.flatMap(group => group.items).map((skill, i) => (
+                          <span 
+                            key={i}
+                            draggable
+                            onDragStart={(e) => {
+                              setDraggedSkillIndex(i);
+                              e.dataTransfer.effectAllowed = "move";
+                            }}
+                            onDragOver={(e) => {
+                              e.preventDefault();
+                              e.dataTransfer.dropEffect = "move";
+                              if (draggedSkillIndex !== null && draggedSkillIndex !== i) {
+                                setDragOverSkillIndex(i);
+                              }
+                            }}
+                            onDragLeave={() => setDragOverSkillIndex(null)}
+                            onDrop={(e) => {
+                              e.preventDefault();
+                              if (draggedSkillIndex !== null && draggedSkillIndex !== i) {
+                                reorderSkill(draggedSkillIndex, i);
+                              }
+                              setDraggedSkillIndex(null);
+                              setDragOverSkillIndex(null);
+                            }}
+                            onDragEnd={() => {
+                              setDraggedSkillIndex(null);
+                              setDragOverSkillIndex(null);
+                            }}
+                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-action/10 border text-brand-action rounded-lg text-xs font-bold group hover:bg-brand-action/20 transition-all cursor-move ${draggedSkillIndex === i ? 'opacity-50' : ''} ${dragOverSkillIndex === i ? 'border-brand-action ring-1 ring-brand-action' : 'border-brand-action/20'}`}
+                          >
+                            <GripVertical size={14} className="opacity-40 cursor-grab active:cursor-grabbing hover:opacity-100 transition-opacity" />
+                            <span className="dark:text-white/80">{skill}</span>
                             <button 
-                              onClick={() => removeSkillGroup(idx)}
-                              className="absolute top-4 right-4 text-foreground/20 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                              onClick={() => removeSkill(skill)}
+                              className="ml-0.5 text-brand-action/50 cursor-pointer hover:text-brand-action transition-colors"
                             >
-                               <Plus size={18} className="rotate-45" />
+                              <Plus size={16} className="rotate-45" />
                             </button>
-                            <div className="space-y-4">
-                               <div className="space-y-1.5">
-                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Category</label>
-                                 <input 
-                                   value={skill.category}
-                                   onChange={(e) => updateSkill(idx, "category", e.target.value)}
-                                   placeholder="e.g. Web Development"
-                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                                 />
-                               </div>
-                               <div className="space-y-1.5">
-                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Items (Comma separated)</label>
-                                 <input 
-                                   value={skill.items.join(", ")}
-                                   onChange={(e) => updateSkill(idx, "items", e.target.value)}
-                                   placeholder="React, Next.js, Node.js"
-                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                                 />
-                               </div>
-                            </div>
-                          </div>
+                          </span>
                         ))}
                       </div>
                     </motion.div>
@@ -812,9 +1032,9 @@ export default function BuilderPage() {
                                  />
                                </div>
                                <div className="space-y-1.5">
-                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Link/URL</label>
+                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Repo/Link</label>
                                  <input 
-                                   value={project.link}
+                                   value={project.link} 
                                    onChange={(e) => updateProject(project.id, "link", e.target.value)}
                                    placeholder="e.g. github.com/user/repo"
                                    className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
@@ -881,18 +1101,20 @@ export default function BuilderPage() {
              }`}
           >
              {/* Toolbar - Responsive adjustment */}
-             <div className={`border-border-custom flex flex-wrap items-center justify-between px-3 sm:px-8 bg-background/80 backdrop-blur-2xl z-40 gap-3 transition-all duration-300 ${
-               isPreview 
-               ? "h-auto py-4 sm:h-22 border-b" 
-               : "h-auto py-3 sm:h-20 border-b"
-             }`}>
+              <div className={`border-border-custom flex items-center justify-between px-4 sm:px-8 bg-background/80 backdrop-blur-2xl z-40 transition-all duration-300 ${
+                isPreview 
+                ? "h-20 border-b" 
+                : "h-20 border-b"
+              }`}>
                   <div className="flex items-center space-x-3 sm:space-x-5">
                     <div 
                       className="relative"
-                      onMouseEnter={() => setIsTemplateDropdownOpen(true)}
-                      onMouseLeave={() => setIsTemplateDropdownOpen(false)}
+                      ref={templateDropdownRef}
                     >
-                      <button className="flex items-center space-x-3 px-4 h-11 bg-white/5 hover:bg-white/10 border border-border-custom rounded-2xl transition-all active:scale-95 group">
+                      <button 
+                        onClick={() => setIsTemplateDropdownOpen(!isTemplateDropdownOpen)}
+                        className="flex items-center space-x-3 px-4 h-11 bg-white/5 hover:bg-white/10 border border-border-custom rounded-2xl transition-all active:scale-95 group"
+                      >
                         <div className="w-8 h-5 rounded-md overflow-hidden border border-white/10 hidden xs:block">
                           <img 
                             src={
@@ -944,9 +1166,9 @@ export default function BuilderPage() {
                             initial={{ opacity: 0, y: 10, scale: 0.95 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                            className="absolute top-full left-0 mt-2 w-56 bg-[#0a0a0a] border border-white/15 rounded-[28px] shadow-2xl p-2 z-100"
+                            className="absolute top-full left-0 mt-2 w-[500px] bg-[#0a0a0a] border border-white/15 rounded-[28px] shadow-2xl p-3 z-100"
                           >
-                            <div className="grid gap-1">
+                            <div className="grid grid-cols-3 gap-2">
                               {[
                                 { id: "modern", name: "Modern Professional", img: "/modern.png" },
                                 { id: "classic", name: "Classic Table", img: "/classic.png" },
@@ -972,7 +1194,7 @@ export default function BuilderPage() {
                                   <div className={`w-12 h-7 rounded-lg overflow-hidden border transition-all ${currentTemplate === t.id ? 'border-brand-action/40' : 'border-white/10 group-hover:border-white/20'} shrink-0`}>
                                     <img src={t.img} className="w-full h-full object-cover" alt={t.name} />
                                   </div>
-                                  <span className="text-[10px] font-black uppercase tracking-widest leading-none text-left">{t.name}</span>
+                                  <span className="text-[9px] font-black uppercase tracking-tight leading-none text-left">{t.name}</span>
                                 </button>
                               ))}
                             </div>
@@ -980,12 +1202,14 @@ export default function BuilderPage() {
                         )}
                       </AnimatePresence>
                     </div>
-                     <div className="hidden md:flex items-center space-x-2 text-brand-success text-[10px] font-black uppercase tracking-[0.2em] border-l border-border-custom pl-5">
-                        <div className="w-1.5 h-1.5 bg-brand-success rounded-full animate-pulse" />
-                        <span className="hidden lg:inline">Live Sync Active</span>
-                        <span className="ml-4 border-l border-border-custom pl-4 text-foreground/40">{pageCount} A4 {pageCount > 1 ? 'Pages' : 'Page'}</span>
-                     </div>
-                 </div>
+                    <div className="hidden lg:flex items-center space-x-4 border-l border-border-custom ml-2 pl-6">
+                      <div className="flex items-center space-x-2.5 bg-brand-success/5 px-3 py-1.5 rounded-full border border-brand-success/10">
+                        <div className="w-1.5 h-1.5 bg-brand-success rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-brand-success/80 leading-none">Synced</span>
+                      </div>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-foreground/30">{pageCount} A4 {pageCount > 1 ? 'Pages' : 'Page'}</span>
+                    </div>
+                  </div>
 
                  <div className="flex items-center space-x-2 sm:space-x-4">
                     <button 
@@ -1044,5 +1268,17 @@ export default function BuilderPage() {
           />
        </main>
     </div>
+  )
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="animate-spin text-brand-action" size={48} />
+      </div>
+    }>
+      <BuilderContent />
+    </Suspense>
   )
 }

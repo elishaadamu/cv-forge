@@ -88,7 +88,7 @@ export function ClassicTable({ data }: { data: CVData }) {
           {(personalInfo.location || personalInfo.county || personalInfo.country) && (
             <ContactItem 
               icon={<MapPin size={11} />} 
-              text={[personalInfo.location, personalInfo.county, personalInfo.country].filter(Boolean).join(", ")} 
+              text={[personalInfo.county, personalInfo.country, personalInfo.location].filter(Boolean).join(", ")} 
             />
           )}
           {personalInfo.website && (
