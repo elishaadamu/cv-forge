@@ -88,16 +88,20 @@ model PersonalInfo {
   id           String  @id @default(cuid())
   fullName     String
   email        String
-  phone        String?
-  location     String?
-  cvId         String  @unique
-  github       String?
-  jobTitle     String?
-  linkedin     String?
-  summary      String?
-  website      String?
+  phoneCode    String?
+  phone            String?
+  country        String?
+  county          String?
+  location       String?
+  facebook       String?
+  github           String?
+  linkedin       String?
+  website         String?
+  jobTitle       String?
+  summary         String?
   profileImage String?
-  cv           CV      @relation(fields: [cvId], references: [id], onDelete: Cascade)
+  cvId               String    @unique
+  cv                   CV            @relation(fields: [cvId], references: [id], onDelete: Cascade)
 }
 
 model Experience {

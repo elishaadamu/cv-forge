@@ -227,8 +227,8 @@ export async function analyzeCVATS(cvData: any, jobDescription?: string) {
             analysisData: JSON.stringify(analysis)
           }
         })
-      } catch (e) {
-        console.error("Failed to save ATS audit to db:", e)
+      } catch (error) {
+        console.error("Failed to save ATS audit to db:", error)
       }
     }
 
@@ -253,7 +253,7 @@ export async function saveCV(userId: string, data: any, id?: string) {
     let cv
     if (id && id !== "edit-id") {
       // Update existing CV
-      cv = await prisma.cV.update({
+      cv = await (prisma.cV as any).update({
         where: { id },
         data: {
           ...baseData,
@@ -262,8 +262,12 @@ export async function saveCV(userId: string, data: any, id?: string) {
               create: {
                 fullName: data.personalInfo.fullName,
                 email: data.personalInfo.email,
+                phoneCode: data.personalInfo.phoneCode,
                 phone: data.personalInfo.phone,
+                country: data.personalInfo.country,
+                county: data.personalInfo.county,
                 location: data.personalInfo.location,
+                facebook: data.personalInfo.facebook,
                 jobTitle: data.personalInfo.jobTitle,
                 website: data.personalInfo.website,
                 linkedin: data.personalInfo.linkedin,
@@ -274,8 +278,12 @@ export async function saveCV(userId: string, data: any, id?: string) {
               update: {
                 fullName: data.personalInfo.fullName,
                 email: data.personalInfo.email,
+                phoneCode: data.personalInfo.phoneCode,
                 phone: data.personalInfo.phone,
+                country: data.personalInfo.country,
+                county: data.personalInfo.county,
                 location: data.personalInfo.location,
+                facebook: data.personalInfo.facebook,
                 jobTitle: data.personalInfo.jobTitle,
                 website: data.personalInfo.website,
                 linkedin: data.personalInfo.linkedin,
@@ -321,15 +329,19 @@ export async function saveCV(userId: string, data: any, id?: string) {
       })
     } else {
       // Create new CV
-      cv = await prisma.cV.create({
+      cv = await (prisma.cV as any).create({
         data: {
           ...baseData,
           personalInfo: {
             create: {
               fullName: data.personalInfo.fullName,
               email: data.personalInfo.email,
+              phoneCode: data.personalInfo.phoneCode,
               phone: data.personalInfo.phone,
+              country: data.personalInfo.country,
+              county: data.personalInfo.county,
               location: data.personalInfo.location,
+              facebook: data.personalInfo.facebook,
               jobTitle: data.personalInfo.jobTitle,
               website: data.personalInfo.website,
               linkedin: data.personalInfo.linkedin,
@@ -379,7 +391,7 @@ export async function saveCV(userId: string, data: any, id?: string) {
 
 export async function getCV(id: string, userId: string) {
   try {
-    const cv = await prisma.cV.findUnique({
+    const cv = await (prisma.cV as any).findUnique({
       where: { id, userId },
       include: {
         personalInfo: true,
@@ -388,7 +400,7 @@ export async function getCV(id: string, userId: string) {
         skills: true,
         projects: true,
       }
-    })
+    }) as any
 
     if (!cv) return { error: "CV not found" }
 
@@ -398,32 +410,36 @@ export async function getCV(id: string, userId: string) {
         fullName: cv.personalInfo?.fullName || "",
         jobTitle: cv.personalInfo?.jobTitle || "",
         email: cv.personalInfo?.email || "",
+        phoneCode: cv.personalInfo?.phoneCode || "",
         phone: cv.personalInfo?.phone || "",
+        country: cv.personalInfo?.country || "",
+        county: cv.personalInfo?.county || "",
         location: cv.personalInfo?.location || "",
         website: cv.personalInfo?.website || "",
         linkedin: cv.personalInfo?.linkedin || "",
         github: cv.personalInfo?.github || "",
+        facebook: cv.personalInfo?.facebook || "",
         summary: cv.personalInfo?.summary || "",
         profileImage: cv.personalInfo?.profileImage || "",
       },
-      experience: cv.experiences.map(e => ({
+      experience: cv.experiences.map((e: any) => ({
         id: e.id,
         role: e.role,
         company: e.company,
         duration: e.duration,
         description: e.description,
       })),
-      education: cv.educations.map(e => ({
+      education: cv.educations.map((e: any) => ({
         id: e.id,
         degree: e.degree,
         school: e.school,
         duration: e.duration,
       })),
-      skills: cv.skills.map(s => ({
+      skills: cv.skills.map((s: any) => ({
         category: s.category,
         items: s.items,
       })),
-      projects: cv.projects.map(p => ({
+      projects: cv.projects.map((p: any) => ({
         id: p.id,
         name: p.name,
         description: p.description || "",
@@ -713,8 +729,8 @@ export async function generateBlogAIContent(topic: string) {
             content
           }
         })
-      } catch (e) {
-        console.error("Failed to save AI generation to db:", e)
+      } catch (error) {
+        console.error("Failed to save AI generation to db:", error)
       }
     }
 
