@@ -1202,7 +1202,15 @@ function BuilderContent() {
                         )}
                       </AnimatePresence>
                     </div>
-                    <div className="hidden lg:flex items-center space-x-4 border-l border-border-custom ml-2 pl-6">
+                     <button 
+                        onClick={() => setIsAuditOpen(true)}
+                        className="flex items-center space-x-2.5 px-6 h-11 bg-brand-action/10 hover:bg-brand-action/20 border border-brand-action/30 rounded-2xl transition-all active:scale-95 group"
+                      >
+                         <ShieldCheck size={18} className="text-brand-action group-hover:scale-110 transition-transform" />
+                         <span className="text-[11px] font-black uppercase tracking-widest text-brand-action">Audit CV</span>
+                      </button>
+
+                      <div className="hidden lg:flex items-center space-x-4 border-l border-border-custom ml-2 pl-6">
                       <div className="flex items-center space-x-2.5 bg-brand-success/5 px-3 py-1.5 rounded-full border border-brand-success/10">
                         <div className="w-1.5 h-1.5 bg-brand-success rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
                         <span className="text-[10px] font-black uppercase tracking-widest text-brand-success/80 leading-none">Synced</span>

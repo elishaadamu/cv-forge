@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { NextResponse } from 'next/server'
-import ReactDomServer from 'react-dom/server'
+import { renderToStaticMarkup } from 'react-dom/server'
 import puppeteer from 'puppeteer-core'
 import chromium from '@sparticuz/chromium-min'
 import { ModernProfessional } from '@/components/templates/ModernProfessional'
@@ -81,7 +81,7 @@ export async function POST(req: Request) {
     }
 
     // 2. Render to Static HTML
-    const contentHtml = ReactDomServer.renderToStaticMarkup(<TableComponent data={cvData} />)
+    const contentHtml = renderToStaticMarkup(<TableComponent data={cvData} />)
     
     // Construct full HTML document for Puppeteer
     const fullHtml = `
