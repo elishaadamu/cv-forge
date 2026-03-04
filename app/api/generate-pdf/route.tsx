@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import puppeteer from 'puppeteer'
+import puppeteer from 'puppeteer-core'
+import chromium from '@sparticuz/chromium-min'
 import { ModernProfessional } from '@/components/templates/ModernProfessional'
 import { ClassicTable } from '@/components/templates/ClassicTable'
 import { ExecutiveTwoColumn } from '@/components/templates/ExecutiveTwoColumn'
@@ -15,6 +16,11 @@ import { RefinedClassic } from '@/components/templates/RefinedClassic'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
+
+// Set up executable path based on OS (production vs development)
+// For local Windows development, you might need to point to your Chrome executable 
+// if puppeteer-core doesn't find it automatically.
+const CHROMIUM_PATH = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
 
 export async function POST(req: Request) {
   try {
@@ -93,10 +99,25 @@ export async function POST(req: Request) {
     `
 
     // 3. Launch Puppeteer
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    })
+    const isProd = process.env.NODE_ENV === 'production'
+    
+    // Configure based on environment
+    let browser
+    if (isProd) {
+      browser = await puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+      })
+    } else {
+      // Development (Local Windows usually)
+      browser = await puppeteer.launch({
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        executablePath: CHROMIUM_PATH, // Change this if Chrome is installed elsewhere
+        headless: true,
+      })
+    }
     
     const page = await browser.newPage()
     await page.setContent(fullHtml, { waitUntil: 'networkidle0' })
