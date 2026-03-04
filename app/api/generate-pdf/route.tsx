@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { NextResponse } from 'next/server'
+import ReactDomServer from 'react-dom/server'
 import puppeteer from 'puppeteer-core'
 import chromium from '@sparticuz/chromium-min'
 import { ModernProfessional } from '@/components/templates/ModernProfessional'
@@ -30,6 +31,13 @@ export async function POST(req: Request) {
     if (!cvData) {
       return NextResponse.json({ error: 'CV data is required' }, { status: 400 })
     }
+
+    // Ensure all required fields exist to prevent rendering crashes
+    cvData.personalInfo = cvData.personalInfo || {}
+    cvData.experience = cvData.experience || []
+    cvData.education = cvData.education || []
+    cvData.skills = cvData.skills || []
+    cvData.projects = cvData.projects || []
 
     // 1. Pick the template
     let TableComponent
@@ -73,9 +81,6 @@ export async function POST(req: Request) {
     }
 
     // 2. Render to Static HTML
-    // We use a dynamic require to avoid Next.js build-time errors with react-dom/server
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const ReactDomServer = require('react-dom/server')
     const contentHtml = ReactDomServer.renderToStaticMarkup(<TableComponent data={cvData} />)
     
     // Construct full HTML document for Puppeteer
@@ -101,35 +106,47 @@ export async function POST(req: Request) {
 
     // 3. Launch Puppeteer
     const isProd = process.env.NODE_ENV === 'production'
+    console.log('PDF Generation: Environment is', isProd ? 'production' : 'development')
     
     // Configure based on environment
     let browser
-    if (isProd) {
-      browser = await puppeteer.launch({
-        args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath(),
-        headless: chromium.headless,
-      })
-    } else {
-      // Development (Local Windows usually)
-      browser = await puppeteer.launch({
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        executablePath: CHROMIUM_PATH, // Change this if Chrome is installed elsewhere
-        headless: true,
-      })
+    try {
+      if (isProd) {
+        console.log('PDF Generation: Launching chromium in production')
+        browser = await puppeteer.launch({
+          args: chromium.args,
+          defaultViewport: chromium.defaultViewport,
+          executablePath: await chromium.executablePath(),
+          headless: chromium.headless,
+        })
+      } else {
+        // Development (Local Windows usually)
+        console.log('PDF Generation: Launching browser with executablePath:', CHROMIUM_PATH)
+        browser = await puppeteer.launch({
+          args: ['--no-sandbox', '--disable-setuid-sandbox'],
+          executablePath: CHROMIUM_PATH, // Change this if Chrome is installed elsewhere
+          headless: true,
+        })
+      }
+    } catch (launchError) {
+      console.error('PDF Generation: Failed to launch browser:', launchError)
+      throw launchError
     }
     
+    console.log('PDF Generation: Browser launched successfully')
     const page = await browser.newPage()
+    console.log('PDF Generation: Setting content...')
     await page.setContent(fullHtml, { waitUntil: 'networkidle0' })
     
     // 4. Generate PDF
+    console.log('PDF Generation: Generating PDF buffer...')
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
       preferCSSPageSize: true,
     })
 
+    console.log('PDF Generation: PDF generated successfully, closing browser')
     await browser.close()
 
     // 5. Return PDF as a Response
@@ -137,11 +154,17 @@ export async function POST(req: Request) {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="${cvData.personalInfo.fullName.replace(/\s+/g, '_')}_CV.pdf"`
+        'Content-Disposition': `attachment; filename="${(cvData.personalInfo?.fullName || 'CV').replace(/\s+/g, '_')}_CV.pdf"`
       }
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('PDF Generation Error:', error)
-    return NextResponse.json({ error: 'Failed to generate PDF' }, { status: 500 })
+    if (error.stack) {
+      console.error('Error stack:', error.stack)
+    }
+    return NextResponse.json({ 
+      error: 'Failed to generate PDF',
+      details: error.message || 'Unknown error'
+    }, { status: 500 })
   }
 }

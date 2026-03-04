@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
     return new NextResponse(docxBuffer, {
       headers: {
         "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        "Content-Disposition": `attachment; filename="${cvData.personalInfo.fullName.replace(/\s+/g, "_")}_CV.docx"`,
+        "Content-Disposition": `attachment; filename="${(cvData.personalInfo?.fullName || 'CV').replace(/\s+/g, "_")}_CV.docx"`,
       },
     })
   } catch (error) {
