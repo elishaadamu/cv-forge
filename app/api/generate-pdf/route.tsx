@@ -5,7 +5,10 @@ import puppeteer from 'puppeteer'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-// Chrome executable path for Windows (development)
+// PDFShift API Key
+const PDFSHIFT_API_KEY = process.env.PDFSHIFT_API_KEY || 'sk_a74db5048046f9dd33ec3d7e24f82954cd5e6263'
+
+// Chrome executable path for Windows (local development)
 const CHROME_PATH = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
 
 export async function POST(req: Request) {
@@ -22,128 +25,86 @@ export async function POST(req: Request) {
     const encodedData = encodeURIComponent(JSON.stringify(cvData))
     const renderUrl = `${baseUrl}/pdf-render?data=${encodedData}&template=${templateId || 'modern'}`
 
-    console.log('PDF Generation: Rendering from URL:', renderUrl)
+    // Check if running locally (development) or on Render (production)
+    const isLocal = process.env.NODE_ENV === 'development' || !process.env.RENDER
 
-    // For Vercel production, we'll use a simpler approach
-    // Since puppeteer requires a browser binary which isn't available in serverless
-    // We'll return an error message suggesting to download locally
-    // Detect environments
-    const isVercel = process.env.VERCEL === '1'
-    const isRender = process.env.RENDER === 'true' || process.env.NODE_ENV === 'production'
-    
-    if (isVercel) {
-      // On Vercel, we can't run Puppeteer due to serverless limitations (unless using sparticuz/chromium-min)
-      return NextResponse.json({
-        error: 'PDF generation is only available in development mode or on Render',
-        details: 'Vercel serverless functions have limitations for Puppeteer. Use a local environment or Render for PDF generation.'
-      }, { status: 503 })
-    }
+    if (isLocal) {
+      // ===== LOCAL DEVELOPMENT: Use Puppeteer =====
+      console.log('PDF Generation: Using Puppeteer (local)')
+      
+      browser = await puppeteer.launch({
+        executablePath: CHROME_PATH,
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
+        headless: true,
+      })
 
-    // Set up launch options
-    const launchOptions = {
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
-      headless: true,
-    }
+      const page = await browser.newPage()
+      await page.goto(renderUrl, { waitUntil: 'networkidle0', timeout: 60000 })
+      await page.waitForSelector('#cv-root', { timeout: 10000 })
+      
+      // Wait for content to render
+      await new Promise(resolve => setTimeout(resolve, 2000))
 
-    // Use hardcoded path for Windows (development)
-    // For Render (Linux), let Puppeteer find its own Chromium or use the user-defined executable path
-    if (process.platform === 'win32' && !isRender) {
-      console.log('PDF Generation: Windows detected, using', CHROME_PATH)
-      launchOptions.executablePath = CHROME_PATH
-    } else if (process.env.PUPPETEER_EXECUTABLE_PATH) {
-      console.log('PDF Generation: Using provided PUPPETEER_EXECUTABLE_PATH:', process.env.PUPPETEER_EXECUTABLE_PATH)
-      launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH
+      const pdfBuffer = await page.pdf({
+        format: 'A4',
+        printBackground: true,
+        preferCSSPageSize: true,
+        margin: { top: 0, right: 0, bottom: 0, left: 0 },
+        tagged: true,
+      })
+
+      await browser.close()
+      console.log('PDF Generation: PDF generated successfully via Puppeteer (local)')
+
+      return new NextResponse(Buffer.from(pdfBuffer), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/pdf',
+          'Content-Disposition': `attachment; filename="${(cvData.personalInfo?.fullName || 'CV').replace(/\s+/g, '_')}_CV.pdf"`
+        }
+      })
+
     } else {
-      console.log('PDF Generation: Let Puppeteer handle browser launch (standard installation)')
-    }
+      // ===== PRODUCTION (Render): Use PDFShift =====
+      console.log('PDF Generation: Using PDFShift (production)')
 
-    console.log('PDF Generation: Launching browser...')
-    browser = await puppeteer.launch(launchOptions)
-
-    console.log('PDF Generation: Browser launched successfully')
-    const page = await browser.newPage()
-    console.log('PDF Generation: Navigating to render page...')
-    await page.goto(renderUrl, { waitUntil: 'networkidle0', timeout: 60000 })
-
-    // Wait for content to render
-    await page.waitForSelector('#cv-root', { timeout: 10000 })
-    
-    // Wait a bit more for any lazy-loaded content
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    // Aggressively remove any cookie consent banners or popups
-    await page.evaluate(() => {
-      // Remove ALL elements that might be cookie/consent related
-      const selectors = [
-        '#cookie-consent', '.cookie-consent', '#cookie-banner', '.cookie-banner',
-        '#privacy-shield', '.privacy-shield', '[data-cookie]', '[data-consent]',
-        '.gdpr-consent', '#gdpr-consent', '.cookie-notice', '#cookie-notice',
-        '[class*="cookie"]', '[class*="consent"]', '[class*="privacy"]',
-        '[id*="cookie"]', '[id*="consent"]', '[id*="privacy"]',
-        'nav', 'footer', 'header:not(#cv-root header)', '.navbar', '.footer',
-        '[role="dialog"]', '[role="alertdialog"]', '.modal', '.overlay',
-        '.ant-modal', '.ant-notification', '.Toastify', '[class*="toast"]',
-        '[class*="notification"]', '[class*="banner"]', '[class*="popup"]',
-      ]
-      selectors.forEach(selector => {
-        try {
-          document.querySelectorAll(selector).forEach(el => {
-            // Don't remove cv-root
-            if (el.id !== 'cv-root' && !el.closest('#cv-root')) {
-              el.remove()
-            }
-          })
-        } catch (e) {
-          // Ignore invalid selectors
-        }
+      const response = await fetch('https://api.pdfshift.io/v3/convert/pdf', {
+        method: 'POST',
+        headers: {
+          'X-API-Key': PDFSHIFT_API_KEY,
+          'Content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          source: renderUrl,
+          wait: true,
+          margin: {
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0
+          },
+          format: 'A4',
+          orientation: 'portrait'
+        })
       })
-      
-      // Remove any fixed/sticky overlays
-      document.querySelectorAll('*').forEach(el => {
-        const style = window.getComputedStyle(el)
-        if ((style.position === 'fixed' || style.position === 'sticky') && 
-            !el.closest('#cv-root')) {
-          el.remove()
-        }
-      })
-      
-      // Remove any element containing consent-related text (with null check)
-      document.querySelectorAll('*').forEach(el => {
-        const text = el.innerText
-        if (text && (text.toLowerCase().includes('cookie') || text.toLowerCase().includes('privacy') || text.toLowerCase().includes('consent')) &&
-            !el.closest('#cv-root') && el.children.length === 0) {
-          el.remove()
-        }
-      })
-    })
 
-    // Generate PDF
-    console.log('PDF Generation: Generating PDF buffer...')
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      preferCSSPageSize: true,
-      margin: { 
-        top: '0mm',
-        right: '0mm', 
-        bottom: '0mm', 
-        left: '0mm',
-      },
-      tagged: true,
-      displayHeaderFooter: false,
-    })
-
-    console.log('PDF Generation: PDF generated successfully')
-    await browser.close()
-
-    // Return PDF as a Response
-    return new NextResponse(pdfBuffer as any, {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="${(cvData.personalInfo?.fullName || 'CV').replace(/\s+/g, '_')}_CV.pdf"`
+      if (!response.ok) {
+        const error = await response.json()
+        console.error('PDFShift Error:', error)
+        throw new Error(error.message || 'Failed to generate PDF with PDFShift')
       }
-    })
+
+      const pdfBuffer = await response.arrayBuffer()
+      console.log('PDF Generation: PDF generated successfully via PDFShift')
+
+      return new NextResponse(Buffer.from(pdfBuffer), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/pdf',
+          'Content-Disposition': `attachment; filename="${(cvData.personalInfo?.fullName || 'CV').replace(/\s+/g, '_')}_CV.pdf"`
+        }
+      })
+    }
   } catch (error: any) {
     console.error('PDF Generation Error:', error)
     if (error.stack) {
