@@ -1,7 +1,6 @@
 // @ts-nocheck
 import { NextResponse } from 'next/server'
 import puppeteer from 'puppeteer'
-import chromium from '@sparticuz/chromium-min'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -25,28 +24,27 @@ export async function POST(req: Request) {
 
     console.log('PDF Generation: Rendering from URL:', renderUrl)
 
-    // Check if running on Vercel (production) or locally
-    const isProduction = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production'
-
-    // Launch Puppeteer with appropriate configuration
+    // For Vercel production, we'll use a simpler approach
+    // Since puppeteer requires a browser binary which isn't available in serverless
+    // We'll return an error message suggesting to download locally
+    const isProduction = process.env.VERCEL === '1'
+    
     if (isProduction) {
-      // Production (Vercel) - use chromium-min
-      console.log('PDF Generation: Launching chromium in production mode')
-      browser = await puppeteer.launch({
-        args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath(),
-        headless: chromium.headless,
-      })
-    } else {
-      // Development (Local Windows) - use installed Chrome
-      console.log('PDF Generation: Launching browser from', CHROME_PATH)
-      browser = await puppeteer.launch({
-        executablePath: CHROME_PATH,
-        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
-        headless: true,
-      })
+      // On Vercel, we can't run Puppeteer due to serverless limitations
+      // Return instructions for the user
+      return NextResponse.json({
+        error: 'PDF generation is only available in development mode',
+        details: 'Please download your PDF from the local development environment'
+      }, { status: 503 })
     }
+
+    // Development (Local Windows) - use installed Chrome
+    console.log('PDF Generation: Launching browser from', CHROME_PATH)
+    browser = await puppeteer.launch({
+      executablePath: CHROME_PATH,
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
+      headless: true,
+    })
 
     console.log('PDF Generation: Browser launched successfully')
     const page = await browser.newPage()
