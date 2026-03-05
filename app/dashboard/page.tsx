@@ -3,12 +3,12 @@
 import { useSession } from "next-auth/react"
 import { Navbar } from "@/components/Navbar"
 import { motion, AnimatePresence } from "framer-motion"
-import { Plus, FileText, Clock, Trash2, Edit3, ArrowUpRight, LayoutDashboard, RefreshCcw, LogIn, Sparkles } from "lucide-react"
+import { Plus, FileText, Clock, Trash2, Edit3, ArrowUpRight, LayoutDashboard, RefreshCcw, LogIn, Sparkles, CheckSquare, Square, ChevronRight, MoreHorizontal } from "lucide-react"
 import Link from "next/link"
-import { listCVs, deleteCV } from "@/lib/actions"
+import { listCVs, deleteCV, deleteManyCVs } from "@/lib/actions"
 import { useEffect, useState } from "react"
 import { formatDistanceToNow } from "date-fns"
-import { Modal, message } from "antd"
+import { Modal, message, Checkbox } from "antd"
 import { ExclamationCircleFilled } from "@ant-design/icons"
 
 export default function DashboardPage() {
@@ -18,6 +18,7 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
   const [activeTab, setActiveTab] = useState<'DRAFT' | 'COMPLETED' | 'DOWNLOADED'>('DRAFT')
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
 
   // Hydration fix
   useEffect(() => {
@@ -27,14 +28,11 @@ export default function DashboardPage() {
 
   const fetchCVs = async () => {
     const userId = session?.user?.id || (session?.user as any)?.sub
-    console.log("DASHBOARD_FETCH: Triggered. Status:", status, "UserId:", userId)
-    
     if (!userId) {
       if (status === "unauthenticated") {
         setIsLoading(false)
         setError("Your session has expired. Please log in to continue.")
       }
-      // If status is still 'loading', we just wait.
       return
     }
     
@@ -43,7 +41,6 @@ export default function DashboardPage() {
     
     try {
       const res = await listCVs(userId)
-      console.log("DASHBOARD_FETCH: Response Success:", !!res.success)
       if (res.success && res.cvs) {
         setCvs(res.cvs)
       } else {
@@ -58,11 +55,9 @@ export default function DashboardPage() {
   }
 
   useEffect(() => {
-    // Only fetch if we are definitively authenticated
     if (status === "authenticated" && mounted) {
       fetchCVs()
     } else if (status === "unauthenticated" && mounted) {
-      // Small delay to allow session sync in case of fast redirection
       const timer = setTimeout(() => {
         setIsLoading(false)
         setError("Your session has expired. Please log in to continue.")
@@ -70,6 +65,21 @@ export default function DashboardPage() {
       return () => clearTimeout(timer)
     }
   }, [session, status, mounted])
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    )
+  }
+
+  const toggleSelectAll = () => {
+    const currentTabCVs = cvs.filter(cv => cv.status === activeTab)
+    if (selectedIds.length === currentTabCVs.length && currentTabCVs.length > 0) {
+      setSelectedIds([])
+    } else {
+      setSelectedIds(currentTabCVs.map(cv => cv.id))
+    }
+  }
 
   const showDeleteConfirm = (id: string) => {
     Modal.confirm({
@@ -86,6 +96,7 @@ export default function DashboardPage() {
           const res = await deleteCV(id, userId)
           if (res.success) {
             message.success("CV deleted successfully")
+            setSelectedIds(prev => prev.filter(i => i !== id))
             fetchCVs()
           } else {
             message.error(res.error || "Failed to delete CV")
@@ -96,6 +107,36 @@ export default function DashboardPage() {
       },
     })
   }
+
+  const handleBulkDelete = () => {
+    if (selectedIds.length === 0) return
+    Modal.confirm({
+      title: `Delete ${selectedIds.length} CVs?`,
+      icon: <ExclamationCircleFilled />,
+      content: `This action will permanently remove ${selectedIds.length} selected items. This cannot be undone.`,
+      okText: "Delete All",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk: async () => {
+        const userId = session?.user?.id || (session?.user as any)?.sub
+        if (!userId) return
+        try {
+          const res = await deleteManyCVs(selectedIds, userId)
+          if (res.success) {
+            message.success(`${selectedIds.length} CVs deleted successfully`)
+            setSelectedIds([])
+            fetchCVs()
+          } else {
+            message.error(res.error || "Failed to delete items")
+          }
+        } catch (error) {
+          message.error("An error occurred during bulk deletion")
+        }
+      }
+    })
+  }
+
+  const filteredCVs = cvs.filter(cv => cv.status === activeTab)
 
   if (!mounted) return null
 
@@ -118,21 +159,24 @@ export default function DashboardPage() {
               Your <span className="text-brand-action">Dashboard</span>
             </h1>
             <p className="text-foreground/40 font-medium max-w-sm">
-              Welcome back, {session?.user?.name?.split(' ')[0] || "member"}. Your career assets are ready for your next move.
+              Welcome back, {session?.user?.name?.split(' ')[0] || "member"}. Your career assets are managed here.
             </p>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col sm:flex-row items-center gap-6"
+            className="flex flex-col lg:flex-row items-center gap-6"
           >
             {/* Tab Filters */}
-            <div className="flex bg-white/5 p-1.5 rounded-[24px] border border-border-custom backdrop-blur-xl">
+            <div className="flex bg-white/5 p-1.5 rounded-[24px] border border-border-custom backdrop-blur-xl shrink-0">
               {(['DRAFT', 'COMPLETED', 'DOWNLOADED'] as const).map((tab) => (
                 <button
                   key={tab}
-                  onClick={() => setActiveTab(tab)}
+                  onClick={() => {
+                    setActiveTab(tab)
+                    setSelectedIds([])
+                  }}
                   className={`px-6 py-3 rounded-[18px] text-[10px] font-black uppercase tracking-widest transition-all ${
                     activeTab === tab 
                       ? "bg-brand-action text-white shadow-lg shadow-brand-action/20" 
@@ -144,13 +188,27 @@ export default function DashboardPage() {
               ))}
             </div>
 
-            <Link 
-              href="/builder"
-              className="px-8 py-5 bg-linear-to-r from-brand-action to-brand-secondary text-white rounded-[24px] font-black text-sm uppercase tracking-widest shadow-xl hover:-translate-y-1 transition-all flex items-center space-x-3 active:scale-95 group"
-            >
-              <Plus size={20} className="group-hover:rotate-90 transition-transform duration-500" />
-              <span>New CV</span>
-            </Link>
+            <div className="flex items-center gap-3">
+              {selectedIds.length > 0 && (
+                <motion.button
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  onClick={handleBulkDelete}
+                  className="px-6 py-4 bg-red-500/10 text-red-500 border border-red-500/20 rounded-[20px] font-black text-[10px] uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all flex items-center space-x-2 group"
+                >
+                  <Trash2 size={16} />
+                  <span>Delete ({selectedIds.length})</span>
+                </motion.button>
+              )}
+              
+              <Link 
+                href="/templates"
+                className="px-8 py-4 bg-linear-to-r from-brand-action to-brand-secondary text-white rounded-[24px] font-black text-sm uppercase tracking-widest shadow-xl hover:-translate-y-1 transition-all flex items-center space-x-3 active:scale-95 group"
+              >
+                <Plus size={20} className="group-hover:rotate-90 transition-transform duration-500" />
+                <span>New CV</span>
+              </Link>
+            </div>
           </motion.div>
         </header>
 
@@ -195,103 +253,134 @@ export default function DashboardPage() {
                 >
                   Force Retry
                 </button>
-                <Link 
-                  href="/login"
-                  className="px-10 py-4 bg-white/5 border border-border-custom hover:border-foreground rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center"
-                >
-                  <LogIn size={16} className="mr-2" />
-                  Relogin
-                </Link>
               </div>
             </motion.div>
           ) : (
             <motion.div 
-              key={`${activeTab}-grid`}
-              initial={{ opacity: 0, y: 20 }}
+              key={`${activeTab}-table`}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12"
+              className="w-full"
             >
-              {activeTab === 'DRAFT' && (
-                <Link href="/builder" className="group relative h-[420px] rounded-[56px] border-4 border-dashed border-border-custom hover:border-brand-action/40 transition-all flex flex-col items-center justify-center space-y-8 hover:bg-brand-action/5 active:scale-95 overflow-hidden">
-                  <div className="w-28 h-28 bg-white/5 rounded-[36px] flex items-center justify-center text-foreground/10 group-hover:text-brand-action group-hover:bg-brand-action/20 group-hover:rotate-12 transition-all duration-700 shadow-inner">
-                    <Plus size={56} />
-                  </div>
-                  <div className="text-center space-y-1">
-                    <span className="text-3xl font-black text-foreground/20 group-hover:text-brand-action transition-colors block">Create New</span>
-                    <span className="text-xs font-black uppercase tracking-[0.5em] text-foreground/5 group-hover:text-brand-action/40">Start Building</span>
-                  </div>
-                </Link>
-              )}
-
-              {cvs.filter(cv => cv.status === activeTab).map((cv, i) => (
-                <motion.div
-                   key={cv.id}
-                   layout
-                   initial={{ opacity: 0, scale: 0.9 }}
-                   animate={{ opacity: 1, scale: 1 }}
-                   transition={{ duration: 0.4 }}
-                   className="relative h-[420px] bg-white/5 border border-border-custom rounded-[56px] p-12 hover:border-brand-action/50 hover:bg-white/10 transition-all group overflow-hidden shadow-2xl hover:shadow-brand-action/10"
-                >
-                  <div className="absolute top-10 right-12 z-20 flex flex-col items-end gap-2">
-                    <div className={`px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-full border backdrop-blur-md ${
-                      cv.status === 'COMPLETED' ? 'bg-brand-success/10 text-brand-success border-brand-success/20' :
-                      cv.status === 'DOWNLOADED' ? 'bg-brand-secondary/10 text-brand-secondary border-brand-secondary/20' :
-                      'bg-brand-action/10 text-brand-action border-brand-action/20'
-                    }`}>
-                      {cv.status === 'COMPLETED' ? 'Finished' : cv.status === 'DOWNLOADED' ? 'Acquired' : 'Draft'}
-                    </div>
-                  </div>
-                  
-                  <div className="h-full flex flex-col justify-between relative z-10">
-                    <div className="space-y-10">
-                      <div className={`w-24 h-24 rounded-[32px] flex items-center justify-center group-hover:scale-110 transition-all duration-500 shadow-xl border ${
-                        cv.status === 'COMPLETED' ? 'bg-brand-success/10 text-brand-success border-brand-success/10' :
-                        cv.status === 'DOWNLOADED' ? 'bg-brand-secondary/10 text-brand-secondary border-brand-secondary/10' :
-                        'bg-brand-action/10 text-brand-action border-brand-action/10'
-                      }`}>
-                        <FileText size={48} />
-                      </div>
-                      
-                      <div className="space-y-4">
-                        <h3 className="text-4xl font-black tracking-tighter leading-none line-clamp-2 text-foreground group-hover:text-brand-action transition-colors">{cv.name || "Untitled CV"}</h3>
-                        <div className="flex items-center space-x-3 text-xs text-foreground/30 font-bold uppercase tracking-widest">
-                          <Clock size={16} className="text-brand-action/40" />
-                          <span>Modified {formatDistanceToNow(new Date(cv.updatedAt))} ago</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center space-x-4">
-                       <Link 
-                         href={`/builder/${cv.id}`} 
-                         className="flex-1 h-20 bg-brand-action text-white hover:bg-white hover:text-brand-action transition-all rounded-[32px] flex items-center justify-center font-black text-sm uppercase tracking-widest shadow-2xl active:scale-95 group/btn"
-                       >
-                         <Edit3 size={24} className="mr-3 group-hover/btn:scale-120 transition-transform" />
-                         {cv.status === 'DRAFT' ? 'Modify' : 'Refine'}
-                       </Link>
-                       <button 
-                         onClick={() => showDeleteConfirm(cv.id)}
-                         className="w-20 h-20 bg-white/5 border border-border-custom text-red-500/40 hover:bg-red-500 hover:text-white hover:border-transparent rounded-[32px] transition-all shadow-sm active:scale-95 flex items-center justify-center"
-                       >
-                         <Trash2 size={28} />
-                       </button>
-                    </div>
-                  </div>
-
-                  <ArrowUpRight size={240} className="absolute -bottom-24 -right-24 text-foreground/5 group-hover:text-brand-action/10 transition-colors duration-1000 pointer-events-none stroke-3" />
-                </motion.div>
-              ))}
-
-              {cvs.filter(cv => cv.status === activeTab).length === 0 && activeTab !== 'DRAFT' && (
-                <div className="col-span-full py-20 text-center space-y-6">
-                  <div className="w-32 h-32 bg-white/5 rounded-full flex items-center justify-center mx-auto text-foreground/10 border border-dashed border-border-custom">
+              {filteredCVs.length > 0 ? (
+                <div className="overflow-x-auto rounded-[40px] border border-border-custom bg-white/[0.02] backdrop-blur-3xl shadow-2xl">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-border-custom bg-white/[0.03]">
+                        <th className="px-8 py-6 w-16">
+                          <button 
+                            onClick={toggleSelectAll}
+                            className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
+                              selectedIds.length === filteredCVs.length && filteredCVs.length > 0
+                                ? "bg-brand-action border-brand-action text-white" 
+                                : "border-border-custom hover:border-foreground/20"
+                            }`}
+                          >
+                            {(selectedIds.length === filteredCVs.length && filteredCVs.length > 0) && <CheckSquare size={14} />}
+                          </button>
+                        </th>
+                        <th className="px-6 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-foreground/30">Career Asset</th>
+                        <th className="px-6 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-foreground/30">Layout</th>
+                        <th className="px-6 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-foreground/30">Last Modified</th>
+                        <th className="px-6 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-foreground/30">Status</th>
+                        <th className="px-8 py-6 text-right text-[10px] font-black uppercase tracking-[0.2em] text-foreground/30">Management</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border-custom/50">
+                      {filteredCVs.map((cv) => (
+                        <tr 
+                          key={cv.id} 
+                          className={`group hover:bg-brand-action/[0.03] transition-colors cursor-pointer ${selectedIds.includes(cv.id) ? 'bg-brand-action/[0.05]' : ''}`}
+                          onClick={() => toggleSelect(cv.id)}
+                        >
+                          <td className="px-8 py-6" onClick={(e) => e.stopPropagation()}>
+                            <button 
+                              onClick={() => toggleSelect(cv.id)}
+                              className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
+                                selectedIds.includes(cv.id) 
+                                  ? "bg-brand-action border-brand-action text-white" 
+                                  : "border-border-custom hover:border-brand-action/40"
+                              }`}
+                            >
+                              {selectedIds.includes(cv.id) && <CheckSquare size={14} />}
+                            </button>
+                          </td>
+                          <td className="px-6 py-6">
+                            <div className="flex items-center space-x-4">
+                              <div className={`p-3 rounded-2xl flex items-center justify-center shadow-lg border ${
+                                cv.status === 'COMPLETED' ? 'bg-brand-success/10 text-brand-success border-brand-success/10' :
+                                cv.status === 'DOWNLOADED' ? 'bg-brand-secondary/10 text-brand-secondary border-brand-secondary/10' :
+                                'bg-brand-action/10 text-brand-action border-brand-action/10'
+                              }`}>
+                                <FileText size={20} />
+                              </div>
+                              <div className="flex flex-col">
+                                <span className="font-black tracking-tight text-lg text-foreground group-hover:text-brand-action transition-colors">{cv.name || "Untitled CV"}</span>
+                                <span className="text-[10px] font-bold text-foreground/20 uppercase tracking-widest">{cv.id.substring(0, 8)}...</span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-6">
+                            <span className="text-xs font-black uppercase tracking-widest text-foreground/50 bg-white/5 px-3 py-1 rounded-full border border-border-custom">
+                              {cv.templateId || 'Standard'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-6">
+                            <div className="flex items-center space-x-2 text-xs font-bold text-foreground/40 italic">
+                               <Clock size={12} className="text-brand-action/40" />
+                               <span>{formatDistanceToNow(new Date(cv.updatedAt))} ago</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-6">
+                            <div className={`inline-flex px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.15em] rounded-full border ${
+                              cv.status === 'COMPLETED' ? 'bg-brand-success/10 text-brand-success border-brand-success/20' :
+                              cv.status === 'DOWNLOADED' ? 'bg-brand-secondary/10 text-brand-secondary border-brand-secondary/20' :
+                              'bg-brand-action/10 text-brand-action border-brand-action/20'
+                            }`}>
+                              {cv.status === 'COMPLETED' ? 'Finished' : cv.status === 'DOWNLOADED' ? 'Acquired' : 'Draft'}
+                            </div>
+                          </td>
+                          <td className="px-8 py-6 text-right" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-center justify-end gap-2">
+                              {/* Modify/Edit link */}
+                              <Link 
+                                href={
+                                  ["midnight"].includes(cv.templateId)
+                                    ? `/builder?template=${cv.templateId}&cvId=${cv.id}`
+                                    : `/builder/${cv.id}`
+                                }
+                                className="p-3 bg-brand-action/10 text-brand-action hover:bg-brand-action hover:text-white rounded-xl transition-all shadow-sm active:scale-95"
+                                title="Edit Asset"
+                              >
+                                <Edit3 size={18} />
+                              </Link>
+                              
+                              <button 
+                                onClick={() => showDeleteConfirm(cv.id)}
+                                className="p-3 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-all shadow-sm active:scale-95"
+                                title="Purge Asset"
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="py-40 text-center space-y-8 bg-white/[0.02] border border-dashed border-border-custom rounded-[64px]">
+                  <div className="w-32 h-32 bg-white/5 rounded-[40px] flex items-center justify-center mx-auto text-foreground/10 border border-border-custom transform rotate-3 hover:rotate-0 transition-all duration-700">
                     <FileText size={64} />
                   </div>
-                  <div className="space-y-2">
-                    <h3 className="text-2xl font-black text-foreground/40 italic">Nothing created yet</h3>
-                    <p className="text-sm text-foreground/20 font-medium">Build your first CV to see it appear here.</p>
+                  <div className="space-y-3">
+                    <h3 className="text-3xl font-black text-foreground/30 italic">No Assets Found</h3>
+                    <p className="text-sm text-foreground/10 font-bold uppercase tracking-widest max-w-xs mx-auto">Your professional catalog is empty. Begin your journey.</p>
                   </div>
+                  <Link href="/builder" className="inline-flex px-10 py-5 bg-brand-action text-white rounded-3xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl hover:-translate-y-1 transition-all active:scale-95">
+                    Start building
+                  </Link>
                 </div>
               )}
             </motion.div>

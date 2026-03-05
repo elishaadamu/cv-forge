@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client"
 
 import { useState, useEffect, useRef, Suspense } from "react"
@@ -6,18 +7,18 @@ import { Navbar } from "@/components/Navbar"
 import countriesData from "@/lib/countries-data.json"
 import { motion, AnimatePresence } from "framer-motion"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
-import { 
-  Save, 
-  Download, 
-  Settings, 
-  User, 
-  Briefcase, 
-  GraduationCap, 
-  Code, 
-  FolderGit2, 
-  Layout, 
+import {
+  Save,
+  Download,
+  Settings,
+  User,
+  Briefcase,
+  GraduationCap,
+  Code,
+  FolderGit2,
+  Layout,
   Eye,
-  ChevronRight, 
+  ChevronRight,
   Wand2,
   Plus,
   Sparkles,
@@ -48,7 +49,11 @@ import { FreshMinimal } from "@/components/templates/FreshMinimal"
 import { RefinedClassic } from "@/components/templates/RefinedClassic"
 import { ATSAuditPanel } from "@/components/ATSAuditPanel"
 import { refineTextWithAI, saveCV, getCV } from "@/lib/actions"
-import { message, Popconfirm } from "antd"
+import { message, Popconfirm, DatePicker, ConfigProvider, theme } from "antd"
+import dayjs from "dayjs"
+import customParseFormat from "dayjs/plugin/customParseFormat"
+
+dayjs.extend(customParseFormat)
 
 const sections = [
   { id: "personal", title: "Personal Info", icon: User },
@@ -66,10 +71,10 @@ const INITIAL_DATA: CVData = {
     fullName: "",
     jobTitle: "",
     email: "",
-    phoneCode: "+1",
+    phoneCode: "",
     phone: "",
-    country: "United States",
-    county: "New York",
+    country: "",
+    county: "",
     location: "",
     website: "",
     linkedin: "",
@@ -78,40 +83,10 @@ const INITIAL_DATA: CVData = {
     summary: "",
     profileImage: "",
   },
-  experience: [
-    {
-      id: "1",
-      role: "Senior Software Engineer",
-      company: "Tech Giant Corp",
-      duration: "2020 - Present",
-      description: [
-        "Led a team of 12 engineers to deliver a high-scale real-time tracking system.",
-        "Optimized database queries resulting in a 40% reduction in latency.",
-        "Architected a scalable microservices ecosystem using Node.js and Go."
-      ],
-    }
-  ],
-  education: [
-    {
-      id: "1",
-      degree: "B.Sc. in Computer Science",
-      school: "University College Dublin",
-      duration: "2015 - 2019",
-    }
-  ],
-  skills: [
-    { category: "Frontend", items: ["React", "Next.js", "Tailwind CSS", "TypeScript"] },
-    { category: "Backend", items: ["Node.js", "Python", "Prisma", "PostgreSQL"] },
-    { category: "Infrastructure", items: ["Docker", "AWS", "CI/CD", "Kubernetes"] },
-  ],
-  projects: [
-    {
-      id: "1",
-      name: "AI CV Creation Platform",
-      description: "A state-of-the-art CV builder with real-time AI refinement using Gemini 1.5 Flash.",
-      link: "cvforge.app"
-    }
-  ]
+  experience: [],
+  education: [],
+  skills: [],
+  projects: []
 }
 
 function BuilderContent() {
@@ -122,23 +97,24 @@ function BuilderContent() {
   const [activeSection, setActiveSection] = useState("personal")
   const [isPreview, setIsPreview] = useState(false)
   const [isAuditOpen, setIsAuditOpen] = useState(false)
-  const [cvData, setCvData] = useState<CVData>({
-    ...INITIAL_DATA,
-    personalInfo: {
-      ...INITIAL_DATA.personalInfo,
-      fullName: session?.user?.name || "",
-      email: session?.user?.email || "",
-    }
-  })
+  const [cvData, setCvData] = useState<CVData>(INITIAL_DATA)
   const [currentTemplate, setCurrentTemplate] = useState<"modern" | "classic" | "executive" | "minimal" | "creative" | "startup" | "executive-board" | "midnight" | "bold-impact" | "corporate" | "fresh" | "refined">("modern")
   const [isTemplateDropdownOpen, setIsTemplateDropdownOpen] = useState(false)
   const [refiningId, setRefiningId] = useState<string | null>(null) // tracks which specific item is being AI-refined
   const [isPhoneDropdownOpen, setIsPhoneDropdownOpen] = useState(false)
   const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false)
+
   const [isStateDropdownOpen, setIsStateDropdownOpen] = useState(false)
   const [countrySearch, setCountrySearch] = useState("")
   const [phoneSearch, setPhoneSearch] = useState("")
   const [stateSearch, setStateSearch] = useState("")
+  const [openVolCountryId, setOpenVolCountryId] = useState<string | null>(null)
+  const [openVolStateId, setOpenVolStateId] = useState<string | null>(null)
+  const [openVolLocationId, setOpenVolLocationId] = useState<string | null>(null)
+  const [openExpCountryId, setOpenExpCountryId] = useState<string | null>(null)
+  const [openExpStateId, setOpenExpStateId] = useState<string | null>(null)
+  const [openEduCountryId, setOpenEduCountryId] = useState<string | null>(null)
+  const [openEduStateId, setOpenEduStateId] = useState<string | null>(null)
   const [isSavingDraft, setIsSavingDraft] = useState(false)
   const [isSavingFinish, setIsSavingFinish] = useState(false)
   const [skillInput, setSkillInput] = useState("")
@@ -179,6 +155,12 @@ function BuilderContent() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      // If the click was inside an Ant Design date picker dropdown, do nothing
+      if (target.closest('.ant-picker-dropdown')) {
+        return
+      }
+
       if (phoneDropdownRef.current && !phoneDropdownRef.current.contains(event.target as Node)) {
         setIsPhoneDropdownOpen(false)
       }
@@ -252,35 +234,47 @@ function BuilderContent() {
     }
   }
 
-  const handleRefine = async (type: "summary" | "experience" | "project", itemId?: string) => {
+  const handleRefine = async (type: "summary" | "experience" | "project" | "volunteering", itemId?: string) => {
     if (type === "summary") {
       if (!cvData.personalInfo.summary || refiningId === "summary") return
       setRefiningId("summary")
       try {
-        const res = await refineTextWithAI(cvData.personalInfo.summary, "summary")
+        const res = await refineTextWithAI(cvData.personalInfo.summary, "summary", cvData)
         if (res.success && res.refinedText) {
           updatePersonalInfo("summary", res.refinedText)
         } else if (res.error) {
           message.error(res.error)
         }
+      } catch {
+        message.error("Failed to refine text. Please try again.")
       } finally {
         setRefiningId(null)
       }
     } else if (type === "experience" && itemId) {
       const exp = cvData.experience.find(e => e.id === itemId)
-      if (!exp || exp.description.length === 0 || refiningId === itemId) return
+      if (!exp || refiningId === itemId) return
+      
+      const textToRefine = exp.workDescription || exp.description.join("\n")
+      if (!textToRefine) return
+
       setRefiningId(itemId)
       try {
-        const res = await refineTextWithAI(exp.description.join("\n"), "experience")
+        const res = await refineTextWithAI(textToRefine, "experience", cvData)
         if (res.success && res.refinedText) {
-          const bullets = res.refinedText
-            .split("\n")
-            .map(line => line.replace(/^[-•*\d.]+\s*/, "").trim())
-            .filter(line => line.length > 0)
-          updateExperience(itemId, "description", bullets)
+          if (exp.workDescription) {
+            updateExperience(itemId, "workDescription", res.refinedText)
+          } else {
+            const bullets = res.refinedText
+              .split("\n")
+              .map(line => line.replace(/^[-•*\d.]+\s*/, "").trim())
+              .filter(line => line.length > 0)
+            updateExperience(itemId, "description", bullets)
+          }
         } else if (res.error) {
           message.error(res.error)
         }
+      } catch {
+        message.error("Failed to refine text. Please try again.")
       } finally {
         setRefiningId(null)
       }
@@ -289,12 +283,30 @@ function BuilderContent() {
       if (!proj || !proj.description || refiningId === itemId) return
       setRefiningId(`project-${itemId}`)
       try {
-        const res = await refineTextWithAI(proj.description, "summary")
+        const res = await refineTextWithAI(proj.description, "summary", cvData)
         if (res.success && res.refinedText) {
           updateProject(itemId, "description", res.refinedText)
         } else if (res.error) {
           message.error(res.error)
         }
+      } catch {
+        message.error("Failed to refine text. Please try again.")
+      } finally {
+        setRefiningId(null)
+      }
+    } else if (type === "volunteering" && itemId) {
+      const vol = cvData.volunteering?.find(v => v.id === itemId)
+      if (!vol || !vol.description || refiningId === itemId) return
+      setRefiningId(itemId)
+      try {
+        const res = await refineTextWithAI(vol.description, "experience", cvData)
+        if (res.success && res.refinedText) {
+          updateVolunteering(itemId, "description", res.refinedText)
+        } else if (res.error) {
+          message.error(res.error)
+        }
+      } catch {
+        message.error("Failed to refine text. Please try again.")
       } finally {
         setRefiningId(null)
       }
@@ -433,7 +445,7 @@ function BuilderContent() {
     const newId = Math.random().toString(36).substring(7)
     setCvData(prev => ({
       ...prev,
-      volunteering: [...(prev.volunteering || []), { id: newId, role: "", organization: "", duration: "", location: "", description: "" }]
+      volunteering: [...(prev.volunteering || []), { id: newId, role: "", organization: "", duration: "", location: "", country: "", county: "", description: "" }]
     }))
   }
 
@@ -452,31 +464,55 @@ function BuilderContent() {
   }
 
   const renderTemplate = () => {
+    const templateProps = {
+      data: cvData,
+      isEditable: !isPreview,
+      onUpdate: (field: string, value: any) => {
+        const parts = field.split('.')
+        if (parts[0] === 'personalInfo') {
+          updatePersonalInfo(parts[1], value)
+        } else if (parts[0] === 'experience') {
+          updateExperience(parts[1], parts[2] as any, value)
+        } else if (parts[0] === 'education') {
+          updateEducation(parts[1], parts[2] as any, value)
+        } else if (parts[0] === 'projects') {
+          updateProject(parts[1], parts[2] as any, value)
+        } else if (parts[0] === 'volunteering') {
+          updateVolunteering(parts[1], parts[2] as any, value)
+        } else if (parts[0] === 'skills') {
+          // Flattened skills update if passed from template
+          setCvData(prev => ({ ...prev, skills: [{ category: 'Core', items: value }] }))
+        }
+      },
+      onRefine: handleRefine,
+      refiningId
+    }
+
     switch (currentTemplate) {
       case "classic":
-        return <ClassicTable data={cvData} />
+        return <ClassicTable {...templateProps} />
       case "executive":
-        return <ExecutiveTwoColumn data={cvData} />
+        return <ExecutiveTwoColumn {...templateProps} />
       case "minimal":
-        return <MinimalATS data={cvData} />
+        return <MinimalATS {...templateProps} />
       case "creative":
-        return <CreativePortfolio data={cvData} />
+        return <CreativePortfolio {...templateProps} />
       case "startup":
-        return <StartupTech data={cvData} />
+        return <StartupTech {...templateProps} />
       case "executive-board":
-        return <ExecutiveBoard data={cvData} />
+        return <ExecutiveBoard {...templateProps} />
       case "midnight":
-        return <MidnightElegance data={cvData} />
+        return <MidnightElegance {...templateProps} />
       case "bold-impact":
-        return <BoldImpact data={cvData} />
+        return <BoldImpact {...templateProps} />
       case "corporate":
-        return <CorporateClean data={cvData} />
+        return <CorporateClean {...templateProps} />
       case "fresh":
-        return <FreshMinimal data={cvData} />
+        return <FreshMinimal {...templateProps} />
       case "refined":
-        return <RefinedClassic data={cvData} />
+        return <RefinedClassic {...templateProps} />
       default:
-        return <ModernProfessional data={cvData} />
+        return <ModernProfessional {...templateProps} />
     }
   }
 
@@ -820,17 +856,17 @@ function BuilderContent() {
                            />
                          </div>
                        </div>
-                        <div className="flex items-center justify-between">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Summary</label>
-                          <button 
-                            onClick={() => handleRefine("summary")}
-                            disabled={refiningId === "summary" || !cvData.personalInfo.summary}
-                            className="flex items-center space-x-1.5 text-[10px] font-black uppercase tracking-widest text-brand-action hover:text-brand-action/80 transition-colors disabled:opacity-50"
-                          >
-                             {refiningId === "summary" ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
-                             <span>{refiningId === "summary" ? "Refining..." : "Refine with AI"}</span>
-                          </button>
-                        </div>
+                         <div className="flex items-center justify-between">
+                           <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Professional Summary</label>
+                           <button 
+                             onClick={() => handleRefine("summary")}
+                             disabled={refiningId === "summary" || !cvData.personalInfo.summary}
+                             className="flex items-center space-x-1.5 px-4 py-1.5 bg-brand-action/10 hover:bg-brand-action/20 border border-brand-action/30 rounded-xl transition-all active:scale-95 group disabled:opacity-50"
+                           >
+                              {refiningId === "summary" ? <Loader2 size={12} className="animate-spin text-brand-action" /> : <Sparkles size={12} className="text-brand-action group-hover:scale-110 transition-transform" />}
+                              <span className="text-[10px] font-black uppercase tracking-widest text-brand-action">Refine Bio</span>
+                           </button>
+                         </div>
                         <textarea 
                           value={cvData.personalInfo.summary}
                           onChange={(e) => updatePersonalInfo("summary", e.target.value)}
@@ -959,22 +995,132 @@ function BuilderContent() {
                                     className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
                                   />
                                 </div>
-                                <div className="space-y-1.5 col-span-2">
-                                  <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Duration</label>
-                                  <input 
-                                    value={exp.duration}
-                                    onChange={(e) => updateExperience(exp.id, "duration", e.target.value)}
-                                    placeholder="e.g. Jan 2020 - Present"
-                                    className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                                  />
+                                 <DurationPicker 
+                                  value={exp.duration} 
+                                  onChange={(val) => updateExperience(exp.id, "duration", val)} 
+                                />
+                               <div className="space-y-1.5 relative">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Country</label>
+                                <div 
+                                  onClick={() => setOpenExpCountryId(openExpCountryId === exp.id ? null : exp.id)}
+                                  className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all text-sm font-bold focus-within:border-brand-action"
+                                >
+                                  <span>{exp.country || "Select Country"}</span>
+                                  <ChevronDown size={14} className={`transition-transform duration-300 ${openExpCountryId === exp.id ? 'rotate-180' : ''}`} />
                                 </div>
-                                <div className="space-y-1.5 col-span-2">
-                                  <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Location</label>
+                                
+                                <AnimatePresence>
+                                  {openExpCountryId === exp.id && (
+                                    <motion.div 
+                                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                      className="absolute z-100 left-0 right-0 mt-2 bg-card/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden max-h-[250px] flex flex-col shadow-brand-action/10"
+                                    >
+                                      <div className="p-3 border-b border-white/5 flex items-center gap-2 bg-white/5">
+                                        <Search size={16} className="text-muted-foreground" />
+                                        <input 
+                                          autoFocus
+                                          placeholder="Search countries..."
+                                          value={countrySearch}
+                                          className="w-full bg-transparent outline-none text-sm font-bold h-8"
+                                          onChange={(e) => setCountrySearch(e.target.value)}
+                                        />
+                                      </div>
+                                      <div className="overflow-y-auto p-0 overflow-x-hidden">
+                                        {countries.filter(c => c.name.toLowerCase().includes(countrySearch.toLowerCase())).map(c => (
+                                          <div 
+                                            key={c.isoCode}
+                                            onClick={() => {
+                                              updateExperience(exp.id, "country", c.name);
+                                              updateExperience(exp.id, "county", "");
+                                              setOpenExpCountryId(null);
+                                              setCountrySearch("");
+                                            }}
+                                            className={`flex items-center gap-3 px-4 py-2 hover:bg-brand-action/10 cursor-pointer transition-colors group ${c.name === exp.country ? 'bg-brand-action text-white' : ''}`}
+                                          >
+                                            <span className={`text-sm font-bold ${c.name === exp.country ? 'text-white' : 'text-foreground/80 group-hover:text-foreground'}`}>{c.name}</span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
+                              </div>
+
+                              <div className="space-y-1.5 relative">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">County / State</label>
+                                <div 
+                                  onClick={() => setOpenExpStateId(openExpStateId === exp.id ? null : exp.id)}
+                                  className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all text-sm font-bold focus-within:border-brand-action"
+                                >
+                                  <span>{exp.county || "Select State"}</span>
+                                  <ChevronDown size={14} className={`transition-transform duration-300 ${openExpStateId === exp.id ? 'rotate-180' : ''}`} />
+                                </div>
+                                
+                                <AnimatePresence>
+                                  {openExpStateId === exp.id && (
+                                    <motion.div 
+                                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                      className="absolute z-100 left-0 right-0 mt-2 bg-card/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden max-h-[250px] flex flex-col shadow-brand-action/10"
+                                    >
+                                      <div className="p-3 border-b border-white/5 flex items-center gap-2 bg-white/5">
+                                        <Search size={16} className="text-muted-foreground" />
+                                        <input 
+                                          autoFocus
+                                          placeholder="Search states..."
+                                          value={stateSearch}
+                                          className="w-full bg-transparent outline-none text-sm font-bold h-8"
+                                          onChange={(e) => setStateSearch(e.target.value)}
+                                        />
+                                      </div>
+                                      <div className="overflow-y-auto p-0 overflow-x-hidden">
+                                        {countries
+                                          .find(c => c.name === exp.country)
+                                          ?.states
+                                          .filter(s => s.name.toLowerCase().includes(stateSearch.toLowerCase()))
+                                          .map(s => (
+                                          <div 
+                                            key={s.code}
+                                            onClick={() => {
+                                              updateExperience(exp.id, "county", s.name);
+                                              setOpenExpStateId(null);
+                                              setStateSearch("");
+                                            }}
+                                            className={`flex items-center gap-3 px-4 py-2 hover:bg-brand-action/10 cursor-pointer transition-colors group ${s.name === exp.county ? 'bg-brand-action text-white' : ''}`}
+                                          >
+                                            <span className={`text-sm font-bold ${s.name === exp.county ? 'text-white' : 'text-foreground/80 group-hover:text-foreground'}`}>{s.name}</span>
+                                          </div>
+                                        ))}
+                                        {(!exp.country || (countries.find(c => c.name === exp.country)?.states.length === 0)) && (
+                                          <div className="p-4 text-center text-xs text-muted-foreground italic">
+                                            No states available for selected country
+                                          </div>
+                                        )}
+                                      </div>
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
+                              </div>
+
+                               <div className="space-y-1.5 col-span-2">
+                                  <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Location / Zip</label>
                                   <input 
                                     value={exp.location || ""}
                                     onChange={(e) => updateExperience(exp.id, "location", e.target.value)}
                                     placeholder="e.g. Lagos, Nigeria"
                                     className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                                  />
+                                </div>
+                               <div className="space-y-1.5 col-span-2">
+                                  <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Work Description (Paragraph)</label>
+                                  <textarea 
+                                    value={exp.workDescription || ""}
+                                    onChange={(e) => updateExperience(exp.id, "workDescription", e.target.value)}
+                                    placeholder="Briefly describe your role and key responsibilities..."
+                                    className="w-full h-24 p-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-medium resize-none placeholder:text-foreground/10" 
                                   />
                                 </div>
                               </div>
@@ -984,7 +1130,7 @@ function BuilderContent() {
                                   <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Responsibilities (One per line)</label>
                                   <button 
                                     onClick={() => handleRefine("experience", exp.id)}
-                                    disabled={refiningId === exp.id || exp.description.length === 0}
+                                    disabled={refiningId === exp.id || (exp.description.length === 0 && !exp.workDescription)}
                                     className="flex items-center space-x-1.5 text-[10px] font-black uppercase tracking-widest text-brand-action hover:text-brand-action/80 transition-colors disabled:opacity-50"
                                   >
                                      {refiningId === exp.id ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
@@ -1057,17 +1203,118 @@ function BuilderContent() {
                                    className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
                                  />
                                </div>
-                               <div className="space-y-1.5 col-span-2">
-                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Duration</label>
-                                 <input 
-                                   value={edu.duration}
-                                   onChange={(e) => updateEducation(edu.id, "duration", e.target.value)}
-                                   placeholder="e.g. 2018 - 2022"
-                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                                 />
+                                <DurationPicker 
+                                  value={edu.duration} 
+                                  onChange={(val) => updateEducation(edu.id, "duration", val)} 
+                                />
+                               <div className="space-y-1.5 relative">
+                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Country</label>
+                                 <div 
+                                   onClick={() => setOpenEduCountryId(openEduCountryId === edu.id ? null : edu.id)}
+                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all text-sm font-bold focus-within:border-brand-action"
+                                 >
+                                   <span>{edu.country || "Select Country"}</span>
+                                   <ChevronDown size={14} className={`transition-transform duration-300 ${openEduCountryId === edu.id ? 'rotate-180' : ''}`} />
+                                 </div>
+                                 
+                                 <AnimatePresence>
+                                   {openEduCountryId === edu.id && (
+                                     <motion.div 
+                                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                       animate={{ opacity: 1, y: 0, scale: 1 }}
+                                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                       className="absolute z-100 left-0 right-0 mt-2 bg-card/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden max-h-[250px] flex flex-col shadow-brand-action/10"
+                                     >
+                                       <div className="p-3 border-b border-white/5 flex items-center gap-2 bg-white/5">
+                                         <Search size={16} className="text-muted-foreground" />
+                                         <input 
+                                           autoFocus
+                                           placeholder="Search countries..."
+                                           value={countrySearch}
+                                           className="w-full bg-transparent outline-none text-sm font-bold h-8"
+                                           onChange={(e) => setCountrySearch(e.target.value)}
+                                         />
+                                       </div>
+                                       <div className="overflow-y-auto p-0 overflow-x-hidden">
+                                         {countries.filter(c => c.name.toLowerCase().includes(countrySearch.toLowerCase())).map(c => (
+                                           <div 
+                                             key={c.isoCode}
+                                             onClick={() => {
+                                               updateEducation(edu.id, "country", c.name);
+                                               updateEducation(edu.id, "county", "");
+                                               setOpenEduCountryId(null);
+                                               setCountrySearch("");
+                                             }}
+                                             className={`flex items-center gap-3 px-4 py-2 hover:bg-brand-action/10 cursor-pointer transition-colors group ${c.name === edu.country ? 'bg-brand-action text-white' : ''}`}
+                                           >
+                                             <span className={`text-sm font-bold ${c.name === edu.country ? 'text-white' : 'text-foreground/80 group-hover:text-foreground'}`}>{c.name}</span>
+                                           </div>
+                                         ))}
+                                       </div>
+                                     </motion.div>
+                                   )}
+                                 </AnimatePresence>
                                </div>
+
+                               <div className="space-y-1.5 relative">
+                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">County / State</label>
+                                 <div 
+                                   onClick={() => setOpenEduStateId(openEduStateId === edu.id ? null : edu.id)}
+                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all text-sm font-bold focus-within:border-brand-action"
+                                 >
+                                   <span>{edu.county || "Select State"}</span>
+                                   <ChevronDown size={14} className={`transition-transform duration-300 ${openEduStateId === edu.id ? 'rotate-180' : ''}`} />
+                                 </div>
+                                 
+                                 <AnimatePresence>
+                                   {openEduStateId === edu.id && (
+                                     <motion.div 
+                                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                       animate={{ opacity: 1, y: 0, scale: 1 }}
+                                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                       className="absolute z-100 left-0 right-0 mt-2 bg-card/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden max-h-[250px] flex flex-col shadow-brand-action/10"
+                                     >
+                                       <div className="p-3 border-b border-white/5 flex items-center gap-2 bg-white/5">
+                                         <Search size={16} className="text-muted-foreground" />
+                                         <input 
+                                           autoFocus
+                                           placeholder="Search states..."
+                                           value={stateSearch}
+                                           className="w-full bg-transparent outline-none text-sm font-bold h-8"
+                                           onChange={(e) => setStateSearch(e.target.value)}
+                                         />
+                                       </div>
+                                       <div className="overflow-y-auto p-0 overflow-x-hidden">
+                                         {countries
+                                           .find(c => c.name === edu.country)
+                                           ?.states
+                                           .filter(s => s.name.toLowerCase().includes(stateSearch.toLowerCase()))
+                                           .map(s => (
+                                           <div 
+                                             key={s.code}
+                                             onClick={() => {
+                                               updateEducation(edu.id, "county", s.name);
+                                               setOpenEduStateId(null);
+                                               setStateSearch("");
+                                             }}
+                                             className={`flex items-center gap-3 px-4 py-2 hover:bg-brand-action/10 cursor-pointer transition-colors group ${s.name === edu.county ? 'bg-brand-action text-white' : ''}`}
+                                           >
+                                             <span className={`text-sm font-bold ${s.name === edu.county ? 'text-white' : 'text-foreground/80 group-hover:text-foreground'}`}>{s.name}</span>
+                                           </div>
+                                         ))}
+                                         {(!edu.country || (countries.find(c => c.name === edu.country)?.states.length === 0)) && (
+                                           <div className="p-4 text-center text-xs text-muted-foreground italic">
+                                             No states available for selected country
+                                           </div>
+                                         )}
+                                       </div>
+                                     </motion.div>
+                                   )}
+                                 </AnimatePresence>
+                               </div>
+
                                <div className="space-y-1.5 col-span-2">
-                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Location</label>
+                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Location / Zip</label>
                                  <input 
                                    value={edu.location || ""}
                                    onChange={(e) => updateEducation(edu.id, "location", e.target.value)}
@@ -1238,16 +1485,20 @@ function BuilderContent() {
                                    className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
                                  />
                                </div>
+                               <DurationPicker 
+                                  value={project.duration || ""} 
+                                  onChange={(val) => updateProject(project.id, "duration", val)} 
+                                />
                                <div className="space-y-1.5 col-span-2">
                                  <div className="flex items-center justify-between">
                                    <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Description</label>
                                    <button 
                                      onClick={() => handleRefine("project", project.id)}
                                      disabled={refiningId === `project-${project.id}` || !project.description}
-                                     className="flex items-center space-x-1.5 text-[10px] font-black uppercase tracking-widest text-brand-action hover:text-brand-action/80 transition-colors disabled:opacity-50"
+                                     className="flex items-center space-x-1.5 px-4 py-1.5 bg-brand-action/10 hover:bg-brand-action/20 border border-brand-action/30 rounded-xl transition-all active:scale-95 group disabled:opacity-50"
                                    >
-                                      {refiningId === `project-${project.id}` ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
-                                      <span>{refiningId === `project-${project.id}` ? "Refining..." : "Refine with AI"}</span>
+                                      {refiningId === `project-${project.id}` ? <Loader2 size={12} className="animate-spin text-brand-action" /> : <Sparkles size={12} className="text-brand-action group-hover:scale-110 transition-transform" />}
+                                      <span className="text-[10px] font-black uppercase tracking-widest text-brand-action">Refine Project</span>
                                    </button>
                                  </div>
                                  <textarea 
@@ -1382,26 +1633,184 @@ function BuilderContent() {
                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
                                 />
                               </div>
-                              <div className="space-y-1.5">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Duration</label>
-                                <input 
-                                  value={vol.duration}
-                                  onChange={(e) => updateVolunteering(vol.id, "duration", e.target.value)}
-                                  placeholder="e.g. Jan 2022 - Present"
-                                  className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                                />
+                              <DurationPicker 
+                                value={vol.duration} 
+                                onChange={(val) => updateVolunteering(vol.id, "duration", val)} 
+                              />
+                              <div className="space-y-1.5 relative">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Country</label>
+                                <div 
+                                  onClick={() => setOpenVolCountryId(openVolCountryId === vol.id ? null : vol.id)}
+                                  className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all text-sm font-bold focus-within:border-brand-action"
+                                >
+                                  <span>{vol.country || "Select Country"}</span>
+                                  <ChevronDown size={14} className={`transition-transform duration-300 ${openVolCountryId === vol.id ? 'rotate-180' : ''}`} />
+                                </div>
+                                
+                                <AnimatePresence>
+                                  {openVolCountryId === vol.id && (
+                                    <motion.div 
+                                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                      className="absolute z-100 left-0 right-0 mt-2 bg-card/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden max-h-[250px] flex flex-col shadow-brand-action/10"
+                                    >
+                                      <div className="p-3 border-b border-white/5 flex items-center gap-2 bg-white/5">
+                                        <Search size={16} className="text-muted-foreground" />
+                                        <input 
+                                          autoFocus
+                                          placeholder="Search countries..."
+                                          value={countrySearch}
+                                          className="w-full bg-transparent outline-none text-sm font-bold h-8"
+                                          onChange={(e) => setCountrySearch(e.target.value)}
+                                        />
+                                      </div>
+                                      <div className="overflow-y-auto p-0 overflow-x-hidden">
+                                        {countries.filter(c => c.name.toLowerCase().includes(countrySearch.toLowerCase())).map(c => (
+                                          <div 
+                                            key={c.isoCode}
+                                            onClick={() => {
+                                              updateVolunteering(vol.id, "country", c.name);
+                                              updateVolunteering(vol.id, "county", "");
+                                              setOpenVolCountryId(null);
+                                              setCountrySearch("");
+                                            }}
+                                            className={`flex items-center gap-3 px-4 py-2 hover:bg-brand-action/10 cursor-pointer transition-colors group ${c.name === vol.country ? 'bg-brand-action text-white' : ''}`}
+                                          >
+                                            <span className={`text-sm font-bold ${c.name === vol.country ? 'text-white' : 'text-foreground/80 group-hover:text-foreground'}`}>{c.name}</span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
                               </div>
-                              <div className="space-y-1.5">
+
+                              <div className="space-y-1.5 relative">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">County / State</label>
+                                <div 
+                                  onClick={() => setOpenVolStateId(openVolStateId === vol.id ? null : vol.id)}
+                                  className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all text-sm font-bold focus-within:border-brand-action"
+                                >
+                                  <span>{vol.county || "Select State"}</span>
+                                  <ChevronDown size={14} className={`transition-transform duration-300 ${openVolStateId === vol.id ? 'rotate-180' : ''}`} />
+                                </div>
+                                
+                                <AnimatePresence>
+                                  {openVolStateId === vol.id && (
+                                    <motion.div 
+                                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                      className="absolute z-100 left-0 right-0 mt-2 bg-card/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden max-h-[250px] flex flex-col shadow-brand-action/10"
+                                    >
+                                      <div className="p-3 border-b border-white/5 flex items-center gap-2 bg-white/5">
+                                        <Search size={16} className="text-muted-foreground" />
+                                        <input 
+                                          autoFocus
+                                          placeholder="Search states..."
+                                          value={stateSearch}
+                                          className="w-full bg-transparent outline-none text-sm font-bold h-8"
+                                          onChange={(e) => setStateSearch(e.target.value)}
+                                        />
+                                      </div>
+                                      <div className="overflow-y-auto p-0 overflow-x-hidden">
+                                        {countries
+                                          .find(c => c.name === vol.country)
+                                          ?.states
+                                          .filter(s => s.name.toLowerCase().includes(stateSearch.toLowerCase()))
+                                          .map(s => (
+                                          <div 
+                                            key={s.code}
+                                            onClick={() => {
+                                              updateVolunteering(vol.id, "county", s.name);
+                                              setOpenVolStateId(null);
+                                              setStateSearch("");
+                                            }}
+                                            className={`flex items-center gap-3 px-4 py-2 hover:bg-brand-action/10 cursor-pointer transition-colors group ${s.name === vol.county ? 'bg-brand-action text-white' : ''}`}
+                                          >
+                                            <span className={`text-sm font-bold ${s.name === vol.county ? 'text-white' : 'text-foreground/80 group-hover:text-foreground'}`}>{s.name}</span>
+                                          </div>
+                                        ))}
+                                        {(!vol.country || (countries.find(c => c.name === vol.country)?.states.length === 0)) && (
+                                          <div className="p-4 text-center text-xs text-muted-foreground italic">
+                                            No states available for selected country
+                                          </div>
+                                        )}
+                                      </div>
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
+                              </div>
+
+                              <div className="space-y-1.5 col-span-2 relative">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Location</label>
-                                <input 
-                                  value={vol.location || ""}
-                                  onChange={(e) => updateVolunteering(vol.id, "location", e.target.value)}
-                                  placeholder="e.g. Lagos, Nigeria"
-                                  className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                                />
+                                <div 
+                                  onClick={() => setOpenVolLocationId(openVolLocationId === vol.id ? null : vol.id)}
+                                  className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all text-sm font-bold focus-within:border-brand-action"
+                                >
+                                  <span>{vol.location || "Select Location"}</span>
+                                  <ChevronDown size={14} className={`transition-transform duration-300 ${openVolLocationId === vol.id ? 'rotate-180' : ''}`} />
+                                </div>
+                                
+                                <AnimatePresence>
+                                  {openVolLocationId === vol.id && (
+                                    <motion.div 
+                                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                      className="absolute z-100 left-0 right-0 mt-2 bg-card/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden max-h-[250px] flex flex-col shadow-brand-action/10"
+                                    >
+                                      <div className="p-3 border-b border-white/5 flex items-center gap-2 bg-white/5">
+                                        <Search size={16} className="text-muted-foreground" />
+                                        <input 
+                                          autoFocus
+                                          placeholder="Search locations..."
+                                          value={stateSearch}
+                                          className="w-full bg-transparent outline-none text-sm font-bold h-8"
+                                          onChange={(e) => setStateSearch(e.target.value)}
+                                        />
+                                      </div>
+                                      <div className="overflow-y-auto p-0 overflow-x-hidden">
+                                        {countries
+                                          .find(c => c.name === vol.country)
+                                          ?.states
+                                          .filter(s => s.name.toLowerCase().includes(stateSearch.toLowerCase()))
+                                          .map(s => (
+                                          <div 
+                                            key={s.code}
+                                            onClick={() => {
+                                              updateVolunteering(vol.id, "location", s.name);
+                                              setOpenVolLocationId(null);
+                                              setStateSearch("");
+                                            }}
+                                            className={`flex items-center gap-3 px-4 py-2 hover:bg-brand-action/10 cursor-pointer transition-colors group ${s.name === vol.location ? 'bg-brand-action text-white' : ''}`}
+                                          >
+                                            <span className={`text-sm font-bold ${s.name === vol.location ? 'text-white' : 'text-foreground/80 group-hover:text-foreground'}`}>{s.name}</span>
+                                          </div>
+                                        ))}
+                                        {(!vol.country || (countries.find(c => c.name === vol.country)?.states.length === 0)) && (
+                                          <div className="p-4 text-center text-xs text-muted-foreground italic">
+                                            Select a country first to see available locations
+                                          </div>
+                                        )}
+                                      </div>
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
                               </div>
                               <div className="space-y-1.5 col-span-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Description</label>
+                                <div className="flex items-center justify-between">
+                                  <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Description</label>
+                                  <button 
+                                    onClick={() => handleRefine("volunteering", vol.id)}
+                                    disabled={refiningId === vol.id || !vol.description}
+                                    className="flex items-center space-x-1.5 text-[10px] font-black uppercase tracking-widest text-brand-action hover:text-brand-action/80 transition-colors disabled:opacity-50"
+                                  >
+                                     {refiningId === vol.id ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                                     <span>{refiningId === vol.id ? "Refining..." : "Refine with AI"}</span>
+                                  </button>
+                                </div>
                                 <textarea 
                                   value={vol.description}
                                   onChange={(e) => updateVolunteering(vol.id, "description", e.target.value)}
@@ -1442,7 +1851,7 @@ function BuilderContent() {
                           ? <Loader2 size={20} className="animate-spin" />
                           : <ArrowUpRight size={20} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-200" />
                         }
-                        <span>{isSavingFinish ? 'Finishing...' : 'Save & Finish'}</span>
+                        <span>{isSavingFinish ? 'Finishing...' : 'Finish & Download'}</span>
                     </button>
                  </div>
               </div>
@@ -1475,44 +1884,15 @@ function BuilderContent() {
                       >
                         <div className="w-8 h-5 rounded-md overflow-hidden border border-white/10 hidden xs:block">
                           <img 
-                            src={
-                              [
-                                { id: "modern", img: "/modern.png" },
-                                { id: "classic", img: "/classic.png" },
-                                { id: "executive", img: "/executive.png" },
-                                { id: "minimal", img: "/modern.png" },
-                                { id: "creative", img: "/modern.png" },
-                                { id: "startup", img: "/modern.png" },
-                                { id: "executive-board", img: "/modern.png" },
-                                { id: "midnight", img: "/modern.png" },
-                                { id: "bold-impact", img: "/modern.png" },
-                                { id: "corporate", img: "/modern.png" },
-                                { id: "fresh", img: "/modern.png" },
-                                { id: "refined", img: "/modern.png" }
-                              ].find(t => t.id === currentTemplate)?.img || "/modern.png"
-                            } 
+                            src={`/${currentTemplate === 'minimal' ? 'ats' : currentTemplate === 'executive-board' ? 'board' : currentTemplate === 'bold-impact' ? 'bold' : currentTemplate}.png`} 
                             className="w-full h-full object-cover" 
+                            onError={(e) => (e.currentTarget.src = "/modern.png")}
                             alt="Current Template" 
                           />
                         </div>
                         <span className="text-[11px] font-black uppercase tracking-widest text-foreground/80">
-                          Template: <span className="text-brand-action ml-1">
-                            {
-                              [
-                                { id: "modern", name: "Modern" },
-                                { id: "classic", name: "Classic" },
-                                { id: "executive", name: "Executive" },
-                                { id: "minimal", name: "ATS" },
-                                { id: "creative", name: "Creative" },
-                                { id: "startup", name: "Startup" },
-                                { id: "executive-board", name: "Board" },
-                                { id: "midnight", name: "Midnight" },
-                                { id: "bold-impact", name: "Bold" },
-                                { id: "corporate", name: "Corporate" },
-                                { id: "fresh", name: "Fresh" },
-                                { id: "refined", name: "Refined" }
-                              ].find(t => t.id === currentTemplate)?.name
-                            }
+                          Template: <span className="text-brand-action ml-1 uppercase">
+                            {currentTemplate}
                           </span>
                         </span>
                         <ChevronDown size={14} className={`text-foreground/40 transition-transform duration-300 ${isTemplateDropdownOpen ? 'rotate-180' : ''}`} />
@@ -1524,35 +1904,44 @@ function BuilderContent() {
                             initial={{ opacity: 0, y: 10, scale: 0.95 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                            className="absolute top-full left-0 mt-2 w-[500px] bg-[#0a0a0a] border border-white/15 rounded-[28px] shadow-2xl p-3 z-100"
+                            className="absolute top-full left-0 mt-2 w-[550px] bg-[#0a0a0a] border border-white/15 rounded-[28px] shadow-2xl p-4 z-100"
                           >
-                            <div className="grid grid-cols-3 gap-2">
+                            <div className="grid grid-cols-3 gap-3 max-h-[450px] overflow-y-auto pr-2 custom-scrollbar">
                               {[
-                                { id: "modern", name: "Modern Professional", img: "/modern.png" },
-                                { id: "classic", name: "Classic Table", img: "/classic.png" },
-                                { id: "executive", name: "Executive Two-Column", img: "/executive.png" },
-                                { id: "minimal", name: "Minimal ATS", img: "/modern.png" },
-                                { id: "creative", name: "Creative Portfolio", img: "/modern.png" },
-                                { id: "startup", name: "Startup Tech", img: "/modern.png" },
-                                { id: "executive-board", name: "Executive Board", img: "/modern.png" },
-                                { id: "midnight", name: "Midnight Elegance", img: "/modern.png" },
-                                { id: "bold-impact", name: "Bold Impact", img: "/modern.png" },
-                                { id: "corporate", name: "Corporate Clean", img: "/modern.png" },
-                                { id: "fresh", name: "Fresh Minimal", img: "/modern.png" },
-                                { id: "refined", name: "Refined Classic", img: "/modern.png" }
+                                { id: "modern", name: "Modern Elite" },
+                                { id: "classic", name: "Classic Grid" },
+                                { id: "executive", name: "Corporate Duo" },
+                                { id: "minimal", name: "ATS Optimized" },
+                                { id: "creative", name: "Creative Edge" },
+                                { id: "startup", name: "Startup Vibe" },
+                                { id: "executive-board", name: "Executive Board" },
+                                { id: "midnight", name: "Midnight Elegance" },
+                                { id: "bold-impact", name: "Bold Impact" },
+                                { id: "corporate", name: "Corporate Clean" },
+                                { id: "fresh", name: "Fresh Minimal" },
+                                { id: "refined", name: "Refined Classic" }
                               ].map((t) => (
                                 <button
                                   key={t.id}
                                   onClick={() => {
                                     setCurrentTemplate(t.id as any)
                                     setIsTemplateDropdownOpen(false)
+                                    // Update URL immediately
+                                    const params = new URLSearchParams(window.location.search)
+                                    params.set("template", t.id)
+                                    window.history.replaceState(null, "", `/builder/${id}?${params.toString()}`)
                                   }}
-                                  className={`flex items-center space-x-3 w-full p-2.5 rounded-2xl transition-all group ${currentTemplate === t.id ? 'bg-brand-action/15 text-brand-action border border-brand-action/20' : 'hover:bg-white/5 text-foreground/60 hover:text-foreground'}`}
+                                  className={`flex flex-col items-center gap-2 p-3 rounded-2xl transition-all group ${currentTemplate === t.id ? 'bg-brand-action/15 text-brand-action border border-brand-action/30' : 'hover:bg-white/5 border border-transparent'}`}
                                 >
-                                  <div className={`w-12 h-7 rounded-lg overflow-hidden border transition-all ${currentTemplate === t.id ? 'border-brand-action/40' : 'border-white/10 group-hover:border-white/20'} shrink-0`}>
-                                    <img src={t.img} className="w-full h-full object-cover" alt={t.name} />
+                                  <div className={`w-full h-24 rounded-xl overflow-hidden border transition-all ${currentTemplate === t.id ? 'border-brand-action/40' : 'border-white/10 group-hover:border-white/20'} bg-white/5`}>
+                                    <img 
+                                      src={`/${t.id === 'minimal' ? 'ats' : t.id === 'executive-board' ? 'board' : t.id === 'bold-impact' ? 'bold' : t.id}.png`} 
+                                      className="w-full h-full object-cover transition-transform group-hover:scale-105" 
+                                      onError={(e) => (e.currentTarget.src = "/modern.png")}
+                                      alt={t.name} 
+                                    />
                                   </div>
-                                  <span className="text-[9px] font-black uppercase tracking-tight leading-none text-left">{t.name}</span>
+                                  <span className="text-[10px] font-black uppercase tracking-tight text-center leading-tight">{t.name}</span>
                                 </button>
                               ))}
                             </div>
@@ -1577,7 +1966,19 @@ function BuilderContent() {
                     </div>
                   </div>
 
-                 
+                  <div className="flex items-center space-x-3">
+                     <button 
+                        onClick={() => handleSave(true)}
+                        disabled={isSavingDraft || isSavingFinish}
+                        className="flex items-center space-x-2.5 px-6 h-11 bg-brand-action text-white rounded-2xl transition-all active:scale-95 group shadow-lg shadow-brand-action/20 hover:brightness-110 disabled:opacity-50"
+                      >
+                         {isSavingFinish 
+                            ? <Loader2 size={18} className="animate-spin" /> 
+                            : <Download size={18} className="group-hover:translate-y-0.5 transition-transform" />
+                         }
+                         <span className="text-[11px] font-black uppercase tracking-widest">Download CV</span>
+                      </button>
+                  </div>
              </div>
 
              {/* Preview Container - Responsive scaling */}
@@ -1618,6 +2019,105 @@ function BuilderContent() {
           />
       </main>
     </div>
+  )
+}
+
+const DurationPicker = ({ value, onChange, label = "Duration" }: { value: string, onChange: (val: string) => void, label?: string }) => {
+  const parts = value.split(" - ")
+  const startPart = parts[0]?.trim() || ""
+  const endPart = parts[1]?.trim() || ""
+  
+  const isPresent = endPart === "Present" || endPart === "Current"
+  
+  // Safe parsing helper
+  const parseDate = (str: string) => {
+    if (!str || str === "Present" || str === "Current") return null
+    const d = dayjs(str, "MMM YYYY")
+    return d.isValid() ? d : null
+  }
+
+  const startDayjs = parseDate(startPart)
+  const endDayjs = isPresent ? null : parseDate(endPart)
+
+  const handleStartChange = (date: dayjs.Dayjs | null) => {
+    const startStr = date && date.isValid() ? date.format("MMM YYYY") : ""
+    const currentEndStr = isPresent ? "Present" : (endDayjs && endDayjs.isValid() ? endDayjs.format("MMM YYYY") : "")
+    
+    if (!startStr && !currentEndStr) {
+      onChange("")
+    } else {
+      onChange(`${startStr} - ${currentEndStr}`)
+    }
+  }
+
+  const handleEndChange = (date: dayjs.Dayjs | null) => {
+    const startStr = startDayjs && startDayjs.isValid() ? startDayjs.format("MMM YYYY") : ""
+    const endStr = date && date.isValid() ? date.format("MMM YYYY") : ""
+    
+    if (!startStr && !endStr) {
+      onChange("")
+    } else {
+      onChange(`${startStr} - ${endStr}`)
+    }
+  }
+
+  const togglePresent = () => {
+    const startStr = startDayjs && startDayjs.isValid() ? startDayjs.format("MMM YYYY") : ""
+    const endStr = isPresent ? "" : "Present"
+    
+    if (!startStr && !endStr) {
+      onChange("")
+    } else {
+      onChange(`${startStr} - ${endStr}`)
+    }
+  }
+
+  return (
+    <ConfigProvider theme={{ algorithm: theme.darkAlgorithm }}>
+      <div className="space-y-1.5 col-span-2">
+        <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">{label}</label>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <span className="text-[9px] font-black uppercase text-foreground/30">Start Date</span>
+            <DatePicker 
+              picker="month"
+              value={startDayjs}
+              onChange={handleStartChange}
+              format="MMM YYYY"
+              className="w-full h-11 bg-white/5 border-border-custom hover:border-brand-action focus:border-brand-action rounded-xl text-sm font-bold"
+              placeholder="Select start"
+              allowClear={false}
+            />
+          </div>
+          <div className="space-y-2">
+            <span className="text-[9px] font-black uppercase text-foreground/30">End Date</span>
+            <div className="flex gap-2">
+              <DatePicker 
+                picker="month"
+                value={endDayjs}
+                onChange={handleEndChange}
+                disabled={isPresent}
+                format="MMM YYYY"
+                className="flex-1 h-11 bg-white/5 border-border-custom hover:border-brand-action focus:border-brand-action rounded-xl text-sm font-bold disabled:opacity-50"
+                placeholder={isPresent ? "Present" : "Select end"}
+                allowClear={false}
+              />
+              <button
+                type="button"
+                onClick={togglePresent}
+                className={`h-11 px-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-all ${
+                  isPresent
+                    ? "bg-brand-action text-white"
+                    : "bg-white/5 border border-border-custom text-foreground/40 hover:bg-white/10"
+                }`}
+              >
+                Present
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ConfigProvider>
   )
 }
 

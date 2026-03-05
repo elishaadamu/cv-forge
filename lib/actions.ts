@@ -149,23 +149,49 @@ export async function loginUser(
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "")
 
-export async function refineTextWithAI(text: string, type: "summary" | "experience" | "comment") {
+export async function refineTextWithAI(text: string, type: "summary" | "experience" | "comment", context?: any) {
   if (!text) return { error: "No text provided" }
   
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
     
     let prompt = ""
+    const contextInfo = context ? `
+    Use the following CV context for ideas and tailoring (do NOT invent facts outside this context):
+    - Name/Title: ${context.personalInfo?.fullName}${context.personalInfo?.title ? ` (${context.personalInfo.title})` : ""}
+    - Skills: ${context.skills?.flatMap((s: any) => s.items).join(", ")}
+    - Nationality: ${context.personalInfo?.nationality}
+    - Key Experience: ${context.experience?.map((e: any) => `${e.role} at ${e.company}`).join(", ")}
+    - Education: ${context.education?.map((e: any) => `${e.degree} in ${e.fieldOfStudy}`).join(", ")}
+    ` : ""
+
     if (type === "summary") {
-      prompt = `Refine the following professional CV summary to be more impactful, professional, and concise. Maintain the original meaning but improve the vocabulary and flow: "${text}"`
+      prompt = `Rewrite the following professional CV summary to be impactful and professional. 
+      ${contextInfo}
+      Rules:
+      1. Rewrite the text directly. Do NOT provide tips, options, or a guide.
+      2. Match the tone to the provided context.
+      3. Strictly NO markdown formatting (No bold, No italics, No symbols, No quotes).
+      4. Output ONLY the refined text.
+
+      Text to rewrite: "${text}"`
     } else if (type === "experience") {
-      prompt = `Refine the following job description/experience bullet points for a CV. Make them more action-oriented, professional, and clear. Maintain the original achievements: "${text}"`
+      prompt = `Rewrite the following CV content to be action-oriented and technically sharp.
+      ${contextInfo}
+      Rules:
+      1. Rewrite the content directly. Do NOT provide advice or meta-talk.
+      2. Use specific industry verbs.
+      3. If it's a list, output each point on a new line without any bullet symbols.
+      4. Strictly NO markdown formatting (No bold, No italics, No symbols, No quotes).
+      5. Output ONLY the refined content.
+
+      Content to rewrite: "${text}"`
     } else if (type === "comment") {
-      prompt = `Refine the following blog comment to be elegant, professional, and insightful, aligned with a career-focused website goal. 
-      Maintain the original sentiment but improve the vocabulary and tone. 
-      Output ONLY the refined text as a single, impactful sentence. 
-      Do NOT provide options. 
-      Do NOT use any markdown formatting (no bold, no italics, no quotes). 
+      prompt = `Rewrite the following blog comment to be elegant and insightful.
+      Rules:
+      1. Output ONLY a single impactful sentence.
+      2. Strictly NO markdown (No bold, No italics, No quotes).
+      
       Comment: "${text}"`
     }
 
@@ -173,15 +199,14 @@ export async function refineTextWithAI(text: string, type: "summary" | "experien
     const response = await result.response
     let refinedText = response.text().trim()
 
-    // Clean up potential markdown formatting if Gemini ignored instructions
-    if (refinedText.startsWith("```")) {
-      refinedText = refinedText.replace(/^```[a-z]*\n/i, "").replace(/\n```$/g, "").trim()
-    }
-    
-    // Remove surrounding quotes if present
-    refinedText = refinedText.replace(/^["'](.*)["']$/g, "$1")
+    // Aggressive cleanup for markdown and formatting
+    refinedText = refinedText
+      .replace(/[*_~`]/g, "") // Remove common markdown symbols
+      .replace(/^["'](.*)["']$/g, "$1") // Remove surrounding quotes
+      .replace(/^#+.*$/gm, "") // Remove headers
+      .trim()
 
-    return { success: true, refinedText: refinedText.trim() }
+    return { success: true, refinedText }
   } catch (error) {
     console.error("AI refinement error:", error)
     return { error: "Failed to refine text with AI" }
@@ -271,7 +296,7 @@ export async function saveCV(userId: string, data: any, id?: string) {
     let cv
     if (id && id !== "edit-id") {
       // Update existing CV
-      cv = await (prisma.cV as any).update({
+      cv = await prisma.cV.update({
         where: { id },
         data: {
           ...baseData,
@@ -330,7 +355,10 @@ export async function saveCV(userId: string, data: any, id?: string) {
               role: exp.role,
               duration: exp.duration,
               location: exp.location,
+              country: exp.country,
+              county: exp.county,
               description: exp.description,
+              workDescription: exp.workDescription,
             }))
           },
           educations: {
@@ -340,6 +368,8 @@ export async function saveCV(userId: string, data: any, id?: string) {
               degree: edu.degree,
               duration: edu.duration,
               location: edu.location,
+              country: edu.country,
+              county: edu.county,
               fieldOfStudy: edu.fieldOfStudy,
               grade: edu.grade,
             }))
@@ -373,6 +403,8 @@ export async function saveCV(userId: string, data: any, id?: string) {
               role: vol.role,
               duration: vol.duration,
               location: vol.location,
+              country: vol.country,
+              county: vol.county,
               description: vol.description,
             }))
           }
@@ -380,7 +412,7 @@ export async function saveCV(userId: string, data: any, id?: string) {
       })
     } else {
       // Create new CV
-      cv = await (prisma.cV as any).create({
+      cv = await prisma.cV.create({
         data: {
           ...baseData,
           personalInfo: {
@@ -413,7 +445,10 @@ export async function saveCV(userId: string, data: any, id?: string) {
               role: exp.role,
               duration: exp.duration,
               location: exp.location,
+              country: exp.country,
+              county: exp.county,
               description: exp.description,
+              workDescription: exp.workDescription,
             }))
           },
           educations: {
@@ -422,6 +457,8 @@ export async function saveCV(userId: string, data: any, id?: string) {
               degree: edu.degree,
               duration: edu.duration,
               location: edu.location,
+              country: edu.country,
+              county: edu.county,
               fieldOfStudy: edu.fieldOfStudy,
               grade: edu.grade,
             }))
@@ -451,6 +488,8 @@ export async function saveCV(userId: string, data: any, id?: string) {
               role: vol.role,
               duration: vol.duration,
               location: vol.location,
+              country: vol.country,
+              county: vol.county,
               description: vol.description,
             }))
           }
@@ -512,7 +551,10 @@ export async function getCV(id: string, userId: string) {
         company: e.company,
         duration: e.duration,
         location: e.location || "",
+        country: e.country || "",
+        county: e.county || "",
         description: e.description,
+        workDescription: e.workDescription || "",
       })),
       education: cv.educations.map((e: any) => ({
         id: e.id,
@@ -520,6 +562,8 @@ export async function getCV(id: string, userId: string) {
         school: e.school,
         duration: e.duration,
         location: e.location || "",
+        country: e.country || "",
+        county: e.county || "",
         fieldOfStudy: e.fieldOfStudy || "",
         grade: e.grade || "",
       })),
@@ -543,6 +587,8 @@ export async function getCV(id: string, userId: string) {
         organization: v.organization,
         duration: v.duration,
         location: v.location || "",
+        country: v.country || "",
+        county: v.county || "",
         description: v.description || "",
       })),
       templateId: cv.templateId,
@@ -603,6 +649,23 @@ export async function deleteCV(id: string, userId: string) {
   } catch (error) {
     console.error("Delete CV error:", error)
     return { error: "Failed to delete CV" }
+  }
+}
+
+export async function deleteManyCVs(ids: string[], userId: string) {
+  if (!ids || ids.length === 0 || !userId) return { error: "Missing required info" }
+
+  try {
+    await prisma.cV.deleteMany({
+      where: {
+        id: { in: ids },
+        userId
+      }
+    })
+    return { success: true }
+  } catch (error) {
+    console.error("Bulk delete CV error:", error)
+    return { error: "Failed to delete selected CVs" }
   }
 }
 

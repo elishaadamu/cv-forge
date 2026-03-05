@@ -30,7 +30,10 @@ export interface CVData {
     company: string
     duration: string
     description: string[]
+    workDescription?: string
     location?: string
+    country?: string
+    county?: string
   }>
   education: Array<{
     id: string
@@ -38,6 +41,8 @@ export interface CVData {
     school: string
     duration: string
     location?: string
+    country?: string
+    county?: string
     fieldOfStudy?: string
     grade?: string
   }>
@@ -50,6 +55,7 @@ export interface CVData {
     name: string
     description: string
     link: string
+    duration?: string
   }>
   languages?: Array<{
     name: string
@@ -61,6 +67,8 @@ export interface CVData {
     organization: string
     duration: string
     location?: string
+    country?: string
+    county?: string
     description: string
   }>
   templateId?: string

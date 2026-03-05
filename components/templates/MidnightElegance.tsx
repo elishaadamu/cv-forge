@@ -1,9 +1,15 @@
 // @ts-nocheck
-import { Phone, Mail, Linkedin, MapPin, Globe, Github, Facebook, PlusCircle, Trash2, Sparkles, Languages as LangIcon, Heart, ChevronDown, Check, Search } from "lucide-react"
+"use client"
+import { Phone, Mail, Linkedin, MapPin, Globe, Github, Facebook, PlusCircle, Trash2, Sparkles, Languages as LangIcon, Heart, ChevronDown, Check, Search, Loader2 } from "lucide-react"
 import { CVData } from "./ModernProfessional"
 import { MarkdownText } from "../MarkdownText"
 import React, { useRef, useState, useEffect } from "react"
 import countriesData from "@/lib/countries-data.json"
+import { DatePicker, ConfigProvider, theme } from "antd"
+import dayjs from "dayjs"
+import customParseFormat from "dayjs/plugin/customParseFormat"
+
+dayjs.extend(customParseFormat)
 
 function formatUrl(url: string) {
   if (!url) return ""
@@ -17,11 +23,15 @@ function formatUrl(url: string) {
 export function MidnightElegance({ 
   data, 
   isEditable = false, 
-  onUpdate 
+  onUpdate,
+  onRefine,
+  refiningId
 }: { 
   data: CVData, 
   isEditable?: boolean, 
-  onUpdate?: (field: string, value: any) => void 
+  onUpdate?: (field: string, value: any) => void,
+  onRefine?: (type: "summary" | "experience" | "project" | "volunteering", itemId?: string) => void,
+  refiningId?: string | null
 }) {
   const { personalInfo, experience, education, skills, projects, languages, volunteering } = data
   const allSkills = skills.flatMap((s) => s.items)
@@ -39,8 +49,30 @@ export function MidnightElegance({
         display: "flex",
         flexDirection: "column",
         position: "relative",
+        cursor: isEditable ? undefined : "default",
+        userSelect: "text",
+        WebkitUserSelect: "text",
+        MozUserSelect: "text",
+        msUserSelect: "text",
       }}
     >
+      {/* Inject placeholder CSS only in edit mode */}
+      {isEditable && (
+        <style>{`
+          [data-placeholder]:empty::before {
+            content: attr(data-placeholder);
+            color: rgba(124,58,237,0.28);
+            pointer-events: none;
+            font-style: italic;
+          }
+          [data-placeholder-white]:empty::before {
+            content: attr(data-placeholder-white);
+            color: rgba(255,255,255,0.25);
+            pointer-events: none;
+            font-style: italic;
+          }
+        `}</style>
+      )}
       {/* ── HEADER BAND ── */}
       <div
         style={{
@@ -57,7 +89,8 @@ export function MidnightElegance({
           <h1
             contentEditable={isEditable}
             suppressContentEditableWarning={true}
-            onBlur={(e) => onUpdate?.("personalInfo.fullName", e.currentTarget.innerText)}
+            data-placeholder-white="Full Name"
+            onBlur={(e) => onUpdate?.("personalInfo.fullName", e.currentTarget.innerText.trim())}
             style={{
               fontSize: "34px",
               fontWeight: 700,
@@ -65,16 +98,21 @@ export function MidnightElegance({
               marginBottom: "4px",
               lineHeight: 1.1,
               outline: "none",
-              borderBottom: isEditable ? "1px dashed rgba(255,255,255,0.2)" : "none",
-              paddingBottom: isEditable ? "4px" : "0",
+              border: isEditable ? "1px dashed rgba(255,255,255,0.3)" : "none",
+              padding: isEditable ? "4px 10px" : "0",
+              borderRadius: isEditable ? "4px" : "0",
+              display: "block",
+              minWidth: isEditable ? "160px" : "auto",
+              cursor: isEditable ? "text" : "default",
             }}
           >
-            {personalInfo.fullName || "Your Name"}
+            {personalInfo.fullName}
           </h1>
           <p
             contentEditable={isEditable}
             suppressContentEditableWarning={true}
-            onBlur={(e) => onUpdate?.("personalInfo.jobTitle", e.currentTarget.innerText)}
+            data-placeholder-white="Professional Title"
+            onBlur={(e) => onUpdate?.("personalInfo.jobTitle", e.currentTarget.innerText.trim())}
             style={{
               fontSize: "13px",
               color: "#c4b5fd",
@@ -82,12 +120,16 @@ export function MidnightElegance({
               textTransform: "uppercase",
               fontWeight: 400,
               outline: "none",
-              borderBottom: isEditable ? "1px dashed rgba(196,181,253,0.2)" : "none",
-              paddingBottom: isEditable ? "2px" : "0",
+              border: isEditable ? "1px dashed rgba(196,181,253,0.3)" : "none",
+              padding: isEditable ? "2px 10px" : "0",
+              borderRadius: isEditable ? "4px" : "0",
+              display: "block",
+              minWidth: isEditable ? "160px" : "auto",
               marginTop: "8px",
+              cursor: isEditable ? "text" : "default",
             }}
           >
-            {personalInfo.jobTitle || "Your Professional Title"}
+            {personalInfo.jobTitle}
           </p>
         </div>
 
@@ -145,10 +187,11 @@ export function MidnightElegance({
                   <span 
                     contentEditable={isEditable}
                     suppressContentEditableWarning={true}
-                    onBlur={(e) => onUpdate?.("personalInfo.phone", e.currentTarget.innerText)}
-                    style={{ outline: "none", borderBottom: "1px dashed rgba(124,58,237,0.2)", minWidth: "60px" }}
+                    data-placeholder="number"
+                    onBlur={(e) => onUpdate?.("personalInfo.phone", e.currentTarget.innerText.trim())}
+                    style={{ outline: "none", border: "1px dashed rgba(124,58,237,0.3)", padding: "1px 6px", borderRadius: "3px", minWidth: "60px", display: "inline-block" }}
                   >
-                    {personalInfo.phone || "Phone"}
+                    {personalInfo.phone}
                   </span>
                </div>
             ) : (
@@ -159,7 +202,8 @@ export function MidnightElegance({
         {(personalInfo.email || isEditable) && (
           <ContactChip 
             icon={<Mail size={10} />} 
-            text={personalInfo.email || "Email"} 
+            text={personalInfo.email} 
+            placeholder="email@example.com"
             href={formatUrl(personalInfo.email)}
             isEditable={isEditable}
             onUpdate={(val) => onUpdate?.("personalInfo.email", val)}
@@ -195,7 +239,8 @@ export function MidnightElegance({
         {(personalInfo.location || isEditable) && (
           <ContactChip 
             icon={<MapPin size={10} />} 
-            text={personalInfo.location || "City"} 
+            text={personalInfo.location}
+            placeholder="Postal code"
             isEditable={isEditable}
             onUpdate={(val) => onUpdate?.("personalInfo.location", val)}
           />
@@ -203,7 +248,8 @@ export function MidnightElegance({
         {(personalInfo.linkedin || isEditable) && (
           <ContactChip 
             icon={<Linkedin size={10} />} 
-            text={personalInfo.linkedin || "LinkedIn"} 
+            text={personalInfo.linkedin}
+            placeholder="LinkedIn URL"
             href={formatUrl(personalInfo.linkedin)}
             isEditable={isEditable}
             onUpdate={(val) => onUpdate?.("personalInfo.linkedin", val)}
@@ -212,7 +258,8 @@ export function MidnightElegance({
         {(personalInfo.website || isEditable) && (
           <ContactChip 
             icon={<Globe size={10} />} 
-            text={personalInfo.website || "Website"} 
+            text={personalInfo.website}
+            placeholder="Website URL"
             href={formatUrl(personalInfo.website)}
             isEditable={isEditable}
             onUpdate={(val) => onUpdate?.("personalInfo.website", val)}
@@ -221,7 +268,8 @@ export function MidnightElegance({
         {(personalInfo.github || isEditable) && (
           <ContactChip 
             icon={<Github size={10} />} 
-            text={personalInfo.github || "GitHub"} 
+            text={personalInfo.github}
+            placeholder="GitHub URL"
             href={formatUrl(personalInfo.github)}
             isEditable={isEditable}
             onUpdate={(val) => onUpdate?.("personalInfo.github", val)}
@@ -230,7 +278,8 @@ export function MidnightElegance({
         {(personalInfo.facebook || isEditable) && (
           <ContactChip 
             icon={<Facebook size={10} />} 
-            text={personalInfo.facebook || "Facebook"} 
+            text={personalInfo.facebook}
+            placeholder="Facebook URL"
             href={formatUrl(personalInfo.facebook)}
             isEditable={isEditable}
             onUpdate={(val) => onUpdate?.("personalInfo.facebook", val)}
@@ -243,11 +292,38 @@ export function MidnightElegance({
         {/* Summary */}
         {(personalInfo.summary || isEditable) && (
           <div style={{ marginBottom: "28px", position: "relative" }}>
-            <SectionTitle label="Professional Profile" />
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+              <SectionTitle label="Professional Profile" noMargin />
+              {isEditable && (
+                <button 
+                  onClick={() => onRefine?.("summary")}
+                  disabled={refiningId === "summary" || !personalInfo.summary}
+                  style={{ 
+                    display: "flex", 
+                    alignItems: "center", 
+                    gap: "6px", 
+                    fontSize: "10px", 
+                    fontWeight: 700, 
+                    color: "#7c3aed", 
+                    background: "rgba(124, 58, 237, 0.05)", 
+                    border: "1px solid rgba(124, 58, 237, 0.2)",
+                    padding: "4px 10px",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                    opacity: (refiningId === "summary" || !personalInfo.summary) ? 0.5 : 1
+                  }}
+                >
+                  {refiningId === "summary" ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                  AI REFINE
+                </button>
+              )}
+            </div>
             <div
               contentEditable={isEditable}
               suppressContentEditableWarning={true}
-              onBlur={(e) => onUpdate?.("personalInfo.summary", e.currentTarget.innerText)}
+              data-placeholder="Briefly describe your professional journey..."
+              onBlur={(e) => onUpdate?.("personalInfo.summary", e.currentTarget.innerText.trim())}
               style={{
                 fontSize: "12.5px",
                 color: "#374151",
@@ -259,8 +335,11 @@ export function MidnightElegance({
                 minHeight: isEditable ? "60px" : "auto",
                 whiteSpace: "pre-wrap",
                 backgroundColor: isEditable ? "rgba(124, 58, 237, 0.02)" : "transparent",
+                cursor: isEditable ? "text" : "default",
+                border: isEditable ? "1px dashed rgba(124,58,237,0.2)" : "none",
+                padding: isEditable ? "8px 16px" : "0 0 0 16px",
+                borderRadius: isEditable ? "4px" : "0",
               }}
-              placeholder="Briefly describe your professional journey..."
             >
               {personalInfo.summary}
             </div>
@@ -273,11 +352,11 @@ export function MidnightElegance({
             <SectionTitle label="Personal Details" />
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 32px", paddingLeft: "16px", borderLeft: "2px solid #e5e2f0" }}>
               {(personalInfo.dateOfBirth || isEditable) && <DetailRow label="Date of Birth" value={personalInfo.dateOfBirth} type="date" isEditable={isEditable} onUpdate={(val) => onUpdate?.("personalInfo.dateOfBirth", val)} />}
-              {(personalInfo.placeOfBirth || isEditable) && <DetailRow label="Place of Birth" value={personalInfo.placeOfBirth} isEditable={isEditable} onUpdate={(val) => onUpdate?.("personalInfo.placeOfBirth", val)} />}
+              {(personalInfo.placeOfBirth || isEditable) && <DetailRow label="Place of Birth" value={personalInfo.placeOfBirth} placeholder="City, Country" isEditable={isEditable} onUpdate={(val) => onUpdate?.("personalInfo.placeOfBirth", val)} />}
               {(personalInfo.nationality || isEditable) && <DetailRow label="Nationality" value={personalInfo.nationality} type="country" isEditable={isEditable} onUpdate={(val) => onUpdate?.("personalInfo.nationality", val)} />}
               {(personalInfo.gender || isEditable) && <DetailRow label="Gender" value={personalInfo.gender} type="options" options={["Male", "Female", "Other", "Prefer not to say"]} isEditable={isEditable} onUpdate={(val) => onUpdate?.("personalInfo.gender", val)} />}
-              {(personalInfo.passport || isEditable) && <DetailRow label="Passport" value={personalInfo.passport} isEditable={isEditable} onUpdate={(val) => onUpdate?.("personalInfo.passport", val)} />}
-              {(personalInfo.workPermit || isEditable) && <DetailRow label="Work Permit" value={personalInfo.workPermit} isEditable={isEditable} onUpdate={(val) => onUpdate?.("personalInfo.workPermit", val)} />}
+              {(personalInfo.passport || isEditable) && <DetailRow label="Passport" value={personalInfo.passport} placeholder="Passport Number" isEditable={isEditable} onUpdate={(val) => onUpdate?.("personalInfo.passport", val)} />}
+              {(personalInfo.workPermit || isEditable) && <DetailRow label="Work Permit" value={personalInfo.workPermit} placeholder="Work Permit / Visa Status" isEditable={isEditable} onUpdate={(val) => onUpdate?.("personalInfo.workPermit", val)} />}
             </div>
           </div>
         )}
@@ -308,35 +387,51 @@ export function MidnightElegance({
                       <Trash2 size={12} />
                     </button>
                   )}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "2px" }}>
+                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "2px" }}>
                     <span 
                       contentEditable={isEditable}
                       suppressContentEditableWarning={true}
-                      onBlur={(e) => onUpdate?.(`experience.${exp.id}.role`, e.currentTarget.innerText)}
-                      style={{ fontWeight: 700, fontSize: "13.5px", color: "#1a1a2e", outline: "none", minWidth: "100px" }}
+                      data-placeholder="Role / Job Title"
+                      onBlur={(e) => onUpdate?.(`experience.${exp.id}.role`, e.currentTarget.innerText.trim())}
+                      style={{ fontWeight: 700, fontSize: "13.5px", color: "#1a1a2e", outline: "none",
+                        border: isEditable ? "1px dashed rgba(124,58,237,0.3)" : "none",
+                        padding: isEditable ? "2px 8px" : "0",
+                        borderRadius: isEditable ? "3px" : "0",
+                        minWidth: isEditable ? "100px" : "auto",
+                        display: "inline-block",
+                      }}
                     >
-                      {exp.role || "Role Title"}
+                      {exp.role}
                     </span>
-                    <span 
-                      contentEditable={isEditable}
-                      suppressContentEditableWarning={true}
-                      onBlur={(e) => onUpdate?.(`experience.${exp.id}.duration`, e.currentTarget.innerText)}
-                      style={{ fontSize: "11px", color: "#7c3aed", fontWeight: 600, whiteSpace: "nowrap", marginLeft: "12px", outline: "none" }}
-                    >
-                      {exp.duration || "Jan 2020 - Present"}
-                    </span>
+                    {isEditable ? (
+                      <DurationPicker 
+                        value={exp.duration} 
+                        onChange={(val) => onUpdate?.(`experience.${exp.id}.duration`, val)} 
+                      />
+                    ) : (
+                      <span style={{ fontSize: "11px", color: "#7c3aed", fontWeight: 600, whiteSpace: "nowrap", marginLeft: "12px" }}>
+                        {exp.duration}
+                      </span>
+                    )}
                   </div>
                   <p 
                     contentEditable={isEditable}
                     suppressContentEditableWarning={true}
-                    onBlur={(e) => onUpdate?.(`experience.${exp.id}.company`, e.currentTarget.innerText)}
-                    style={{ fontSize: "12px", color: "#6d28d9", marginBottom: "2px", fontStyle: "italic", outline: "none" }}
+                    data-placeholder="Company name"
+                    onBlur={(e) => onUpdate?.(`experience.${exp.id}.company`, e.currentTarget.innerText.trim())}
+                    style={{ fontSize: "12px", color: "#6d28d9", marginBottom: "2px", fontStyle: "italic", outline: "none",
+                      border: isEditable ? "1px dashed rgba(109,40,217,0.3)" : "none",
+                      padding: isEditable ? "2px 8px" : "0",
+                      borderRadius: isEditable ? "3px" : "0",
+                      minWidth: isEditable ? "100px" : "auto",
+                      display: "block",
+                    }}
                   >
-                    {exp.company || "Company Name"}
+                    {exp.company}
                   </p>
-                  <div style={{ marginBottom: "8px" }}>
+                   <div style={{ marginBottom: "8px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <span style={{ fontSize: "11px", color: "#6b7280", display: "inline-flex", alignItems: "center", gap: "4px" }}>
-                      <MapPin size={10} strokeWidth={isEditable ? 3 : 2} /> 
+                      {isEditable && <MapPin size={10} strokeWidth={3} />}
                       {isEditable ? (
                         <SearchableSelect 
                           value={exp.location || "Location"} 
@@ -344,22 +439,75 @@ export function MidnightElegance({
                           onSelect={(val) => onUpdate?.(`experience.${exp.id}.location`, val)} 
                         />
                       ) : (
-                        <span>{exp.location}</span>
+                        exp.location ? <><MapPin size={10} strokeWidth={2} /><span>{exp.location}</span></> : null
                       )}
                     </span>
+                    {isEditable && (
+                      <button 
+                        onClick={() => onRefine?.("experience", exp.id)}
+                        disabled={refiningId === exp.id || (exp.description.length === 0 && !exp.workDescription)}
+                        style={{ 
+                          display: "flex", 
+                          alignItems: "center", 
+                          gap: "5px", 
+                          fontSize: "9px", 
+                          fontWeight: 700, 
+                          color: "#7c3aed", 
+                          background: "rgba(124, 58, 237, 0.05)", 
+                          border: "1px solid rgba(124, 58, 237, 0.15)",
+                          padding: "3px 8px",
+                          borderRadius: "5px",
+                          cursor: "pointer",
+                          opacity: (refiningId === exp.id || (exp.description.length === 0 && !exp.workDescription)) ? 0.5 : 1
+                        }}
+                      >
+                        {refiningId === exp.id ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
+                        AI REFINE
+                      </button>
+                    )}
                   </div>
+                  {(exp.workDescription || isEditable) && (
+                    <div style={{ marginBottom: "10px" }}>
+                      <div
+                        contentEditable={isEditable}
+                        suppressContentEditableWarning={true}
+                        data-placeholder="Briefly describe your role and key responsibilities..."
+                        onBlur={(e) => onUpdate?.(`experience.${exp.id}.workDescription`, e.currentTarget.innerText.trim())}
+                        style={{ 
+                          fontSize: "12px", 
+                          color: "#374151", 
+                          lineHeight: 1.6, 
+                          outline: "none",
+                          backgroundColor: isEditable ? "rgba(124, 58, 237, 0.01)" : "transparent",
+                          border: isEditable ? "1px dashed rgba(124,58,237,0.1)" : "none",
+                          padding: isEditable ? "4px 8px" : "0",
+                          borderRadius: "3px",
+                          minHeight: isEditable && !exp.workDescription ? "20px" : "auto",
+                          textAlign: "justify"
+                        }}
+                      >
+                        {exp.workDescription}
+                      </div>
+                    </div>
+                  )}
                   <ul style={{ paddingLeft: "16px", margin: 0, listStyleType: "disc" }}>
                     {exp.description.map((bullet, i) => (
                       <li key={i} style={{ fontSize: "12px", color: "#374151", lineHeight: 1.65, marginBottom: "4px", position: "relative" }}>
                         <div
                           contentEditable={isEditable}
                           suppressContentEditableWarning={true}
+                          data-placeholder="Bullet point..."
                           onBlur={(e) => {
                             const newBullets = [...exp.description]
                             newBullets[i] = e.currentTarget.innerText
                             onUpdate?.(`experience.${exp.id}.description`, newBullets.filter(b => b.trim() || isEditable))
                           }}
-                          style={{ outline: "none" }}
+                          style={{ outline: "none",
+                            border: isEditable ? "1px dashed rgba(124,58,237,0.2)" : "none",
+                            padding: isEditable ? "2px 6px" : "0",
+                            borderRadius: isEditable ? "3px" : "0",
+                            minWidth: isEditable ? "120px" : "auto",
+                          }}
                         >
                           {bullet}
                         </div>
@@ -415,35 +563,51 @@ export function MidnightElegance({
                       <Trash2 size={12} />
                     </button>
                   )}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "2px" }}>
+                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "2px" }}>
                     <span 
                       contentEditable={isEditable}
                       suppressContentEditableWarning={true}
-                      onBlur={(e) => onUpdate?.(`education.${edu.id}.degree`, e.currentTarget.innerText)}
-                      style={{ fontWeight: 700, fontSize: "13px", color: "#1a1a2e", outline: "none" }}
+                      data-placeholder="Degree / Certificate"
+                      onBlur={(e) => onUpdate?.(`education.${edu.id}.degree`, e.currentTarget.innerText.trim())}
+                      style={{ fontWeight: 700, fontSize: "13px", color: "#1a1a2e", outline: "none",
+                        border: isEditable ? "1px dashed rgba(124,58,237,0.3)" : "none",
+                        padding: isEditable ? "2px 8px" : "0",
+                        borderRadius: isEditable ? "3px" : "0",
+                        minWidth: isEditable ? "100px" : "auto",
+                        display: "inline-block",
+                      }}
                     >
-                      {edu.degree || "Degree Name"}
+                      {edu.degree}
                     </span>
-                    <span 
-                      contentEditable={isEditable}
-                      suppressContentEditableWarning={true}
-                      onBlur={(e) => onUpdate?.(`education.${edu.id}.duration`, e.currentTarget.innerText)}
-                      style={{ fontSize: "11px", color: "#7c3aed", fontWeight: 600, whiteSpace: "nowrap", marginLeft: "12px", outline: "none" }}
-                    >
-                      {edu.duration || "Year"}
-                    </span>
+                    {isEditable ? (
+                      <DurationPicker 
+                        value={edu.duration} 
+                        onChange={(val) => onUpdate?.(`education.${edu.id}.duration`, val)} 
+                      />
+                    ) : (
+                      <span style={{ fontSize: "11px", color: "#7c3aed", fontWeight: 600, whiteSpace: "nowrap", marginLeft: "12px" }}>
+                        {edu.duration}
+                      </span>
+                    )}
                   </div>
                   <p 
                     contentEditable={isEditable}
                     suppressContentEditableWarning={true}
-                    onBlur={(e) => onUpdate?.(`education.${edu.id}.school`, e.currentTarget.innerText)}
-                    style={{ fontSize: "12px", color: "#6d28d9", marginBottom: "2px", fontStyle: "italic", outline: "none" }}
+                    data-placeholder="School / Institution"
+                    onBlur={(e) => onUpdate?.(`education.${edu.id}.school`, e.currentTarget.innerText.trim())}
+                    style={{ fontSize: "12px", color: "#6d28d9", marginBottom: "2px", fontStyle: "italic", outline: "none",
+                      border: isEditable ? "1px dashed rgba(109,40,217,0.3)" : "none",
+                      padding: isEditable ? "2px 8px" : "0",
+                      borderRadius: isEditable ? "3px" : "0",
+                      minWidth: isEditable ? "100px" : "auto",
+                      display: "block",
+                    }}
                   >
-                    {edu.school || "Institution Name"}
+                    {edu.school}
                   </p>
                   <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "4px" }}>
                     <span style={{ fontSize: "11px", color: "#6b7280", display: "inline-flex", alignItems: "center", gap: "4px" }}>
-                      <MapPin size={10} /> 
+                      {isEditable && <MapPin size={10} />}
                       {isEditable ? (
                         <SearchableSelect 
                           value={edu.location || "Location"} 
@@ -451,7 +615,7 @@ export function MidnightElegance({
                           onSelect={(val) => onUpdate?.(`education.${edu.id}.location`, val)} 
                         />
                       ) : (
-                        <span>{edu.location}</span>
+                        edu.location ? <><MapPin size={10} /><span>{edu.location}</span></> : null
                       )}
                     </span>
                   </div>
@@ -461,10 +625,17 @@ export function MidnightElegance({
                         <span 
                           contentEditable={isEditable}
                           suppressContentEditableWarning={true}
-                          onBlur={(e) => onUpdate?.(`education.${edu.id}.fieldOfStudy`, e.currentTarget.innerText)}
-                          style={{ outline: "none" }}
+                          data-placeholder="Field of study"
+                          onBlur={(e) => onUpdate?.(`education.${edu.id}.fieldOfStudy`, e.currentTarget.innerText.trim())}
+                          style={{ outline: "none",
+                            border: isEditable ? "1px dashed rgba(124,58,237,0.25)" : "none",
+                            padding: isEditable ? "1px 6px" : "0",
+                            borderRadius: isEditable ? "3px" : "0",
+                            minWidth: isEditable ? "80px" : "auto",
+                            display: "inline-block",
+                          }}
                         >
-                          {edu.fieldOfStudy || "Field of Study"}
+                          {edu.fieldOfStudy}
                         </span>
                     </div>
                     <div style={{ fontSize: "11px", color: "#374151" }}>
@@ -472,10 +643,17 @@ export function MidnightElegance({
                         <span 
                           contentEditable={isEditable}
                           suppressContentEditableWarning={true}
-                          onBlur={(e) => onUpdate?.(`education.${edu.id}.grade`, e.currentTarget.innerText)}
-                          style={{ outline: "none" }}
+                          data-placeholder="Grade"
+                          onBlur={(e) => onUpdate?.(`education.${edu.id}.grade`, e.currentTarget.innerText.trim())}
+                          style={{ outline: "none",
+                            border: isEditable ? "1px dashed rgba(124,58,237,0.25)" : "none",
+                            padding: isEditable ? "1px 6px" : "0",
+                            borderRadius: isEditable ? "3px" : "0",
+                            minWidth: isEditable ? "60px" : "auto",
+                            display: "inline-block",
+                          }}
                         >
-                          {edu.grade || "Grade"}
+                          {edu.grade}
                         </span>
                     </div>
                   </div>
@@ -495,10 +673,11 @@ export function MidnightElegance({
                   key={i}
                   contentEditable={isEditable}
                   suppressContentEditableWarning={true}
+                  data-placeholder="Skill..."
                   onBlur={(e) => {
                     const newSkills = [...allSkills]
-                    newSkills[i] = e.currentTarget.innerText
-                    onUpdate?.("skills", newSkills.filter(s => s.trim()))
+                    newSkills[i] = e.currentTarget.innerText.trim()
+                    onUpdate?.("skills", newSkills.filter(s => s.trim() || isEditable))
                   }}
                   style={{
                     background: "#f5f3ff",
@@ -507,9 +686,11 @@ export function MidnightElegance({
                     fontWeight: 600,
                     padding: "4px 12px",
                     borderRadius: "6px",
-                    border: "1px solid #e5e2f0",
+                    border: isEditable ? "1px dashed rgba(124,58,237,0.5)" : "1px solid #e5e2f0",
                     outline: "none",
                     position: "relative",
+                    minWidth: isEditable ? "60px" : "auto",
+                    display: "inline-block",
                   }}
                 >
                   {skill}
@@ -577,10 +758,17 @@ export function MidnightElegance({
                   <span 
                     contentEditable={isEditable}
                     suppressContentEditableWarning={true}
-                    onBlur={(e) => onUpdate?.(`languages.${i}.name`, e.currentTarget.innerText)}
-                    style={{ fontWeight: 700, fontSize: "12px", color: "#1a1a2e", outline: "none" }}
+                    data-placeholder="Language"
+                    onBlur={(e) => onUpdate?.(`languages.${i}.name`, e.currentTarget.innerText.trim())}
+                    style={{ fontWeight: 700, fontSize: "12px", color: "#1a1a2e", outline: "none",
+                      border: isEditable ? "1px dashed rgba(124,58,237,0.3)" : "none",
+                      padding: isEditable ? "1px 6px" : "0",
+                      borderRadius: isEditable ? "3px" : "0",
+                      minWidth: isEditable ? "50px" : "auto",
+                      display: "inline-block",
+                    }}
                   >
-                    {lang.name || "Language"}
+                    {lang.name}
                   </span>
                   <div style={{ width: "100%", textAlign: "center" }}>
                     {isEditable ? (
@@ -626,32 +814,95 @@ export function MidnightElegance({
                       <Trash2 size={12} />
                     </button>
                   )}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                     <span 
                       contentEditable={isEditable}
                       suppressContentEditableWarning={true}
-                      onBlur={(e) => onUpdate?.(`projects.${proj.id}.name`, e.currentTarget.innerText)}
-                      style={{ fontWeight: 700, fontSize: "13px", color: "#1a1a2e", outline: "none" }}
+                      data-placeholder="Project name"
+                      onBlur={(e) => onUpdate?.(`projects.${proj.id}.name`, e.currentTarget.innerText.trim())}
+                      style={{ fontWeight: 700, fontSize: "13px", color: "#1a1a2e", outline: "none",
+                        border: isEditable ? "1px dashed rgba(124,58,237,0.3)" : "none",
+                        padding: isEditable ? "2px 8px" : "0",
+                        borderRadius: isEditable ? "3px" : "0",
+                        minWidth: isEditable ? "100px" : "auto",
+                        display: "inline-block",
+                      }}
                     >
-                      {proj.name || "Project Name"}
+                      {proj.name}
                     </span>
-                    <span 
-                      contentEditable={isEditable}
-                      suppressContentEditableWarning={true}
-                      onBlur={(e) => onUpdate?.(`projects.${proj.id}.link`, e.currentTarget.innerText)}
-                      style={{ fontSize: "10px", color: "#7c3aed", textDecoration: "none", outline: "none" }}
-                    >
-                      {proj.link || "Project Link"}
-                    </span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      <span 
+                        contentEditable={isEditable}
+                        suppressContentEditableWarning={true}
+                        data-placeholder="project link"
+                        onBlur={(e) => onUpdate?.(`projects.${proj.id}.link`, e.currentTarget.innerText.trim())}
+                        style={{ fontSize: "10px", color: "#7c3aed", textDecoration: "none", outline: "none",
+                          border: isEditable ? "1px dashed rgba(124,58,237,0.3)" : "none",
+                          padding: isEditable ? "1px 6px" : "0",
+                          borderRadius: isEditable ? "3px" : "0",
+                          minWidth: isEditable ? "70px" : "auto",
+                          display: "inline-block",
+                        }}
+                      >
+                        {proj.link}
+                      </span>
+                      {isEditable && (
+                        <DurationPicker 
+                          value={proj.duration || ""} 
+                          onChange={(val) => onUpdate?.(`projects.${proj.id}.duration`, val)} 
+                        />
+                      )}
+                    </div>
                   </div>
-                  <div
-                    contentEditable={isEditable}
-                    suppressContentEditableWarning={true}
-                    onBlur={(e) => onUpdate?.(`projects.${proj.id}.description`, e.currentTarget.innerText)}
-                    style={{ fontSize: "12px", color: "#374151", lineHeight: 1.6, marginTop: "3px", outline: "none", minHeight: isEditable ? "30px" : "auto", backgroundColor: isEditable ? "rgba(124, 58, 237, 0.02)" : "transparent" }}
-                    placeholder="Describe your project..."
-                  >
-                    {proj.description}
+                   <div style={{ position: "relative" }}>
+                    <div
+                      contentEditable={isEditable}
+                      suppressContentEditableWarning={true}
+                      data-placeholder="Describe your project..."
+                      onBlur={(e) => onUpdate?.(`projects.${proj.id}.description`, e.currentTarget.innerText.trim())}
+                      style={{ 
+                        fontSize: "12px", 
+                        color: "#374151", 
+                        lineHeight: 1.6, 
+                        marginTop: "3px", 
+                        outline: "none", 
+                        minHeight: isEditable ? "30px" : "auto", 
+                        backgroundColor: isEditable ? "rgba(124, 58, 237, 0.02)" : "transparent", 
+                        cursor: isEditable ? "text" : "default",
+                        border: isEditable ? "1px dashed rgba(124,58,237,0.2)" : "none",
+                        padding: isEditable ? "4px 8px" : "0",
+                        borderRadius: isEditable ? "3px" : "0",
+                      }}
+                    >
+                      {proj.description}
+                    </div>
+                    {isEditable && (
+                      <button 
+                        onClick={() => onRefine?.("project", proj.id)}
+                        disabled={refiningId === `project-${proj.id}` || !proj.description}
+                        style={{ 
+                          position: "absolute",
+                          right: "8px",
+                          bottom: "8px",
+                          display: "flex", 
+                          alignItems: "center", 
+                          gap: "4px", 
+                          fontSize: "8px", 
+                          fontWeight: 700, 
+                          color: "#7c3aed", 
+                          background: "white", 
+                          border: "1px solid rgba(124, 58, 237, 0.3)",
+                          padding: "2px 6px",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                          boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+                          opacity: (refiningId === `project-${proj.id}` || !proj.description) ? 0.5 : 1
+                        }}
+                      >
+                        {refiningId === `project-${proj.id}` ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
+                        REFINE
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -684,49 +935,106 @@ export function MidnightElegance({
                       <Trash2 size={12} />
                     </button>
                   )}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "2px" }}>
+                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "2px" }}>
                     <span 
                       contentEditable={isEditable}
                       suppressContentEditableWarning={true}
-                      onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.role`, e.currentTarget.innerText)}
-                      style={{ fontWeight: 700, fontSize: "13px", color: "#1a1a2e", outline: "none" }}
+                      data-placeholder="Volunteer role"
+                      onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.role`, e.currentTarget.innerText.trim())}
+                      style={{ fontWeight: 700, fontSize: "13px", color: "#1a1a2e", outline: "none",
+                        border: isEditable ? "1px dashed rgba(124,58,237,0.3)" : "none",
+                        padding: isEditable ? "2px 8px" : "0",
+                        borderRadius: isEditable ? "3px" : "0",
+                        minWidth: isEditable ? "100px" : "auto",
+                        display: "inline-block",
+                      }}
                     >
-                      {vol.role || "Volunteer Role"}
+                      {vol.role}
                     </span>
-                    <span 
-                      contentEditable={isEditable}
-                      suppressContentEditableWarning={true}
-                      onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.duration`, e.currentTarget.innerText)}
-                      style={{ fontSize: "11px", color: "#7c3aed", fontWeight: 600, whiteSpace: "nowrap", marginLeft: "12px", outline: "none" }}
-                    >
-                      {vol.duration || "Duration"}
-                    </span>
+                    {isEditable ? (
+                      <DurationPicker 
+                        value={vol.duration} 
+                        onChange={(val) => onUpdate?.(`volunteering.${vol.id}.duration`, val)} 
+                      />
+                    ) : (
+                      <span style={{ fontSize: "11px", color: "#7c3aed", fontWeight: 600, whiteSpace: "nowrap", marginLeft: "12px" }}>
+                        {vol.duration}
+                      </span>
+                    )}
                   </div>
                   <p 
                     contentEditable={isEditable}
                     suppressContentEditableWarning={true}
-                    onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.organization`, e.currentTarget.innerText)}
-                    style={{ fontSize: "12px", color: "#6d28d9", marginBottom: "2px", fontStyle: "italic", outline: "none" }}
+                    data-placeholder="Organization name"
+                    onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.organization`, e.currentTarget.innerText.trim())}
+                    style={{ fontSize: "12px", color: "#6d28d9", marginBottom: "2px", fontStyle: "italic", outline: "none",
+                      border: isEditable ? "1px dashed rgba(109,40,217,0.3)" : "none",
+                      padding: isEditable ? "2px 8px" : "0",
+                      borderRadius: isEditable ? "3px" : "0",
+                      minWidth: isEditable ? "100px" : "auto",
+                      display: "block",
+                    }}
                   >
-                    {vol.organization || "Organization"}
+                    {vol.organization}
                   </p>
                   <div style={{ marginBottom: "6px" }}>
-                    <span 
-                      contentEditable={isEditable}
-                      suppressContentEditableWarning={true}
-                      onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.location`, e.currentTarget.innerText)}
-                      style={{ fontSize: "11px", color: "#6b7280", display: "inline-flex", alignItems: "center", gap: "4px", outline: "none" }}
-                    >
-                      <MapPin size={10} /> {vol.location || "Location"}
+                    <span style={{ fontSize: "11px", color: "#6b7280", display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                      {isEditable && <MapPin size={10} />}
+                      {isEditable ? (
+                        <SearchableSelect 
+                          value={vol.location || "Location"} 
+                          options={countriesData.map(c => c.name)} 
+                          onSelect={(val) => onUpdate?.(`volunteering.${vol.id}.location`, val)} 
+                        />
+                      ) : (
+                        vol.location ? <><MapPin size={10} /><span>{vol.location}</span></> : null
+                      )}
                     </span>
                   </div>
-                  <div
-                    contentEditable={isEditable}
-                    suppressContentEditableWarning={true}
-                    onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.description`, e.currentTarget.innerText)}
-                    style={{ fontSize: "12px", color: "#374151", lineHeight: 1.6, outline: "none", backgroundColor: isEditable ? "rgba(124, 58, 237, 0.02)" : "transparent" }}
-                  >
-                    {vol.description}
+                   <div style={{ position: "relative" }}>
+                    <div
+                      contentEditable={isEditable}
+                      suppressContentEditableWarning={true}
+                      data-placeholder="Describe your volunteer work..."
+                      onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.description`, e.currentTarget.innerText.trim())}
+                      style={{ fontSize: "12px", color: "#374151", lineHeight: 1.6, outline: "none", 
+                        backgroundColor: isEditable ? "rgba(124, 58, 237, 0.02)" : "transparent", 
+                        cursor: isEditable ? "text" : "default",
+                        border: isEditable ? "1px dashed rgba(124,58,237,0.2)" : "none",
+                        padding: isEditable ? "4px 8px" : "0",
+                        borderRadius: isEditable ? "3px" : "0",
+                        minHeight: isEditable ? "40px" : "auto",
+                      }}
+                    >
+                      {vol.description}
+                    </div>
+                    {isEditable && (
+                      <button 
+                        onClick={() => onRefine?.("volunteering", vol.id)}
+                        disabled={refiningId === vol.id || !vol.description}
+                        style={{ 
+                          position: "absolute",
+                          right: "8px",
+                          bottom: "8px",
+                          display: "flex", 
+                          alignItems: "center", 
+                          gap: "4px", 
+                          fontSize: "8px", 
+                          fontWeight: 700, 
+                          color: "#7c3aed", 
+                          background: "white", 
+                          border: "1px solid rgba(124, 58, 237, 0.3)",
+                          padding: "2px 6px",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                          boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+                          opacity: (refiningId === vol.id || !vol.description) ? 0.5 : 1
+                        }}
+                      >
+                        {refiningId === vol.id ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
+                        REFINE
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -734,6 +1042,184 @@ export function MidnightElegance({
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+function DurationPicker({ value, onChange }: { value: string; onChange: (val: string) => void }) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [position, setPosition] = useState<'bottom' | 'top'>('bottom')
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (isOpen && ref.current) {
+      const rect = ref.current.getBoundingClientRect()
+      const spaceBelow = window.innerHeight - rect.bottom
+      const spaceAbove = rect.top
+      
+      // If less than 400px below and more space above, flip to top
+      if (spaceBelow < 400 && spaceAbove > spaceBelow) {
+        setPosition('top')
+      } else {
+        setPosition('bottom')
+      }
+
+      // Smooth scroll if needed
+      ref.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    }
+  }, [isOpen])
+
+  const parts = value.split(" - ")
+  const startPart = parts[0]?.trim() || ""
+  const endPart = parts[1]?.trim() || ""
+  
+  const isPresent = endPart === "Present" || endPart === "Current"
+  
+  // Safe parsing helper
+  const parseDate = (str: string) => {
+    if (!str || str === "Present" || str === "Current") return null
+    const d = dayjs(str, "MMM YYYY")
+    return d.isValid() ? d : null
+  }
+
+  const startDayjs = parseDate(startPart)
+  const endDayjs = isPresent ? null : parseDate(endPart)
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        // Don't close if clicking inside the antd date picker dropdown
+        const target = e.target as HTMLElement
+        if (target.closest('.ant-picker-dropdown')) return
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  const handleStartChange = (date: dayjs.Dayjs | null) => {
+    const startStr = date && date.isValid() ? date.format("MMM YYYY") : ""
+    const currentEndStr = isPresent ? "Present" : (endDayjs && endDayjs.isValid() ? endDayjs.format("MMM YYYY") : "")
+    onChange(startStr || currentEndStr ? `${startStr} - ${currentEndStr}` : "")
+  }
+
+  const handleEndChange = (date: dayjs.Dayjs | null) => {
+    const startStr = startDayjs && startDayjs.isValid() ? startDayjs.format("MMM YYYY") : ""
+    const endStr = date && date.isValid() ? date.format("MMM YYYY") : ""
+    onChange(startStr || endStr ? `${startStr} - ${endStr}` : "")
+  }
+
+  const togglePresent = () => {
+    const startStr = startDayjs && startDayjs.isValid() ? startDayjs.format("MMM YYYY") : ""
+    const nextIsPresent = !isPresent
+    const endStr = nextIsPresent ? "Present" : ""
+    onChange(startStr || endStr ? `${startStr} - ${endStr}` : "")
+  }
+
+  return (
+    <div ref={ref} style={{ position: "relative", display: "inline-block" }}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          fontSize: "10px",
+          color: "#7c3aed",
+          fontWeight: 700,
+          background: "rgba(124, 58, 237, 0.05)",
+          border: "1px dashed #7c3aed",
+          padding: "2px 8px",
+          borderRadius: "4px",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          gap: "4px"
+        }}
+      >
+        {value || "Select Duration"} <ChevronDown size={10} />
+      </button>
+
+      {isOpen && (
+        <div style={{
+          position: "absolute",
+          [position === 'top' ? 'bottom' : 'top']: "100%",
+          left: 0,
+          zIndex: 1000,
+          background: "#fff",
+          border: "1px solid #e5e2f0",
+          borderRadius: "12px",
+          boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)",
+          padding: "16px",
+          width: "280px",
+          marginTop: position === 'bottom' ? "8px" : "0",
+          marginBottom: position === 'top' ? "8px" : "0",
+        }}>
+          <div style={{ marginBottom: "12px" }}>
+            <p style={{ fontSize: "9px", fontWeight: 800, color: "#9ca3af", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "1px" }}>Start Date</p>
+            <DatePicker 
+              picker="month"
+              value={startDayjs}
+              onChange={handleStartChange}
+              format="MMM YYYY"
+              style={{ width: "100%" }}
+              placeholder="Select month"
+              allowClear={false}
+            />
+          </div>
+          
+          <div style={{ marginBottom: "12px", paddingTop: "12px", borderTop: "1px solid #f3f4f6" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+              <p style={{ fontSize: "9px", fontWeight: 800, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "1px" }}>End Date</p>
+              <button
+                type="button"
+                onClick={togglePresent}
+                style={{
+                  fontSize: "8px",
+                  fontWeight: 700,
+                  padding: "3px 8px",
+                  borderRadius: "4px",
+                  border: "none",
+                  background: isPresent ? "#7c3aed" : "rgba(124, 58, 237, 0.1)",
+                  color: isPresent ? "#fff" : "#7c3aed",
+                  cursor: "pointer",
+                  textTransform: "uppercase"
+                }}
+              >
+                Present
+              </button>
+            </div>
+            {!isPresent && (
+              <DatePicker 
+                picker="month"
+                value={endDayjs}
+                onChange={handleEndChange}
+                format="MMM YYYY"
+                style={{ width: "100%" }}
+                placeholder="Select month"
+                allowClear={false}
+              />
+            )}
+          </div>
+
+          <button
+            onClick={() => setIsOpen(false)}
+            style={{
+              width: "100%",
+              padding: "8px",
+              background: "#7c3aed",
+              color: "#fff",
+              border: "none",
+              borderRadius: "6px",
+              fontSize: "10px",
+              fontWeight: 700,
+              cursor: "pointer",
+              textTransform: "uppercase",
+              marginTop: "4px"
+            }}
+          >
+            Apply
+          </button>
+        </div>
+      )}
     </div>
   )
 }
@@ -758,20 +1244,22 @@ function SectionTitle({ label, noMargin }: { label: string; noMargin?: boolean }
   )
 }
 
-function DetailRow({ 
-  label, 
-  value, 
-  isEditable, 
+function DetailRow({
+  label,
+  value,
+  isEditable,
   onUpdate,
   type = "text",
-  options = []
-}: { 
-  label: string; 
-  value: string; 
-  isEditable?: boolean; 
+  options = [],
+  placeholder
+}: {
+  label: string;
+  value: string;
+  isEditable?: boolean;
   onUpdate?: (val: string) => void;
   type?: "text" | "date" | "options" | "country";
   options?: string[];
+  placeholder?: string;
 }) {
   if (isEditable) {
     if (type === "options") {
@@ -819,13 +1307,22 @@ function DetailRow({
   return (
     <div style={{ display: "flex", gap: "8px", fontSize: "12px" }}>
       <span style={{ fontWeight: 600, color: "#4c1d95", minWidth: "110px" }}>{label}:</span>
-      <span 
+      <span
         contentEditable={isEditable}
         suppressContentEditableWarning={true}
-        onBlur={(e) => onUpdate?.(e.currentTarget.innerText)}
-        style={{ color: "#374151", outline: "none", borderBottom: isEditable ? "1px dashed rgba(124,58,237,0.2)" : "none" }}
+        data-placeholder={placeholder || "---"}
+        onBlur={(e) => onUpdate?.(e.currentTarget.innerText.trim())}
+        style={{
+          color: "#374151",
+          outline: "none",
+          border: isEditable ? "1px dashed rgba(124,58,237,0.25)" : "none",
+          padding: isEditable ? "1px 6px" : "0",
+          borderRadius: isEditable ? "3px" : "0",
+          minWidth: isEditable ? "60px" : "auto",
+          display: "inline-block",
+        }}
       >
-        {value || (isEditable ? "---" : "")}
+        {value}
       </span>
     </div>
   )
@@ -1009,24 +1506,34 @@ function SearchableSelect({ value, options, onSelect }: { value: string; options
   )
 }
 
-function ContactChip({ icon, text, href, isEditable, onUpdate }: { icon: React.ReactNode; text: string; href?: string; isEditable?: boolean; onUpdate?: (val: string) => void }) {
+function ContactChip({ icon, text, href, isEditable, onUpdate, placeholder }: { icon: React.ReactNode; text: string; href?: string; isEditable?: boolean; onUpdate?: (val: string) => void; placeholder?: string }) {
   const inner = (
     <span style={{ display: "flex", alignItems: "center", gap: "5px" }}>
       <span style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>{icon}</span>
       <span 
         contentEditable={isEditable}
         suppressContentEditableWarning={true}
-        onBlur={(e) => onUpdate?.(e.currentTarget.innerText)}
-        style={{ textDecoration: "none", color: href ? "#6d28d9" : "#4c1d95", outline: "none" }}
+        data-placeholder={isEditable ? (placeholder || "") : undefined}
+        onBlur={(e) => onUpdate?.(e.currentTarget.innerText.trim())}
+        style={{
+          textDecoration: "none",
+          color: href ? "#6d28d9" : "#4c1d95",
+          outline: "none",
+          border: isEditable ? "1px dashed rgba(124,58,237,0.3)" : "none",
+          padding: isEditable ? "1px 6px" : "0",
+          borderRadius: isEditable ? "3px" : "0",
+          minWidth: isEditable ? "60px" : "auto",
+          display: "inline-block",
+        }}
       >
-        {text || "Update"}
+        {text}
       </span>
     </span>
   )
 
   if (isEditable) return inner
 
-  return href ? (
+  return href && text ? (
     <a href={href} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
       {inner}
     </a>

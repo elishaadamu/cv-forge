@@ -90,9 +90,11 @@ export async function POST(req: Request) {
         <head>
           <meta charset="utf-8">
           <style>
-            body { margin: 0; padding: 0; background: #fff; }
+            body { margin: 0; padding: 0; background: #fff; font-family: Georgia, 'Times New Roman', serif; }
             /* Force exact colors and backgrounds */
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            /* Ensure text is selectable */
+            * { user-select: text !important; -webkit-user-select: text !important; -moz-user-select: text !important; -ms-user-select: text !important; }
             @page { margin: 0; size: A4; }
           </style>
         </head>
@@ -136,14 +138,16 @@ export async function POST(req: Request) {
     console.log('PDF Generation: Browser launched successfully')
     const page = await browser.newPage()
     console.log('PDF Generation: Setting content...')
-    await page.setContent(fullHtml, { waitUntil: 'networkidle0' })
-    
+    await page.setContent(fullHtml, { waitUntil: 'networkidle0', timeout: 60000 })
+
     // 4. Generate PDF
     console.log('PDF Generation: Generating PDF buffer...')
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
       preferCSSPageSize: true,
+      margin: { top: 0, right: 0, bottom: 0, left: 0 },
+      tagged: true,
     })
 
     console.log('PDF Generation: PDF generated successfully, closing browser')

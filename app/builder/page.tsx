@@ -34,8 +34,6 @@ import {
   Edit3
 } from "lucide-react"
 import { CldUploadWidget } from "next-cloudinary"
-import jsPDF from "jspdf"
-import html2canvas from "html2canvas-pro"
 
 import { ModernProfessional, CVData } from "@/components/templates/ModernProfessional"
 import { ClassicTable } from "@/components/templates/ClassicTable"
@@ -50,7 +48,7 @@ import { CorporateClean } from "@/components/templates/CorporateClean"
 import { FreshMinimal } from "@/components/templates/FreshMinimal"
 import { RefinedClassic } from "@/components/templates/RefinedClassic"
 import { ATSAuditPanel } from "@/components/ATSAuditPanel"
-import { refineTextWithAI, saveCV } from "@/lib/actions"
+import { refineTextWithAI, saveCV, getCV } from "@/lib/actions"
 
 const sections = [
   { id: "personal", title: "Personal Info", icon: User },
@@ -65,98 +63,39 @@ const sections = [
 
 const INITIAL_DATA: CVData = {
   personalInfo: {
-    fullName: "Alex Sterling",
-    jobTitle: "Senior Product Designer",
-    email: "alex.sterling@cvmyjob.online",
-    phoneCode: "+1",
-    phone: "87 123 4567",
-    country: "United States",
-    county: "New York",
+    fullName: "",
+    jobTitle: "",
+    email: "",
+    phoneCode: "",
+    phone: "",
+    country: "",
+    county: "",
     location: "",
-    website: "alexsterling.design",
-    linkedin: "linkedin.com/in/alexsterling",
-    github: "github.com/asterling",
+    website: "",
+    linkedin: "",
+    github: "",
     facebook: "",
-    summary: "Strategic Product Designer with 8+ years of experience in building high-scale digital ecosystems. Expert in bridging the gap between complex engineering requirements and intuitive user experiences. Proven track record of leading design teams to deliver award-winning platforms that serve millions of active users.",
+    summary: "",
     profileImage: "",
   },
-  experience: [
-    {
-      id: "1",
-      role: "Lead UI/UX Architect",
-      company: "Quantum Systems",
-      duration: "2021 - Present",
-      description: [
-        "Orchestrated the complete redesign of the core dashboard, increasing user retention by 35% within the first quarter.",
-        "Implemented a comprehensive design system adopted by 15+ cross-functional teams, reducing development time by 20%.",
-        "Pioneered AI-driven personalization features that improved conversion rates for enterprise clients by 12%."
-      ],
-    },
-    {
-      id: "2",
-      role: "Senior Digital Designer",
-      company: "Aura Creative",
-      duration: "2018 - 2021",
-      description: [
-        "Led the visual identity refresh for 3 Fortune 500 clients, resulting in a cohesive brand presence across all digital touchpoints.",
-        "Collaborated closely with engineering to ensure pixel-perfect implementation of complex interactive components.",
-        "Mentored junior designers and established a new peer-review workflow that improved design consistency by 50%."
-      ],
-    }
-  ],
-  education: [
-    {
-      id: "1",
-      degree: "M.A. in Interaction Design",
-      school: "National College of Art & Design",
-      duration: "2016 - 2018",
-    },
-    {
-      id: "2",
-      degree: "B.A. in Visual Communications",
-      school: "Dublin Institute of Technology",
-      duration: "2012 - 2016",
-    }
-  ],
-  skills: [
-    { category: "Design Tools", items: ["Figma", "Adobe Creative Suite", "Framer", "Principle"] },
-    { category: "Technical skills", items: ["React", "HTML5/CSS3", "Design Systems", "Web Accessibility (WCAG)"] },
-    { category: "Leadership", items: ["Team Management", "Agile Methodology", "Strategic Planning", "User Research"] },
-  ],
-  projects: [
-    {
-      id: "1",
-      name: "cvmyjob Component Library",
-      description: "A state-of-the-art React component library focused on high-performance animations and modern aesthetics.",
-      link: "github.com/cvmyjob/ui"
-    },
-    {
-      id: "2",
-      name: "EcoTrack Mobile App",
-      description: "An AI-powered application that helps users track and reduce their carbon footprint through real-time behavioral analysis.",
-      link: "ecotrack.app"
-    }
-  ]
+  experience: [],
+  education: [],
+  skills: [],
+  projects: []
 }
 
 function BuilderContent() {
   const { data: session } = useSession()
   const searchParams = useSearchParams()
   const templateParam = searchParams.get("template")
+  const cvIdParam = searchParams.get("cvId")
   const [activeSection, setActiveSection] = useState("personal")
   const [isPreview, setIsPreview] = useState(false)
   const [isAuditOpen, setIsAuditOpen] = useState(false)
-  const [cvData, setCvData] = useState<CVData>({
-    ...INITIAL_DATA,
-    personalInfo: {
-      ...INITIAL_DATA.personalInfo,
-      fullName: session?.user?.name || "",
-      email: session?.user?.email || "",
-    }
-  })
+  const [cvData, setCvData] = useState<CVData>(INITIAL_DATA)
   const [currentTemplate, setCurrentTemplate] = useState<"modern" | "classic" | "executive" | "minimal" | "creative" | "startup" | "executive-board" | "midnight" | "bold-impact" | "corporate" | "fresh" | "refined">("modern")
   const [isTemplateDropdownOpen, setIsTemplateDropdownOpen] = useState(false)
-  const [isRefining, setIsRefining] = useState(false)
+  const [refiningId, setRefiningId] = useState<string | null>(null)
   const [isPhoneDropdownOpen, setIsPhoneDropdownOpen] = useState(false)
   const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false)
   const [isStateDropdownOpen, setIsStateDropdownOpen] = useState(false)
@@ -171,6 +110,8 @@ function BuilderContent() {
   const [dragOverSkillIndex, setDragOverSkillIndex] = useState<number | null>(null)
   const [pageCount, setPageCount] = useState(1)
   const [lastSavedData, setLastSavedData] = useState("")
+  // Track the ID of the CV being edited so saves always update the same record
+  const [currentCvId, setCurrentCvId] = useState<string | null>(cvIdParam)
   const previewRef = useRef<HTMLDivElement>(null)
   const templateDropdownRef = useRef<HTMLDivElement>(null)
   const phoneDropdownRef = useRef<HTMLDivElement>(null)
@@ -186,6 +127,21 @@ function BuilderContent() {
       }
     }
   }, [templateParam])
+
+  // Load existing CV when cvId param is present (e.g. coming from dashboard)
+  useEffect(() => {
+    if (cvIdParam && session?.user?.id) {
+      const loadCV = async () => {
+        const res = await getCV(cvIdParam, session.user.id)
+        if (res.success && res.data) {
+          setCvData(res.data)
+          if (res.data.templateId) setCurrentTemplate(res.data.templateId as any)
+          setCurrentCvId(cvIdParam)  // ensure save target is set
+        }
+      }
+      loadCV()
+    }
+  }, [cvIdParam, session])
 
   useEffect(() => {
     const updatePageCount = () => {
@@ -240,47 +196,93 @@ function BuilderContent() {
   const handleSave = async (shouldRedirect = false) => {
     if (!session?.user?.id) return
     setIsSaving(true)
-    const res = await saveCV(session.user.id, { ...cvData, templateId: currentTemplate })
+    // Pass currentCvId so we always update the same record, never create a duplicate
+    const res = await saveCV(session.user.id, { ...cvData, templateId: currentTemplate }, currentCvId || undefined)
     if (res.success && res.id) {
+      setCurrentCvId(res.id)  // pin the ID for all future saves
       if (shouldRedirect) {
         router.push(`/builder/${res.id}/success`)
       } else {
-        router.push(`/builder/${res.id}`)
+        // Stay on the WYSIWYG canvas — silently update the URL
+        window.history.replaceState(null, "", `/builder?template=${currentTemplate}&cvId=${res.id}`)
       }
     }
     setIsSaving(false)
   }
 
-  const handleRefine = async (type: "summary" | "experience" | "project", id?: string) => {
+  const handleRefine = async (type: "summary" | "experience" | "project" | "volunteering", id?: string) => {
     if (type === "summary") {
-      if (!cvData.personalInfo.summary) return
-      setIsRefining(true)
-      const res = await refineTextWithAI(cvData.personalInfo.summary, "summary")
-      if (res.success && res.refinedText) {
-        updatePersonalInfo("summary", res.refinedText)
+      if (!cvData.personalInfo.summary || refiningId === "summary") return
+      setRefiningId("summary")
+      try {
+        const res = await refineTextWithAI(cvData.personalInfo.summary, "summary", cvData)
+        if (res.success && res.refinedText) {
+          updatePersonalInfo("summary", res.refinedText)
+        } else if (res.error) {
+          alert(res.error)
+        }
+      } catch {
+        alert("Failed to refine text. Please try again.")
+      } finally {
+        setRefiningId(null)
       }
-      setIsRefining(false)
     } else if (type === "experience" && id) {
       const exp = cvData.experience.find(e => e.id === id)
-      if (!exp || exp.description.length === 0) return
-      setIsRefining(true)
-      const res = await refineTextWithAI(exp.description.join("\n"), "experience")
-      if (res.success && res.refinedText) {
-        const bullets = res.refinedText.split("\n")
-          .map(line => line.replace(/^[-•*]\s*/, "")) // Remove common bullet point chars
-          .filter(line => line.trim())
-        updateExperience(id, "description", bullets)
+      if (!exp || refiningId === id) return
+      const textToRefine = exp.workDescription || exp.description.join("\n")
+      if (!textToRefine) return
+      setRefiningId(id)
+      try {
+        const res = await refineTextWithAI(textToRefine, "experience", cvData)
+        if (res.success && res.refinedText) {
+          if (exp.workDescription) {
+            updateExperience(id, "workDescription", res.refinedText)
+          } else {
+            const bullets = res.refinedText.split("\n")
+              .map(line => line.replace(/^[-•*\d.]+\s*/, "").trim())
+              .filter(line => line.length > 0)
+            updateExperience(id, "description", bullets)
+          }
+        } else if (res.error) {
+          alert(res.error)
+        }
+      } catch {
+        alert("Failed to refine text. Please try again.")
+      } finally {
+        setRefiningId(null)
       }
-      setIsRefining(false)
     } else if (type === "project" && id) {
       const proj = cvData.projects.find(p => p.id === id)
-      if (!proj || !proj.description) return
-      setIsRefining(true)
-      const res = await refineTextWithAI(proj.description, "summary") // Use summary prompt for project description
-      if (res.success && res.refinedText) {
-        updateProject(id, "description", res.refinedText)
+      if (!proj || !proj.description || refiningId === `project-${id}`) return
+      setRefiningId(`project-${id}`)
+      try {
+        const res = await refineTextWithAI(proj.description, "summary", cvData)
+        if (res.success && res.refinedText) {
+          updateProject(id, "description", res.refinedText)
+        } else if (res.error) {
+          alert(res.error)
+        }
+      } catch {
+        alert("Failed to refine text. Please try again.")
+      } finally {
+        setRefiningId(null)
       }
-      setIsRefining(false)
+    } else if (type === "volunteering" && id) {
+      const vol = cvData.volunteering?.find(v => v.id === id)
+      if (!vol || !vol.description || refiningId === id) return
+      setRefiningId(id)
+      try {
+        const res = await refineTextWithAI(vol.description, "experience", cvData)
+        if (res.success && res.refinedText) {
+          updateVolunteering(id, "description", res.refinedText)
+        } else if (res.error) {
+          alert(res.error)
+        }
+      } catch {
+        alert("Failed to refine text. Please try again.")
+      } finally {
+        setRefiningId(null)
+      }
     }
   }
 
@@ -479,51 +481,6 @@ function BuilderContent() {
     }
   }
 
-  const handleDownload = async () => {
-    if (!previewRef.current) return
-    setIsSaving(true)
-    
-    try {
-      const canvas = await html2canvas(previewRef.current, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: "#ffffff",
-      })
-      
-      const imgData = canvas.toDataURL("image/jpeg", 1.0)
-      const pdf = new jsPDF("p", "mm", "a4")
-      const pdfWidth = pdf.internal.pageSize.getWidth()
-      const pdfHeight = pdf.internal.pageSize.getHeight()
-      
-      // Calculate how many pages we need
-      const imgWidth = canvas.width
-      const imgHeight = canvas.height
-      const ratio = imgWidth / pdfWidth
-      const imgHeightInPdf = imgHeight / ratio
-      
-      let heightLeft = imgHeightInPdf
-      let position = 0
-      
-      // Page 1
-      pdf.addImage(imgData, "JPEG", 0, position, pdfWidth, imgHeightInPdf)
-      heightLeft -= pdfHeight
-      
-      // Add extra pages if needed
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeightInPdf
-        pdf.addPage()
-        pdf.addImage(imgData, "JPEG", 0, position, pdfWidth, imgHeightInPdf)
-        heightLeft -= pdfHeight
-      }
-      
-      pdf.save(`${cvData.personalInfo.fullName || "CV"}-Forge.pdf`)
-    } catch (err) {
-      console.error("PDF Export error:", err)
-    } finally {
-      setIsSaving(false)
-    }
-  }
 
   // Auto-save logic
   useEffect(() => {
@@ -531,14 +488,17 @@ function BuilderContent() {
     if (currentDataStr === lastSavedData) return
 
     const timer = setTimeout(async () => {
-      if (session?.user?.id && !isSaving && !isRefining) {
+      if (session?.user?.id && !isSaving && !refiningId) {
         setIsAutoSaving(true)
-        const res = await saveCV(session.user.id, { ...cvData, templateId: currentTemplate })
-        if (res.success) {
+        // Always pass currentCvId so we update the existing record, not create a new one
+        const res = await saveCV(session.user.id, { ...cvData, templateId: currentTemplate }, currentCvId || undefined)
+        if (res.success && res.id) {
           setLastSavedData(currentDataStr)
-          // Update URL if it's the first save
-          if (!window.location.pathname.includes(res.id!)) {
-            window.history.replaceState(null, "", `/builder/${res.id}`)
+          setCurrentCvId(res.id)  // pin the ID after first save
+          // Silently update the URL to reflect the saved CV id
+          const urlCvId = new URLSearchParams(window.location.search).get("cvId")
+          if (urlCvId !== res.id) {
+            window.history.replaceState(null, "", `/builder?template=${currentTemplate}&cvId=${res.id}`)
           }
         }
         setIsAutoSaving(false)
@@ -546,7 +506,7 @@ function BuilderContent() {
     }, 1500)
 
     return () => clearTimeout(timer)
-  }, [cvData, session, currentTemplate, lastSavedData])
+  }, [cvData, session, currentTemplate, lastSavedData, currentCvId])
 
   const renderTemplate = () => {
     switch (currentTemplate) {
@@ -563,7 +523,7 @@ function BuilderContent() {
       case "executive-board":
         return <ExecutiveBoard data={cvData} />
       case "midnight":
-        return <MidnightElegance data={cvData} isEditable={true} onUpdate={handleUpdate} />
+        return <MidnightElegance data={cvData} isEditable={!isPreview} onUpdate={handleUpdate} onRefine={handleRefine} refiningId={refiningId} />
       case "bold-impact":
         return <BoldImpact data={cvData} />
       case "corporate":
@@ -594,12 +554,17 @@ function BuilderContent() {
                     className="flex items-center space-x-3 px-4 h-11 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all active:scale-95 group"
                   >
                     <div className="w-8 h-5 rounded-md overflow-hidden border border-white/10 hidden xs:block bg-brand-action/20 flex items-center justify-center">
-                       <Layout size={10} className="text-brand-action" />
+                       <img 
+                         src={`/${currentTemplate === 'minimal' ? 'ats' : currentTemplate === 'executive-board' ? 'board' : currentTemplate === 'bold-impact' ? 'bold' : currentTemplate}.png`} 
+                         className="w-full h-full object-cover" 
+                         onError={(e) => (e.currentTarget.src = "/modern.png")}
+                         alt=""
+                       />
                     </div>
-                    <span className="text-[11px] font-black uppercase tracking-widest text-foreground/80">
+                    <span className="text-[11px] font-black uppercase tracking-widest text-white/100">
                       Style: <span className="text-brand-action ml-1 uppercase">{currentTemplate}</span>
                     </span>
-                    <ChevronDown size={14} className={`text-foreground/40 transition-transform duration-300 ${isTemplateDropdownOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown size={14} className={`text-white/40 transition-transform duration-300 ${isTemplateDropdownOpen ? 'rotate-180' : ''}`} />
                   </button>
 
                   <AnimatePresence>
@@ -610,7 +575,7 @@ function BuilderContent() {
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                         className="absolute top-full left-0 mt-3 w-[560px] bg-[#0c0c0c]/98 backdrop-blur-2xl border border-white/10 rounded-[32px] shadow-[0_32px_80px_-16px_rgba(0,0,0,0.8)] p-4 z-[100]"
                       >
-                        <div className="grid grid-cols-3 gap-3">
+                        <div className="grid grid-cols-3 gap-3 max-h-[480px] overflow-y-auto pr-2 custom-scrollbar">
                           {[
                             { id: "modern", name: "Modern Elite" },
                             { id: "classic", name: "Classic Grid" },
@@ -618,6 +583,7 @@ function BuilderContent() {
                             { id: "minimal", name: "ATS Optimized" },
                             { id: "creative", name: "Creative Edge" },
                             { id: "startup", name: "Startup Vibe" },
+                            { id: "executive-board", name: "Executive Board" },
                             { id: "midnight", name: "Midnight Elegance" },
                             { id: "bold-impact", name: "Bold Impact" },
                             { id: "corporate", name: "Corporate Clean" },
@@ -629,11 +595,22 @@ function BuilderContent() {
                               onClick={() => {
                                 setCurrentTemplate(t.id as any);
                                 setIsTemplateDropdownOpen(false);
+                                // Update URL immediately
+                                const params = new URLSearchParams(window.location.search);
+                                params.set("template", t.id);
+                                window.history.replaceState(null, "", `/builder?${params.toString()}`);
                               }}
                               className={`flex flex-col items-center gap-2 p-3 rounded-2xl transition-all group ${currentTemplate === t.id ? 'bg-brand-action/10 border border-brand-action/30' : 'hover:bg-white/5 border border-transparent'}`}
                             >
-                              <div className={`w-full h-20 rounded-xl overflow-hidden border transition-all ${currentTemplate === t.id ? 'border-brand-action/50' : 'border-white/5 group-hover:border-white/10'} bg-white/5`} />
-                              <span className={`text-[10px] font-black uppercase tracking-tight text-center ${currentTemplate === t.id ? 'text-brand-action' : 'text-foreground/40'}`}>{t.name}</span>
+                              <div className={`w-full h-24 rounded-xl overflow-hidden border transition-all ${currentTemplate === t.id ? 'border-brand-action/50' : 'border-white/5 group-hover:border-white/10'} bg-white/5`}>
+                                <img 
+                                  src={`/${t.id === 'minimal' ? 'ats' : t.id === 'executive-board' ? 'board' : t.id === 'bold-impact' ? 'bold' : t.id}.png`} 
+                                  className="w-full h-full object-cover transition-transform group-hover:scale-105" 
+                                  onError={(e) => (e.currentTarget.src = "/modern.png")}
+                                  alt={t.name}
+                                />
+                              </div>
+                              <span className={`text-[10px] text-white/90 font-black uppercase tracking-tight text-center ${currentTemplate === t.id ? 'text-brand-action' : 'text-foreground/40'}`}>{t.name}</span>
                             </button>
                           ))}
                         </div>
@@ -667,12 +644,12 @@ function BuilderContent() {
                 </button>
 
                  <button 
-                  onClick={handleDownload}
+                  onClick={() => handleSave(true)}
                   disabled={isSaving}
-                  className="flex items-center space-x-2 px-5 h-11 rounded-2xl font-black text-[10px] uppercase tracking-widest bg-white/5 hover:bg-brand-action/10 hover:border-brand-action/30 border border-white/10 text-white/60 hover:text-brand-action transition-all active:scale-95 group disabled:opacity-50"
+                  className="flex items-center space-x-2 px-5 h-11 rounded-2xl font-black text-[10px] uppercase tracking-widest bg-brand-action text-white shadow-lg shadow-brand-action/20 border border-brand-action/30 transition-all active:scale-95 group disabled:opacity-50"
                 >
                    {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
-                   <span className="hidden lg:inline">Download</span>
+                   <span className="hidden lg:inline">Download Varieties</span>
                 </button>
 
                 <button 

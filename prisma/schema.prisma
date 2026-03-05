@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "./generated-client"
 }
 
 datasource db {
@@ -119,7 +120,10 @@ model Experience {
   cvId        String
   duration    String
   location    String?
+  country     String?
+  county      String?
   description String[] @default([])
+  workDescription String?
   cv          CV       @relation(fields: [cvId], references: [id], onDelete: Cascade)
 }
 
@@ -130,6 +134,8 @@ model Education {
   cvId         String
   duration     String
   location     String?
+  country      String?
+  county       String?
   fieldOfStudy String?
   grade        String?
   cv           CV      @relation(fields: [cvId], references: [id], onDelete: Cascade)
@@ -166,6 +172,8 @@ model Volunteering {
   role         String
   duration     String
   location     String?
+  country      String?
+  county       String?
   description  String? @db.Text
   cvId         String
   cv           CV      @relation(fields: [cvId], references: [id], onDelete: Cascade)
