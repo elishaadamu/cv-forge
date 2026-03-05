@@ -1,11 +1,12 @@
 // @ts-nocheck
 import { NextResponse } from 'next/server'
 import puppeteer from 'puppeteer'
+import chromium from '@sparticuz/chromium-min'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-// Chrome executable path for Windows
+// Chrome executable path for Windows (development)
 const CHROME_PATH = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
 
 export async function POST(req: Request) {
@@ -24,39 +25,31 @@ export async function POST(req: Request) {
 
     console.log('PDF Generation: Rendering from URL:', renderUrl)
 
-    // Launch Puppeteer with explicit Chrome path
-    browser = await puppeteer.launch({
-      executablePath: CHROME_PATH,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-gpu',
-        '--disable-cookies',
-        '--disable-features=TranslateUI',
-        '--disable-ipc-flooding-protection',
-      ],
-      headless: true,
-    })
+    // Check if running on Vercel (production) or locally
+    const isProduction = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production'
+
+    // Launch Puppeteer with appropriate configuration
+    if (isProduction) {
+      // Production (Vercel) - use chromium-min
+      console.log('PDF Generation: Launching chromium in production mode')
+      browser = await puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+      })
+    } else {
+      // Development (Local Windows) - use installed Chrome
+      console.log('PDF Generation: Launching browser from', CHROME_PATH)
+      browser = await puppeteer.launch({
+        executablePath: CHROME_PATH,
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
+        headless: true,
+      })
+    }
 
     console.log('PDF Generation: Browser launched successfully')
     const page = await browser.newPage()
-    
-    // Block cookies
-    await page.setCookie(...(await page.cookies()).filter(() => false))
-    
-    // Block unnecessary resources to speed up loading
-    await page.setRequestInterception(true)
-    page.on('request', (req) => {
-      const resourceType = req.resourceType()
-      // Block images, fonts from external sources that might inject cookies
-      if (['image', 'font'].includes(resourceType) && !req.url().startsWith('http://localhost:3000')) {
-        req.continue()
-      } else {
-        req.continue()
-      }
-    })
-
     console.log('PDF Generation: Navigating to render page...')
     await page.goto(renderUrl, { waitUntil: 'networkidle0', timeout: 60000 })
 
