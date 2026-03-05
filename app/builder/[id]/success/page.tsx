@@ -198,58 +198,61 @@ export default function SuccessPage() {
         link.click()
         document.body.removeChild(link)
       } else if (type === ".pdf") {
-        const a4WidthMM = 210
-        const a4HeightMM = 297
+        // Use jsPDF with better settings for text preservation
+        const element = cvRef.current
         
-        const pdf = new jsPDF({
-          orientation: "portrait",
-          unit: "mm",
-          format: "a4",
-        })
+        // Wait for images to load
+        const images = Array.from(element.getElementsByTagName("img"))
+        await Promise.all(
+          images.map(
+            (img) =>
+              img.complete
+                ? Promise.resolve()
+                : new Promise<void>((resolve) => {
+                    img.onload = () => resolve()
+                    img.onerror = () => resolve()
+                  })
+          )
+        )
 
-        // Capture the entire element first
+        await new Promise((r) => setTimeout(r, 300))
+
         const canvas = await html2canvas(element, {
-          scale: 2,
+          scale: 3,
           useCORS: true,
-          allowTaint: true,
+          allowTaint: false,
           logging: false,
           backgroundColor: "#ffffff",
           width: element.scrollWidth,
           height: element.scrollHeight,
+          imageTimeout: 0,
+          removeContainer: true,
         })
 
-        const totalWidthPx = canvas.width
-        const totalHeightPx = canvas.height
-        
-        // Use a fixed aspect ratio for A4
-        const pageHeightPx = Math.floor((totalWidthPx * 297) / 210)
-        const totalPages = Math.max(1, Math.ceil(totalHeightPx / pageHeightPx))
+        const imgData = canvas.toDataURL("image/png", 1.0)
+        const imgWidth = 210 // A4 width in mm
+        const pageHeight = 297 // A4 height in mm
+        const imgHeight = (canvas.height * imgWidth) / canvas.width
+        let heightLeft = imgHeight
+        let position = 0
 
-        for (let page = 0; page < totalPages; page++) {
-          if (page > 0) pdf.addPage()
-          
-          const sourceY = page * pageHeightPx
-          const sourceHeight = Math.min(pageHeightPx, totalHeightPx - sourceY)
-          
-          if (sourceHeight <= 0) continue
+        const pdf = new jsPDF({
+          orientation: "portrait",
+          unit: "mm",
+          format: "a4",
+          compress: true,
+        })
 
-          const pageCanvas = document.createElement("canvas")
-          pageCanvas.width = totalWidthPx
-          pageCanvas.height = pageHeightPx // Keep fixed page height for PDF consistency
-          
-          const ctx = pageCanvas.getContext("2d")
-          if (ctx) {
-            ctx.fillStyle = "#ffffff"
-            ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height)
-            ctx.drawImage(
-              canvas,
-              0, sourceY, totalWidthPx, sourceHeight, // source
-              0, 0, totalWidthPx, sourceHeight // destination
-            )
-          }
+        // First page
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight, undefined, "NONE")
+        heightLeft -= pageHeight
 
-          const pageImgData = pageCanvas.toDataURL("image/jpeg", 0.95)
-          pdf.addImage(pageImgData, "JPEG", 0, 0, a4WidthMM, a4HeightMM, undefined, 'FAST')
+        // Additional pages if needed
+        while (heightLeft >= 0) {
+          position = heightLeft - imgHeight
+          pdf.addPage()
+          pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight, undefined, "NONE")
+          heightLeft -= pageHeight
         }
 
         pdf.save(`${cvData.personalInfo.fullName.replace(/\s+/g, "_") || "CV"}_CV.pdf`)

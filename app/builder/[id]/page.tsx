@@ -206,7 +206,7 @@ function BuilderContent() {
 
   const handleSave = async (shouldRedirect = false) => {
     if (!session?.user?.id) return
-    
+
     if (shouldRedirect) {
       setIsSavingFinish(true)
     } else {
@@ -231,6 +231,93 @@ function BuilderContent() {
     } finally {
       setIsSavingFinish(false)
       setIsSavingDraft(false)
+    }
+  }
+
+  const handleDownloadPDF = async () => {
+    if (!cvData) {
+      message.error("No CV data to download")
+      return
+    }
+
+    setIsSavingFinish(true)
+    try {
+      // First save the CV
+      if (session?.user?.id) {
+        await saveCV(session.user.id, { ...cvData, templateId: currentTemplate, status: "DOWNLOADED" }, id as string)
+      }
+
+      // Generate PDF client-side with high quality
+      const element = previewRef.current
+      if (!element) {
+        message.error("CV preview not found")
+        setIsSavingFinish(false)
+        return
+      }
+
+      // Wait for images to load
+      const images = Array.from(element.getElementsByTagName("img"))
+      await Promise.all(
+        images.map(
+          (img) =>
+            img.complete
+              ? Promise.resolve()
+              : new Promise<void>((resolve) => {
+                  img.onload = () => resolve()
+                  img.onerror = () => resolve()
+                })
+        )
+      )
+
+      await new Promise((r) => setTimeout(r, 300))
+
+      const { default: jsPDF } = await import("jspdf")
+
+      const canvas = await html2canvas(element, {
+        scale: 3,
+        useCORS: true,
+        allowTaint: false,
+        logging: false,
+        backgroundColor: "#ffffff",
+        width: element.scrollWidth,
+        height: element.scrollHeight,
+        imageTimeout: 0,
+        removeContainer: true,
+      })
+
+      const imgData = canvas.toDataURL("image/png", 1.0)
+      const imgWidth = 210 // A4 width in mm
+      const pageHeight = 297 // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width
+      let heightLeft = imgHeight
+      let position = 0
+
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+        compress: true,
+      })
+
+      // First page
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight, undefined, "NONE")
+      heightLeft -= pageHeight
+
+      // Additional pages if needed
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight
+        pdf.addPage()
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight, undefined, "NONE")
+        heightLeft -= pageHeight
+      }
+
+      pdf.save(`${cvData.personalInfo.fullName.replace(/\s+/g, "_") || "CV"}_CV.pdf`)
+      message.success("PDF downloaded successfully!")
+    } catch (error) {
+      console.error("Download error:", error)
+      message.error("Failed to download PDF. Please try again.")
+    } finally {
+      setIsSavingFinish(false)
     }
   }
 
@@ -1967,13 +2054,13 @@ function BuilderContent() {
                   </div>
 
                   <div className="flex items-center space-x-3">
-                     <button 
-                        onClick={() => handleSave(true)}
+                     <button
+                        onClick={handleDownloadPDF}
                         disabled={isSavingDraft || isSavingFinish}
                         className="flex items-center space-x-2.5 px-6 h-11 bg-brand-action text-white rounded-2xl transition-all active:scale-95 group shadow-lg shadow-brand-action/20 hover:brightness-110 disabled:opacity-50"
                       >
-                         {isSavingFinish 
-                            ? <Loader2 size={18} className="animate-spin" /> 
+                         {isSavingFinish
+                            ? <Loader2 size={18} className="animate-spin" />
                             : <Download size={18} className="group-hover:translate-y-0.5 transition-transform" />
                          }
                          <span className="text-[11px] font-black uppercase tracking-widest">Download CV</span>

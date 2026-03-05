@@ -1,29 +1,15 @@
 // @ts-nocheck
 import { NextResponse } from 'next/server'
-import puppeteer from 'puppeteer-core'
-import chromium from '@sparticuz/chromium-min'
-import { ModernProfessional } from '@/components/templates/ModernProfessional'
-import { ClassicTable } from '@/components/templates/ClassicTable'
-import { ExecutiveTwoColumn } from '@/components/templates/ExecutiveTwoColumn'
-import { MinimalATS } from '@/components/templates/MinimalATS'
-import { CreativePortfolio } from '@/components/templates/CreativePortfolio'
-import { StartupTech } from '@/components/templates/StartupTech'
-import { ExecutiveBoard } from '@/components/templates/ExecutiveBoard'
-import { MidnightElegance } from '@/components/templates/MidnightElegance'
-import { BoldImpact } from '@/components/templates/BoldImpact'
-import { CorporateClean } from '@/components/templates/CorporateClean'
-import { FreshMinimal } from '@/components/templates/FreshMinimal'
-import { RefinedClassic } from '@/components/templates/RefinedClassic'
+import puppeteer from 'puppeteer'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-// Set up executable path based on OS (production vs development)
-// For local Windows development, you might need to point to your Chrome executable 
-// if puppeteer-core doesn't find it automatically.
-const CHROMIUM_PATH = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
+// Chrome executable path for Windows
+const CHROME_PATH = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
 
 export async function POST(req: Request) {
+  let browser = null
   try {
     const { cvData, templateId } = await req.json()
 
@@ -39,50 +25,50 @@ export async function POST(req: Request) {
     cvData.projects = cvData.projects || []
 
     // 1. Pick the template
-    let TableComponent
+    let TableComponent: any
     switch (templateId) {
       case 'classic':
-        TableComponent = ClassicTable
+        TableComponent = (await import('@/components/templates/ClassicTable')).ClassicTable
         break
       case 'executive':
-        TableComponent = ExecutiveTwoColumn
+        TableComponent = (await import('@/components/templates/ExecutiveTwoColumn')).ExecutiveTwoColumn
         break
       case 'minimal':
-        TableComponent = MinimalATS
+        TableComponent = (await import('@/components/templates/MinimalATS')).MinimalATS
         break
       case 'creative':
-        TableComponent = CreativePortfolio
+        TableComponent = (await import('@/components/templates/CreativePortfolio')).CreativePortfolio
         break
       case 'startup':
-        TableComponent = StartupTech
+        TableComponent = (await import('@/components/templates/StartupTech')).StartupTech
         break
       case 'executive-board':
-        TableComponent = ExecutiveBoard
+        TableComponent = (await import('@/components/templates/ExecutiveBoard')).ExecutiveBoard
         break
       case 'midnight':
-        TableComponent = MidnightElegance
+        TableComponent = (await import('@/components/templates/MidnightElegance')).MidnightElegance
         break
       case 'bold-impact':
-        TableComponent = BoldImpact
+        TableComponent = (await import('@/components/templates/BoldImpact')).BoldImpact
         break
       case 'corporate':
-        TableComponent = CorporateClean
+        TableComponent = (await import('@/components/templates/CorporateClean')).CorporateClean
         break
       case 'fresh':
-        TableComponent = FreshMinimal
+        TableComponent = (await import('@/components/templates/FreshMinimal')).FreshMinimal
         break
       case 'refined':
-        TableComponent = RefinedClassic
+        TableComponent = (await import('@/components/templates/RefinedClassic')).RefinedClassic
         break
       default:
-        TableComponent = ModernProfessional
+        TableComponent = (await import('@/components/templates/ModernProfessional')).ModernProfessional
         break
     }
 
     // 2. Render to Static HTML
-    const { renderToStaticMarkup } = require('react-dom/server')
-    const contentHtml = renderToStaticMarkup(<TableComponent data={cvData} />)
-    
+    const { renderToStaticMarkup } = await import('react-dom/server')
+    const contentHtml = renderToStaticMarkup(TableComponent({ data: cvData }))
+
     // Construct full HTML document for Puppeteer
     const fullHtml = `
       <!DOCTYPE html>
@@ -91,9 +77,7 @@ export async function POST(req: Request) {
           <meta charset="utf-8">
           <style>
             body { margin: 0; padding: 0; background: #fff; font-family: Georgia, 'Times New Roman', serif; }
-            /* Force exact colors and backgrounds */
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            /* Ensure text is selectable */
             * { user-select: text !important; -webkit-user-select: text !important; -moz-user-select: text !important; -ms-user-select: text !important; }
             @page { margin: 0; size: A4; }
           </style>
@@ -106,35 +90,15 @@ export async function POST(req: Request) {
       </html>
     `
 
-    // 3. Launch Puppeteer
-    const isProd = process.env.NODE_ENV === 'production'
-    console.log('PDF Generation: Environment is', isProd ? 'production' : 'development')
-    
-    // Configure based on environment
-    let browser
-    try {
-      if (isProd) {
-        console.log('PDF Generation: Launching chromium in production')
-        browser = await puppeteer.launch({
-          args: chromium.args,
-          defaultViewport: chromium.defaultViewport,
-          executablePath: await chromium.executablePath(),
-          headless: chromium.headless,
-        })
-      } else {
-        // Development (Local Windows usually)
-        console.log('PDF Generation: Launching browser with executablePath:', CHROMIUM_PATH)
-        browser = await puppeteer.launch({
-          args: ['--no-sandbox', '--disable-setuid-sandbox'],
-          executablePath: CHROMIUM_PATH, // Change this if Chrome is installed elsewhere
-          headless: true,
-        })
-      }
-    } catch (launchError) {
-      console.error('PDF Generation: Failed to launch browser:', launchError)
-      throw launchError
-    }
-    
+    // 3. Launch Puppeteer with explicit Chrome path
+    console.log('PDF Generation: Launching browser from', CHROME_PATH)
+
+    browser = await puppeteer.launch({
+      executablePath: CHROME_PATH,
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--disable-web-security'],
+      headless: true,
+    })
+
     console.log('PDF Generation: Browser launched successfully')
     const page = await browser.newPage()
     console.log('PDF Generation: Setting content...')
@@ -150,7 +114,7 @@ export async function POST(req: Request) {
       tagged: true,
     })
 
-    console.log('PDF Generation: PDF generated successfully, closing browser')
+    console.log('PDF Generation: PDF generated successfully')
     await browser.close()
 
     // 5. Return PDF as a Response
@@ -166,7 +130,10 @@ export async function POST(req: Request) {
     if (error.stack) {
       console.error('Error stack:', error.stack)
     }
-    return NextResponse.json({ 
+    if (browser) {
+      await browser.close().catch(() => {})
+    }
+    return NextResponse.json({
       error: 'Failed to generate PDF',
       details: error.message || 'Unknown error'
     }, { status: 500 })
