@@ -100,6 +100,7 @@ function BuilderContent() {
   const [activeSection, setActiveSection] = useState("personal")
   const [isPreview, setIsPreview] = useState(false)
   const [isAuditOpen, setIsAuditOpen] = useState(false)
+  const [isInlineEdit, setIsInlineEdit] = useState(false) // Toggle between sidebar and inline edit
   const [cvData, setCvData] = useState<CVData>(INITIAL_DATA)
   const [currentTemplate, setCurrentTemplate] = useState<"modern" | "classic" | "executive" | "minimal" | "creative" | "startup" | "executive-board" | "midnight" | "bold-impact" | "corporate" | "fresh" | "refined">("modern")
   const [isTemplateDropdownOpen, setIsTemplateDropdownOpen] = useState(false)
@@ -539,7 +540,7 @@ function BuilderContent() {
   const renderTemplate = () => {
     const templateProps = {
       data: cvData,
-      isEditable: !isPreview,
+      isEditable: isInlineEdit, // Only editable when inline edit mode is active
       onUpdate: (field: string, value: any) => {
         const parts = field.split('.')
         if (parts[0] === 'personalInfo') {
@@ -596,9 +597,9 @@ function BuilderContent() {
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-24 pb-10">
         <div className="flex flex-col lg:flex-row gap-8 h-full min-h-[calc(100vh-140px)]">
           
-          {/* Sidebar Editor */}
-          {!isPreview && (
-            <motion.aside 
+          {/* Sidebar Editor - Hidden when Inline Edit is active */}
+          {!isPreview && !isInlineEdit && (
+            <motion.aside
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               className="w-full lg:w-[450px] flex flex-col gap-6 h-full overflow-y-auto pr-2 scrollbar-hide"
@@ -2004,20 +2005,20 @@ function BuilderContent() {
                 : "h-20 border-b"
               }`}>
                   <div className="flex items-center space-x-3 sm:space-x-5">
-                    <div 
+                    <div
                       className="relative"
                       ref={templateDropdownRef}
                     >
-                      <button 
+                      <button
                         onClick={() => setIsTemplateDropdownOpen(!isTemplateDropdownOpen)}
                         className="flex items-center space-x-3 px-4 h-11 bg-white/5 hover:bg-white/10 border border-border-custom rounded-2xl transition-all active:scale-95 group"
                       >
                         <div className="w-8 h-5 rounded-md overflow-hidden border border-white/10 hidden xs:block">
-                          <img 
-                            src={`/${currentTemplate === 'minimal' ? 'ats' : currentTemplate === 'executive-board' ? 'board' : currentTemplate === 'bold-impact' ? 'bold' : currentTemplate}.png`} 
-                            className="w-full h-full object-cover" 
+                          <img
+                            src={`/${currentTemplate === 'minimal' ? 'ats' : currentTemplate === 'executive-board' ? 'board' : currentTemplate === 'bold-impact' ? 'bold' : currentTemplate}.png`}
+                            className="w-full h-full object-cover"
                             onError={(e) => (e.currentTarget.src = "/modern.png")}
-                            alt="Current Template" 
+                            alt="Current Template"
                           />
                         </div>
                         <span className="text-[11px] font-black uppercase tracking-widest text-foreground/80">
@@ -2079,12 +2080,35 @@ function BuilderContent() {
                         )}
                       </AnimatePresence>
                     </div>
-                     <button 
+                     <button
                         onClick={() => setIsAuditOpen(true)}
                         className="flex items-center space-x-2.5 px-6 h-11 bg-brand-action/10 hover:bg-brand-action/20 border border-brand-action/30 rounded-2xl transition-all active:scale-95 group"
                       >
                          <ShieldCheck size={18} className="text-brand-action group-hover:scale-110 transition-transform" />
                          <span className="text-[11px] font-black uppercase tracking-widest text-brand-action">Audit CV</span>
+                      </button>
+                      
+                      {/* Inline Edit Toggle */}
+                      <button
+                        onClick={() => setIsInlineEdit(!isInlineEdit)}
+                        className={`flex items-center space-x-2.5 px-6 h-11 border rounded-2xl transition-all active:scale-95 group ${
+                          isInlineEdit 
+                            ? 'bg-brand-action text-white border-brand-action' 
+                            : 'bg-white/5 hover:bg-white/10 border-border-custom text-foreground/70'
+                        }`}
+                        title={isInlineEdit ? "Using Inline Edit - Click on CV to edit" : "Using Sidebar Editor"}
+                      >
+                         {isInlineEdit ? (
+                           <>
+                             <Sparkles size={18} className="text-white" />
+                             <span className="text-[11px] font-black uppercase tracking-widest">Inline Edit</span>
+                           </>
+                         ) : (
+                           <>
+                             <Settings size={18} className="text-foreground/70" />
+                             <span className="text-[11px] font-black uppercase tracking-widest">Sidebar Edit</span>
+                           </>
+                         )}
                       </button>
 
                       <div className="hidden lg:flex items-center space-x-4 border-l border-border-custom ml-2 pl-6">
