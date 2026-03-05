@@ -80,15 +80,13 @@ export async function POST(req: Request) {
         },
         body: JSON.stringify({
           source: renderUrl,
-          wait: true,
           margin: {
             top: 0,
             right: 0,
             bottom: 0,
             left: 0
           },
-          format: 'A4',
-          orientation: 'portrait'
+          format: 'A4'
         })
       })
 
