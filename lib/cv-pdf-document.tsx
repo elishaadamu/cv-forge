@@ -13,14 +13,16 @@ Font.register({
 const styles = StyleSheet.create({
   page: {
     fontFamily: 'Roboto',
-    fontSize: 10,
+    fontSize: 9,
     color: '#1a1a2e',
     backgroundColor: '#fff',
   },
-  // Header with solid gradient-like background
+  // Header with solid gradient-like background (Midnight Elegance style)
   header: {
-    backgroundColor: '#1a1438',
-    padding: '36pt 42pt 30pt',
+    backgroundColor: '#0f0c29',
+    paddingTop: '30pt',
+    paddingBottom: '24pt',
+    paddingHorizontal: '42pt',
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -30,61 +32,68 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   fullName: {
-    fontSize: 26,
+    fontSize: 22,
     fontWeight: 700,
     letterSpacing: 1,
     marginBottom: 3,
     color: '#ffffff',
   },
   jobTitle: {
-    fontSize: 10,
+    fontSize: 9,
     color: '#c4b5fd',
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
   contactBar: {
     backgroundColor: '#f5f3ff',
-    padding: '9pt 42pt',
+    paddingVertical: '8pt',
+    paddingHorizontal: '42pt',
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    gap: 10,
     borderBottom: '1pt solid #e5e2f0',
   },
   contactItem: {
-    fontSize: 8,
+    fontSize: 7.5,
     color: '#4c1d95',
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 3,
+  },
+  contactIcon: {
+    fontSize: 7,
+    color: '#4c1d95',
+    marginRight: 2,
   },
   section: {
-    padding: '24pt 42pt 36pt',
+    paddingVertical: '18pt',
+    paddingHorizontal: '42pt',
   },
   sectionTitle: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: 700,
     color: '#1a1a2e',
     textTransform: 'uppercase',
     letterSpacing: 1.5,
-    marginBottom: 8,
+    marginBottom: 6,
     borderBottom: '2pt solid #7c3aed',
-    paddingBottom: 4,
+    paddingBottom: 3,
   },
   summary: {
-    fontSize: 9.5,
+    fontSize: 8.5,
     color: '#374151',
-    lineHeight: 1.6,
+    lineHeight: 1.5,
     textAlign: 'justify',
     borderLeft: '2pt solid #7c3aed',
-    paddingLeft: 12,
-    marginTop: 6,
+    paddingLeft: 10,
+    marginTop: 4,
   },
   experienceItem: {
-    marginBottom: 18,
+    marginBottom: 12,
     borderLeft: '1.5pt solid #e5e2f0',
-    paddingLeft: 12,
+    paddingLeft: 10,
   },
   expHeader: {
     display: 'flex',
@@ -94,36 +103,36 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   expRole: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: 700,
     color: '#1a1a2e',
   },
   expDuration: {
-    fontSize: 8.5,
+    fontSize: 7.5,
     color: '#7c3aed',
     fontWeight: 600,
   },
   expCompany: {
-    fontSize: 9,
+    fontSize: 8,
     color: '#6d28d9',
     marginBottom: 2,
   },
   expLocation: {
-    fontSize: 8,
+    fontSize: 7,
     color: '#6b7280',
-    marginBottom: 4,
-  },
-  bullet: {
-    fontSize: 9,
-    color: '#374151',
-    lineHeight: 1.5,
-    marginLeft: 12,
     marginBottom: 3,
   },
+  bullet: {
+    fontSize: 8,
+    color: '#374151',
+    lineHeight: 1.4,
+    marginLeft: 10,
+    marginBottom: 2,
+  },
   educationItem: {
-    marginBottom: 14,
+    marginBottom: 10,
     borderLeft: '1.5pt solid #e5e2f0',
-    paddingLeft: 12,
+    paddingLeft: 10,
   },
   eduHeader: {
     display: 'flex',
@@ -133,17 +142,17 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   eduDegree: {
-    fontSize: 9.5,
+    fontSize: 8.5,
     fontWeight: 700,
     color: '#1a1a2e',
   },
   eduDuration: {
-    fontSize: 8,
+    fontSize: 7,
     color: '#7c3aed',
     fontWeight: 600,
   },
   eduSchool: {
-    fontSize: 8.5,
+    fontSize: 7.5,
     color: '#6d28d9',
     marginBottom: 2,
   },
@@ -151,62 +160,67 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 6,
-    marginTop: 6,
+    gap: 5,
+    marginTop: 4,
   },
   skillChip: {
     backgroundColor: '#f5f3ff',
     color: '#4c1d95',
-    fontSize: 8,
+    fontSize: 7,
     fontWeight: 600,
-    padding: '3pt 8pt',
-    borderRadius: 4,
+    paddingVertical: '2pt',
+    paddingHorizontal: '6pt',
+    borderRadius: 3,
     border: '0.5pt solid #e5e2f0',
   },
   languagesContainer: {
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 6,
+    gap: 6,
+    marginTop: 4,
   },
   languageChip: {
     backgroundColor: '#f5f3ff',
     border: '0.5pt solid #e5e2f0',
-    borderRadius: 6,
-    padding: '5pt 10pt',
+    borderRadius: 4,
+    paddingVertical: '3pt',
+    paddingHorizontal: '7pt',
     display: 'flex',
     flexDirection: 'row',
-    gap: 8,
+    gap: 6,
   },
   languageName: {
-    fontSize: 8.5,
+    fontSize: 7.5,
     fontWeight: 600,
     color: '#1a1a2e',
   },
   languageLevel: {
-    fontSize: 8,
+    fontSize: 7,
     color: '#6b7280',
   },
   personalDetailsGrid: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '6pt',
+    gap: '4pt',
     borderLeft: '1.5pt solid #e5e2f0',
-    paddingLeft: 12,
-    marginBottom: 20,
+    paddingLeft: 10,
+    marginBottom: 14,
   },
   detailRow: {
     display: 'flex',
     flexDirection: 'row',
-    fontSize: 8.5,
+    fontSize: 7.5,
     color: '#374151',
   },
   detailLabel: {
     fontWeight: 600,
     color: '#4c1d95',
     marginRight: 4,
-    minWidth: 80,
+    minWidth: 75,
+  },
+  sectionWrapper: {
+    marginBottom: 14,
   },
 })
 
@@ -289,7 +303,7 @@ export function CVDocument({ data }: { data: CVData }) {
 
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
+      <Page size="A4" style={styles.page} wrap>
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerText}>
@@ -301,22 +315,52 @@ export function CVDocument({ data }: { data: CVData }) {
         {/* Contact Bar */}
         <View style={styles.contactBar}>
           {personalInfo?.phone && (
-            <Text style={styles.contactItem}>{personalInfo?.phoneCode || ''} {personalInfo?.phone}</Text>
+            <Text style={styles.contactItem}>
+              <Text style={styles.contactIcon}>📞 </Text>
+              {personalInfo?.phoneCode || ''} {personalInfo?.phone}
+            </Text>
           )}
           {personalInfo?.email && (
-            <Text style={styles.contactItem}>{personalInfo?.email}</Text>
+            <Text style={styles.contactItem}>
+              <Text style={styles.contactIcon}>✉ </Text>
+              {personalInfo?.email}
+            </Text>
           )}
           {personalInfo?.country && (
-            <Text style={styles.contactItem}>{personalInfo?.country}</Text>
+            <Text style={styles.contactItem}>
+              <Text style={styles.contactIcon}>📍 </Text>
+              {personalInfo?.country}
+            </Text>
+          )}
+          {personalInfo?.county && (
+            <Text style={styles.contactItem}>
+              <Text style={styles.contactIcon}>🗺 </Text>
+              {personalInfo?.county}
+            </Text>
+          )}
+          {personalInfo?.location && (
+            <Text style={styles.contactItem}>
+              <Text style={styles.contactIcon}>📮 </Text>
+              {personalInfo?.location}
+            </Text>
           )}
           {personalInfo?.linkedin && (
-            <Text style={styles.contactItem}>{personalInfo?.linkedin}</Text>
+            <Text style={styles.contactItem}>
+              <Text style={styles.contactIcon}>💼 </Text>
+              {personalInfo?.linkedin}
+            </Text>
           )}
           {personalInfo?.website && (
-            <Text style={styles.contactItem}>{personalInfo?.website}</Text>
+            <Text style={styles.contactItem}>
+              <Text style={styles.contactIcon}>🌐 </Text>
+              {personalInfo?.website}
+            </Text>
           )}
           {personalInfo?.github && (
-            <Text style={styles.contactItem}>{personalInfo?.github}</Text>
+            <Text style={styles.contactItem}>
+              <Text style={styles.contactIcon}>⌨ </Text>
+              {personalInfo?.github}
+            </Text>
           )}
         </View>
 
@@ -324,7 +368,7 @@ export function CVDocument({ data }: { data: CVData }) {
         <View style={styles.section}>
           {/* Summary */}
           {personalInfo?.summary && (
-            <View style={{ marginBottom: 20 }}>
+            <View style={styles.sectionWrapper}>
               <Text style={styles.sectionTitle}>Professional Profile</Text>
               <Text style={styles.summary}>{personalInfo.summary}</Text>
             </View>
@@ -332,7 +376,7 @@ export function CVDocument({ data }: { data: CVData }) {
 
           {/* Personal Details */}
           {hasPersonalDetails && (
-            <View style={{ marginBottom: 20 }}>
+            <View style={styles.sectionWrapper}>
               <Text style={styles.sectionTitle}>Personal Details</Text>
               <View style={styles.personalDetailsGrid}>
                 {personalInfo?.dateOfBirth && (
@@ -377,7 +421,7 @@ export function CVDocument({ data }: { data: CVData }) {
 
           {/* Experience */}
           {experience && experience.length > 0 && (
-            <View style={{ marginBottom: 20 }}>
+            <View style={styles.sectionWrapper}>
               <Text style={styles.sectionTitle}>Work Experience</Text>
               {experience.map((exp) => (
                 <View key={exp.id} style={styles.experienceItem}>
@@ -390,7 +434,7 @@ export function CVDocument({ data }: { data: CVData }) {
                     <Text style={styles.expLocation}>{exp.location}</Text>
                   )}
                   {exp.workDescription && (
-                    <Text style={{ ...styles.bullet, marginBottom: 6 }}>{exp.workDescription}</Text>
+                    <Text style={{ ...styles.bullet, marginBottom: 4 }}>{exp.workDescription}</Text>
                   )}
                   {exp.description && exp.description.map((bullet, i) => (
                     <Text key={i} style={styles.bullet}>• {bullet}</Text>
@@ -402,7 +446,7 @@ export function CVDocument({ data }: { data: CVData }) {
 
           {/* Education */}
           {education && education.length > 0 && (
-            <View style={{ marginBottom: 20 }}>
+            <View style={styles.sectionWrapper}>
               <Text style={styles.sectionTitle}>Education & Training</Text>
               {education.map((edu) => (
                 <View key={edu.id} style={styles.educationItem}>
@@ -415,7 +459,7 @@ export function CVDocument({ data }: { data: CVData }) {
                     <Text style={styles.expLocation}>{edu.location}</Text>
                   )}
                   {(edu.fieldOfStudy || edu.grade) && (
-                    <View style={{ display: 'flex', flexDirection: 'row', gap: 12, marginTop: 2 }}>
+                    <View style={{ display: 'flex', flexDirection: 'row', gap: 10, marginTop: 2 }}>
                       {edu.fieldOfStudy && (
                         <Text style={styles.expLocation}>
                           <Text style={{ fontWeight: 600, color: '#4c1d95' }}>Field: </Text>
@@ -437,7 +481,7 @@ export function CVDocument({ data }: { data: CVData }) {
 
           {/* Skills */}
           {allSkills && allSkills.length > 0 && (
-            <View style={{ marginBottom: 20 }}>
+            <View style={styles.sectionWrapper}>
               <Text style={styles.sectionTitle}>Core Competencies</Text>
               <View style={styles.skillsContainer}>
                 {allSkills.map((skill, i) => (
@@ -451,7 +495,7 @@ export function CVDocument({ data }: { data: CVData }) {
 
           {/* Languages */}
           {languages && languages.length > 0 && (
-            <View style={{ marginBottom: 20 }}>
+            <View style={styles.sectionWrapper}>
               <Text style={styles.sectionTitle}>Languages</Text>
               <View style={styles.languagesContainer}>
                 {languages.map((lang, i) => (
@@ -466,18 +510,18 @@ export function CVDocument({ data }: { data: CVData }) {
 
           {/* Projects */}
           {projects && projects.length > 0 && (
-            <View style={{ marginBottom: 20 }}>
+            <View style={styles.sectionWrapper}>
               <Text style={styles.sectionTitle}>Key Projects</Text>
               {projects.map((proj) => (
                 <View key={proj.id} style={styles.experienceItem}>
                   <View style={styles.expHeader}>
                     <Text style={styles.expRole}>{proj.name || ''}</Text>
+                    {proj.link && (
+                      <Text style={styles.expLocation}>{proj.link}</Text>
+                    )}
                   </View>
-                  {proj.link && (
-                    <Text style={styles.expLocation}>{proj.link}</Text>
-                  )}
                   {proj.description && (
-                    <Text style={{ ...styles.bullet, marginTop: 4 }}>{proj.description}</Text>
+                    <Text style={{ ...styles.bullet, marginTop: 3 }}>{proj.description}</Text>
                   )}
                 </View>
               ))}
@@ -486,7 +530,7 @@ export function CVDocument({ data }: { data: CVData }) {
 
           {/* Volunteering */}
           {volunteering && volunteering.length > 0 && (
-            <View style={{ marginBottom: 20 }}>
+            <View style={styles.sectionWrapper}>
               <Text style={styles.sectionTitle}>Volunteering Experience</Text>
               {volunteering.map((vol) => (
                 <View key={vol.id} style={styles.experienceItem}>
@@ -501,7 +545,7 @@ export function CVDocument({ data }: { data: CVData }) {
                     <Text style={styles.expLocation}>{vol.location}</Text>
                   )}
                   {vol.description && (
-                    <Text style={{ ...styles.bullet, marginTop: 4 }}>{vol.description}</Text>
+                    <Text style={{ ...styles.bullet, marginTop: 3 }}>{vol.description}</Text>
                   )}
                 </View>
               ))}

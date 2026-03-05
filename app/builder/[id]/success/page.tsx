@@ -40,8 +40,6 @@ import html2canvas from "html2canvas-pro"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { message, Dropdown, MenuProps } from "antd"
-import { pdf } from '@react-pdf/renderer'
-import { CVDocument } from '@/lib/cv-pdf-document'
 
 export default function SuccessPage() {
   const { data: session } = useSession()
@@ -199,13 +197,19 @@ export default function SuccessPage() {
         link.click()
         document.body.removeChild(link)
       } else if (type === ".pdf") {
-        console.log('Generating PDF with data:', cvData)
-        console.log('Personal info:', cvData?.personalInfo)
-        
-        // Generate true text-based PDF using @react-pdf/renderer
-        const doc = CVDocument({ data: cvData })
-        const blob = await pdf(doc).toBlob()
-        
+        // Generate PDF using server-side Puppeteer for full CSS support (gradients, fonts, icons)
+        const response = await fetch("/api/generate-pdf", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cvData, templateId: cvData.templateId }),
+        })
+
+        if (!response.ok) {
+          const error = await response.json()
+          throw new Error(error.details || "Failed to generate PDF")
+        }
+
+        const blob = await response.blob()
         const url = window.URL.createObjectURL(blob)
         const link = document.createElement("a")
         link.href = url
