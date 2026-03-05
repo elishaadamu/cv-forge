@@ -56,9 +56,48 @@ function PdfRenderContent() {
   }
 
   return (
-    <div id="cv-root" style={{ width: "210mm", margin: "0 auto", background: "#fff" }}>
-      <TemplateComponent />
-    </div>
+    <>
+      {/* Hide all non-CV elements for PDF - comprehensive list */}
+      <style>{`
+        /* Hide everything by default */
+        body > *:not(#cv-root):not(#__next):not(.pdf-render-container) {
+          display: none !important;
+        }
+        
+        /* Hide cookie banners, consent dialogs, and other non-essential elements */
+        #cookie-consent, .cookie-consent, #cookie-banner, .cookie-banner,
+        #privacy-shield, .privacy-shield, [data-cookie], [data-consent],
+        .gdpr-consent, #gdpr-consent, .cookie-notice, #cookie-notice,
+        [class*="cookie"], [class*="consent"], [class*="privacy"],
+        [id*="cookie"], [id*="consent"], [id*="privacy"],
+        /* Hide navbar, footer, and other app chrome */
+        nav, footer, header:not(#cv-root header), .navbar, .footer,
+        /* Hide any overlays, modals, dialogs */
+        [role="dialog"], [role="alertdialog"], .modal, .overlay,
+        /* Hide fixed/sticky elements */
+        [style*="position: fixed"], [style*="position: sticky"],
+        /* Hide by selector patterns */
+        .ant-modal, .ant-notification, .Toastify, [class*="toast"],
+        [class*="notification"], [class*="banner"], [class*="popup"] {
+          display: none !important;
+          visibility: hidden !important;
+          opacity: 0 !important;
+          height: 0 !important;
+          width: 0 !important;
+          overflow: hidden !important;
+        }
+        
+        /* Force show only cv-root */
+        #cv-root {
+          display: block !important;
+          visibility: visible !important;
+          opacity: 1 !important;
+        }
+      `}</style>
+      <div id="cv-root" style={{ width: "210mm", margin: "0 auto", background: "#fff" }}>
+        <TemplateComponent />
+      </div>
+    </>
   )
 }
 

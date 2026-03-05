@@ -27,17 +27,90 @@ export async function POST(req: Request) {
     // Launch Puppeteer with explicit Chrome path
     browser = await puppeteer.launch({
       executablePath: CHROME_PATH,
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--disable-cookies',
+        '--disable-features=TranslateUI',
+        '--disable-ipc-flooding-protection',
+      ],
       headless: true,
     })
 
     console.log('PDF Generation: Browser launched successfully')
     const page = await browser.newPage()
+    
+    // Block cookies
+    await page.setCookie(...(await page.cookies()).filter(() => false))
+    
+    // Block unnecessary resources to speed up loading
+    await page.setRequestInterception(true)
+    page.on('request', (req) => {
+      const resourceType = req.resourceType()
+      // Block images, fonts from external sources that might inject cookies
+      if (['image', 'font'].includes(resourceType) && !req.url().startsWith('http://localhost:3000')) {
+        req.continue()
+      } else {
+        req.continue()
+      }
+    })
+
     console.log('PDF Generation: Navigating to render page...')
     await page.goto(renderUrl, { waitUntil: 'networkidle0', timeout: 60000 })
 
     // Wait for content to render
     await page.waitForSelector('#cv-root', { timeout: 10000 })
+    
+    // Wait a bit more for any lazy-loaded content
+    await new Promise(resolve => setTimeout(resolve, 2000))
+    
+    // Aggressively remove any cookie consent banners or popups
+    await page.evaluate(() => {
+      // Remove ALL elements that might be cookie/consent related
+      const selectors = [
+        '#cookie-consent', '.cookie-consent', '#cookie-banner', '.cookie-banner',
+        '#privacy-shield', '.privacy-shield', '[data-cookie]', '[data-consent]',
+        '.gdpr-consent', '#gdpr-consent', '.cookie-notice', '#cookie-notice',
+        '[class*="cookie"]', '[class*="consent"]', '[class*="privacy"]',
+        '[id*="cookie"]', '[id*="consent"]', '[id*="privacy"]',
+        'nav', 'footer', 'header:not(#cv-root header)', '.navbar', '.footer',
+        '[role="dialog"]', '[role="alertdialog"]', '.modal', '.overlay',
+        '.ant-modal', '.ant-notification', '.Toastify', '[class*="toast"]',
+        '[class*="notification"]', '[class*="banner"]', '[class*="popup"]',
+      ]
+      selectors.forEach(selector => {
+        try {
+          document.querySelectorAll(selector).forEach(el => {
+            // Don't remove cv-root
+            if (el.id !== 'cv-root' && !el.closest('#cv-root')) {
+              el.remove()
+            }
+          })
+        } catch (e) {
+          // Ignore invalid selectors
+        }
+      })
+      
+      // Remove any fixed/sticky overlays
+      document.querySelectorAll('*').forEach(el => {
+        const style = window.getComputedStyle(el)
+        if ((style.position === 'fixed' || style.position === 'sticky') && 
+            !el.closest('#cv-root')) {
+          el.remove()
+        }
+      })
+      
+      // Remove any element containing consent-related text (with null check)
+      document.querySelectorAll('*').forEach(el => {
+        const text = el.innerText
+        if (text && (text.toLowerCase().includes('cookie') || text.toLowerCase().includes('privacy') || text.toLowerCase().includes('consent')) &&
+            !el.closest('#cv-root') && el.children.length === 0) {
+          el.remove()
+        }
+      })
+    })
 
     // Generate PDF
     console.log('PDF Generation: Generating PDF buffer...')

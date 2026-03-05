@@ -230,40 +230,40 @@ interface CVData {
     jobTitle: string
     email: string
     phone: string
-    phoneCode: string
-    country: string
-    county: string
-    location: string
-    website: string
-    linkedin: string
-    github: string
-    facebook: string
-    summary: string
-    profileImage: string
-    dateOfBirth: string
-    nationality: string
-    gender: string
-    passport: string
-    workPermit: string
-    placeOfBirth: string
+    phoneCode?: string
+    country?: string
+    county?: string
+    location?: string
+    website?: string
+    linkedin?: string
+    github?: string
+    facebook?: string
+    summary?: string
+    profileImage?: string
+    dateOfBirth?: string
+    nationality?: string
+    gender?: string
+    passport?: string
+    workPermit?: string
+    placeOfBirth?: string
   }
   experience: Array<{
     id: string
     role: string
     company: string
     duration: string
-    location: string
+    location?: string
     description: string[]
-    workDescription: string
+    workDescription?: string
   }>
   education: Array<{
     id: string
     degree: string
     school: string
     duration: string
-    location: string
-    fieldOfStudy: string
-    grade: string
+    location?: string
+    fieldOfStudy?: string
+    grade?: string
   }>
   skills: Array<{
     category: string
@@ -272,20 +272,20 @@ interface CVData {
   projects: Array<{
     id: string
     name: string
-    description: string
-    link: string
+    description?: string
+    link?: string
   }>
-  languages: Array<{
-    name: string
-    proficiency: string
+  languages?: Array<{
+    name?: string
+    proficiency?: string
   }>
-  volunteering: Array<{
+  volunteering?: Array<{
     id: string
-    role: string
-    organization: string
-    duration: string
-    location: string
-    description: string
+    role?: string
+    organization?: string
+    duration?: string
+    location?: string
+    description?: string
   }>
 }
 
