@@ -25,9 +25,13 @@ export async function POST(req: Request) {
     const encodedData = encodeURIComponent(JSON.stringify(cvData))
     const renderUrl = `${baseUrl}/pdf-render?data=${encodedData}&template=${templateId || 'modern'}`
 
-    // Check if running locally (development) or on Render (production)
-    const isLocal = process.env.NODE_ENV === 'development' || !process.env.RENDER
-
+    // Check if running locally (development) or on Vercel/Render (production)
+    const isLocal = process.env.NODE_ENV === 'development'
+    const isVercel = process.env.VERCEL === '1'
+    const isRender = process.env.RENDER === 'true'
+    const isProduction = isVercel || isRender
+    
+    // Use PDFShift on production (Vercel/Render), Puppeteer locally
     if (isLocal) {
       // ===== LOCAL DEVELOPMENT: Use Puppeteer =====
       console.log('PDF Generation: Using Puppeteer (local)')
@@ -65,7 +69,7 @@ export async function POST(req: Request) {
       })
 
     } else {
-      // ===== PRODUCTION (Render): Use PDFShift =====
+      // ===== PRODUCTION (Render/Vercel): Use PDFShift =====
       console.log('PDF Generation: Using PDFShift (production)')
 
       const response = await fetch('https://api.pdfshift.io/v3/convert/pdf', {
