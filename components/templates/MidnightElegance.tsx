@@ -73,6 +73,71 @@ export function MidnightElegance({
           }
         `}</style>
       )}
+      
+      {/* PDF page break controls */}
+      <style>{`
+        .cv-section {
+          break-inside: avoid;
+          page-break-inside: avoid;
+          margin-top: 12pt;
+        }
+        .cv-section.new-page {
+          margin-top: 150pt !important;
+          padding-top: 30pt !important;
+        }
+        .cv-section-title {
+          break-after: avoid;
+          page-break-after: avoid;
+        }
+        .cv-section-content {
+          break-before: avoid;
+          page-break-before: avoid;
+        }
+      `}</style>
+      
+      {/* Script to mark sections that start on new pages */}
+      {!isEditable && (
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                function markNewPageSections() {
+                  const sections = document.querySelectorAll('.cv-section');
+                  const pageHeight = 1122; // A4 height in pixels at 96 DPI
+                  let currentPosition = 0;
+                  let previousPageEnd = 0;
+                  
+                  sections.forEach((section, index) => {
+                    if (index === 0) {
+                      section.classList.remove('new-page');
+                      return;
+                    }
+                    
+                    const sectionTop = section.offsetTop;
+                    const pageAtSectionTop = Math.floor(sectionTop / pageHeight);
+                    const previousSectionEnd = index > 0 ? sections[index - 1].offsetTop + sections[index - 1].offsetHeight : 0;
+                    const pageAtPreviousEnd = Math.floor(previousSectionEnd / pageHeight);
+                    
+                    if (pageAtSectionTop > pageAtPreviousEnd) {
+                      section.classList.add('new-page');
+                    } else {
+                      section.classList.remove('new-page');
+                    }
+                  });
+                }
+                
+                if (document.readyState === 'loading') {
+                  document.addEventListener('DOMContentLoaded', markNewPageSections);
+                } else {
+                  markNewPageSections();
+                }
+                
+                window.addEventListener('load', markNewPageSections);
+              })();
+            `,
+          }}
+        />
+      )}
       {/* ── HEADER BAND ── */}
       <div
         style={{
@@ -291,7 +356,7 @@ export function MidnightElegance({
       <div style={{ padding: "32px 56px 48px", flex: 1 }}>
         {/* Summary */}
         {(personalInfo.summary || isEditable) && (
-          <div style={{ marginBottom: "28px", position: "relative" }}>
+          <div className="cv-section" style={{ marginBottom: "28px", position: "relative" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
               <SectionTitle label="Professional Profile" noMargin />
               {isEditable && (
@@ -348,7 +413,7 @@ export function MidnightElegance({
 
         {/* Personal Details */}
         {(hasPersonalDetails || isEditable) && (
-          <div style={{ marginBottom: "28px" }}>
+          <div className="cv-section" style={{ marginBottom: "28px" }}>
             <SectionTitle label="Personal Details" />
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 32px", paddingLeft: "16px", borderLeft: "2px solid #e5e2f0" }}>
               {(personalInfo.dateOfBirth || isEditable) && <DetailRow label="Date of Birth" value={personalInfo.dateOfBirth} type="date" isEditable={isEditable} onUpdate={(val) => onUpdate?.("personalInfo.dateOfBirth", val)} />}
@@ -363,7 +428,7 @@ export function MidnightElegance({
 
         {/* Experience */}
         {(experience.length > 0 || isEditable) && (
-          <div style={{ marginBottom: "28px" }}>
+          <div className="cv-section" style={{ marginBottom: "28px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
               <SectionTitle label="Work Experience" noMargin />
               {isEditable && (
@@ -540,7 +605,7 @@ export function MidnightElegance({
 
         {/* Education */}
         {(education.length > 0 || isEditable) && (
-          <div style={{ marginBottom: "28px" }}>
+          <div className="cv-section" style={{ marginBottom: "28px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
               <SectionTitle label="Education & Training" noMargin />
               {isEditable && (
@@ -665,7 +730,7 @@ export function MidnightElegance({
 
         {/* Skills */}
         {(allSkills.length > 0 || isEditable) && (
-          <div style={{ marginBottom: "28px" }}>
+          <div className="cv-section" style={{ marginBottom: "28px" }}>
             <SectionTitle label="Core Competencies" />
             <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "8px" }}>
               {allSkills.map((skill, i) => (
@@ -719,7 +784,7 @@ export function MidnightElegance({
 
         {/* Languages */}
         {((languages && languages.length > 0) || isEditable) && (
-          <div style={{ marginBottom: "28px" }}>
+          <div className="cv-section" style={{ marginBottom: "28px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
               <SectionTitle label="Languages" noMargin />
               {isEditable && (
@@ -791,7 +856,7 @@ export function MidnightElegance({
 
         {/* Projects */}
         {(projects.length > 0 || isEditable) && (
-          <div style={{ marginBottom: "28px" }}>
+          <div className="cv-section" style={{ marginBottom: "28px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
               <SectionTitle label="Projects" noMargin />
               {isEditable && (
@@ -912,7 +977,7 @@ export function MidnightElegance({
 
         {/* Volunteering */}
         {((volunteering && volunteering.length > 0) || isEditable) && (
-          <div style={{ marginBottom: "28px" }}>
+          <div className="cv-section" style={{ marginBottom: "28px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
               <SectionTitle label="Volunteering" noMargin />
               {isEditable && (
@@ -1226,7 +1291,7 @@ function DurationPicker({ value, onChange }: { value: string; onChange: (val: st
 
 function SectionTitle({ label, noMargin }: { label: string; noMargin?: boolean }) {
   return (
-    <div style={{ marginBottom: noMargin ? "0" : "10px" }}>
+    <div style={{ marginBottom: noMargin ? "0" : "10px" }} className="cv-section-title">
       <h3
         style={{
           fontSize: "13px",

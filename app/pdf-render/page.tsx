@@ -93,6 +93,51 @@ function PdfRenderContent() {
           visibility: visible !important;
           opacity: 1 !important;
         }
+        
+        /* PDF Page break controls - keep section headers from appearing at bottom */
+        #cv-root section,
+        #cv-root [style*="margin-bottom"],
+        #cv-root div[data-section],
+        .cv-section {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+        
+        /* Prevent section titles from being alone at bottom of page */
+        #cv-root h1,
+        #cv-root h2,
+        #cv-root h3,
+        #cv-root h4,
+        #cv-root h5,
+        #cv-root h6,
+        #cv-root [style*="text-transform: uppercase"],
+        #cv-root p[style*="font-weight: 700"],
+        .cv-section-title {
+          break-after: avoid;
+          page-break-after: avoid;
+        }
+        
+        /* Add margin to top of sections for cleaner page breaks */
+        #cv-root > div > div {
+          margin-top: 8pt;
+        }
+        
+        /* Add top margin to content on page 2, 3, 4+ */
+        .cv-section {
+          margin-top: 40pt;
+        }
+        
+        .cv-section:first-child {
+          margin-top: 0;
+        }
+        
+        /* Force page break with margin */
+        .page-break {
+          break-before: page;
+          page-break-before: always;
+          margin-top: 150pt !important;
+          padding-top: 50pt !important;
+        }
       `}</style>
       <div id="cv-root" style={{ width: "210mm", margin: "0 auto", background: "#fff" }}>
         <TemplateComponent />
