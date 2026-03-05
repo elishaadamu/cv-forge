@@ -28,9 +28,14 @@ import {
   ShieldCheck,
   ChevronDown,
   Search,
-  GripVertical
+  GripVertical,
+  Languages,
+  Heart,
+  Edit3
 } from "lucide-react"
 import { CldUploadWidget } from "next-cloudinary"
+import jsPDF from "jspdf"
+import html2canvas from "html2canvas-pro"
 
 import { ModernProfessional, CVData } from "@/components/templates/ModernProfessional"
 import { ClassicTable } from "@/components/templates/ClassicTable"
@@ -53,6 +58,8 @@ const sections = [
   { id: "education", title: "Education", icon: GraduationCap },
   { id: "skills", title: "Skills", icon: Code },
   { id: "projects", title: "Projects", icon: FolderGit2 },
+  { id: "languages", title: "Languages", icon: Languages },
+  { id: "volunteering", title: "Volunteering", icon: Heart },
 ]
 
 
@@ -158,10 +165,12 @@ function BuilderContent() {
   const [stateSearch, setStateSearch] = useState("")
   const countries = countriesData
   const [isSaving, setIsSaving] = useState(false)
+  const [isAutoSaving, setIsAutoSaving] = useState(false)
   const [skillInput, setSkillInput] = useState("")
   const [draggedSkillIndex, setDraggedSkillIndex] = useState<number | null>(null)
   const [dragOverSkillIndex, setDragOverSkillIndex] = useState<number | null>(null)
   const [pageCount, setPageCount] = useState(1)
+  const [lastSavedData, setLastSavedData] = useState("")
   const previewRef = useRef<HTMLDivElement>(null)
   const templateDropdownRef = useRef<HTMLDivElement>(null)
   const phoneDropdownRef = useRef<HTMLDivElement>(null)
@@ -380,6 +389,165 @@ function BuilderContent() {
     }))
   }
 
+  // Languages helpers
+  const addLanguage = () => {
+    setCvData(prev => ({
+      ...prev,
+      languages: [...(prev.languages || []), { name: "", proficiency: "Beginner" }]
+    }))
+  }
+
+  const updateLanguage = (index: number, field: "name" | "proficiency", value: string) => {
+    setCvData(prev => {
+      const langs = [...(prev.languages || [])]
+      langs[index] = { ...langs[index], [field]: value }
+      return { ...prev, languages: langs }
+    })
+  }
+
+  const removeLanguage = (index: number) => {
+    setCvData(prev => ({
+      ...prev,
+      languages: (prev.languages || []).filter((_, i) => i !== index)
+    }))
+  }
+
+  // Volunteering helpers
+  const addVolunteering = () => {
+    const newId = Math.random().toString(36).substring(7)
+    setCvData(prev => ({
+      ...prev,
+      volunteering: [...(prev.volunteering || []), { id: newId, role: "", organization: "", duration: "", location: "", description: "" }]
+    }))
+  }
+
+  const updateVolunteering = (id: string, field: string, value: string) => {
+    setCvData(prev => ({
+      ...prev,
+      volunteering: (prev.volunteering || []).map(v => v.id === id ? { ...v, [field]: value } : v)
+    }))
+  }
+
+  const removeVolunteering = (id: string) => {
+    setCvData(prev => ({
+      ...prev,
+      volunteering: (prev.volunteering || []).filter(v => v.id !== id)
+    }))
+  }
+
+  // Path-based update for WYSIWYG
+  const handleUpdate = (path: string, value: any) => {
+    const keys = path.split(".")
+    
+    // Special handling for array actions
+    if (path.endsWith(".add")) {
+      const section = keys[0]
+      if (section === "experience") addExperience()
+      else if (section === "education") addEducation()
+      else if (section === "projects") addProject()
+      else if (section === "languages") addLanguage()
+      else if (section === "volunteering") addVolunteering()
+      return
+    }
+
+    if (path.endsWith(".remove")) {
+      const section = keys[0]
+      if (section === "experience") removeExperience(value)
+      else if (section === "education") removeEducation(value)
+      else if (section === "projects") removeProject(value)
+      else if (section === "languages") removeLanguage(value)
+      else if (section === "volunteering") removeVolunteering(value)
+      return
+    }
+
+    // Normal attribute updates
+    if (keys[0] === "personalInfo") {
+      updatePersonalInfo(keys[1] as any, value)
+    } else if (keys[0] === "experience") {
+      updateExperience(keys[1], keys[2] as any, value)
+    } else if (keys[0] === "education") {
+      updateEducation(keys[1], keys[2] as any, value)
+    } else if (keys[0] === "skills") {
+      // Direct skill update for simple tag editing
+      setCvData(prev => ({ ...prev, skills: [{ category: "Skills", items: value }] }))
+    } else if (keys[0] === "projects") {
+      updateProject(keys[1], keys[2] as any, value)
+    } else if (keys[0] === "languages") {
+      updateLanguage(parseInt(keys[1]), keys[2] as any, value)
+    } else if (keys[0] === "volunteering") {
+      updateVolunteering(keys[1], keys[2] as any, value)
+    }
+  }
+
+  const handleDownload = async () => {
+    if (!previewRef.current) return
+    setIsSaving(true)
+    
+    try {
+      const canvas = await html2canvas(previewRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: "#ffffff",
+      })
+      
+      const imgData = canvas.toDataURL("image/jpeg", 1.0)
+      const pdf = new jsPDF("p", "mm", "a4")
+      const pdfWidth = pdf.internal.pageSize.getWidth()
+      const pdfHeight = pdf.internal.pageSize.getHeight()
+      
+      // Calculate how many pages we need
+      const imgWidth = canvas.width
+      const imgHeight = canvas.height
+      const ratio = imgWidth / pdfWidth
+      const imgHeightInPdf = imgHeight / ratio
+      
+      let heightLeft = imgHeightInPdf
+      let position = 0
+      
+      // Page 1
+      pdf.addImage(imgData, "JPEG", 0, position, pdfWidth, imgHeightInPdf)
+      heightLeft -= pdfHeight
+      
+      // Add extra pages if needed
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeightInPdf
+        pdf.addPage()
+        pdf.addImage(imgData, "JPEG", 0, position, pdfWidth, imgHeightInPdf)
+        heightLeft -= pdfHeight
+      }
+      
+      pdf.save(`${cvData.personalInfo.fullName || "CV"}-Forge.pdf`)
+    } catch (err) {
+      console.error("PDF Export error:", err)
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  // Auto-save logic
+  useEffect(() => {
+    const currentDataStr = JSON.stringify(cvData)
+    if (currentDataStr === lastSavedData) return
+
+    const timer = setTimeout(async () => {
+      if (session?.user?.id && !isSaving && !isRefining) {
+        setIsAutoSaving(true)
+        const res = await saveCV(session.user.id, { ...cvData, templateId: currentTemplate })
+        if (res.success) {
+          setLastSavedData(currentDataStr)
+          // Update URL if it's the first save
+          if (!window.location.pathname.includes(res.id!)) {
+            window.history.replaceState(null, "", `/builder/${res.id}`)
+          }
+        }
+        setIsAutoSaving(false)
+      }
+    }, 1500)
+
+    return () => clearTimeout(timer)
+  }, [cvData, session, currentTemplate, lastSavedData])
+
   const renderTemplate = () => {
     switch (currentTemplate) {
       case "classic":
@@ -395,7 +563,7 @@ function BuilderContent() {
       case "executive-board":
         return <ExecutiveBoard data={cvData} />
       case "midnight":
-        return <MidnightElegance data={cvData} />
+        return <MidnightElegance data={cvData} isEditable={true} onUpdate={handleUpdate} />
       case "bold-impact":
         return <BoldImpact data={cvData} />
       case "corporate":
@@ -413,868 +581,150 @@ function BuilderContent() {
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
       
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-24 pb-10">
-        <div className="flex flex-col lg:flex-row gap-8 h-full min-h-[calc(100vh-140px)]">
+      <main className="flex-1 w-full pt-20 overflow-hidden h-[calc(100vh-80px)] bg-[#070707] relative">
+        <div className="h-full flex flex-col relative z-10">
           
-          {/* Sidebar Editor */}
-          {!isPreview && (
-            <motion.aside 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="w-full lg:w-[450px] flex flex-col gap-6 h-full overflow-y-auto pr-2 scrollbar-hide"
-            >
-              <header className="space-y-2">
-                <div className="flex items-center space-x-2 text-brand-action font-black uppercase tracking-widest text-[10px]">
-                   <Wand2 size={14} />
-                   <span>cvmyjob Real-time Editor</span>
-                </div>
-                <h1 className="text-3xl font-black tracking-tight">Build Your <span className="text-brand-action">CV</span></h1>
-              </header>
-
-              <nav className="grid grid-cols-5 gap-2">
-                {sections.map(section => (
-                  <button
-                    key={section.id}
-                    onClick={() => setActiveSection(section.id)}
-                    title={section.title}
-                    className={`p-4 rounded-xl flex items-center justify-center transition-all duration-300 border-2 ${
-                      activeSection === section.id 
-                      ? "bg-brand-action text-white border-brand-action shadow-lg shadow-brand-action/20" 
-                      : "bg-white/5 border-transparent text-foreground/40 hover:bg-white/10"
-                    }`}
+          {/* Top Selection & Status Toolbar */}
+          <div className="h-20 shrink-0 border-b border-white/5 flex items-center justify-between px-4 sm:px-8 bg-black/40 backdrop-blur-3xl z-40">
+              <div className="flex items-center space-x-3 sm:space-x-5">
+                {/* Template Navigator */}
+                <div className="relative" ref={templateDropdownRef}>
+                  <button 
+                    onClick={() => setIsTemplateDropdownOpen(!isTemplateDropdownOpen)}
+                    className="flex items-center space-x-3 px-4 h-11 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all active:scale-95 group"
                   >
-                     <section.icon size={20} />
+                    <div className="w-8 h-5 rounded-md overflow-hidden border border-white/10 hidden xs:block bg-brand-action/20 flex items-center justify-center">
+                       <Layout size={10} className="text-brand-action" />
+                    </div>
+                    <span className="text-[11px] font-black uppercase tracking-widest text-foreground/80">
+                      Style: <span className="text-brand-action ml-1 uppercase">{currentTemplate}</span>
+                    </span>
+                    <ChevronDown size={14} className={`text-foreground/40 transition-transform duration-300 ${isTemplateDropdownOpen ? 'rotate-180' : ''}`} />
                   </button>
-                ))}
-              </nav>
 
-              <div className="flex-1 bg-white/5 border border-border-custom rounded-3xl p-6 overflow-y-auto custom-scrollbar">
-                <AnimatePresence mode="wait">
-                  {activeSection === "personal" && (
-                    <motion.div
-                      key="personal"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="space-y-6"
-                    >
-                      <h3 className="text-xl font-black mb-4">Personal Details</h3>
-                      
-                      {/* Photo Section */}
-                      <div className="flex items-center space-x-6 p-6 bg-white/5 border border-border-custom rounded-3xl mb-4">
-                        <div className="relative w-24 h-24 rounded-2xl bg-white/5 border-2 border-dashed border-border-custom overflow-hidden group flex items-center justify-center">
-                          {cvData.personalInfo.profileImage ? (
-                            <img 
-                              src={cvData.personalInfo.profileImage} 
-                              alt="Profile" 
-                              className="w-full h-full object-cover transition-transform group-hover:scale-110" 
-                            />
-                          ) : (
-                            <div className="text-foreground/20 group-hover:text-brand-action transition-colors flex flex-col items-center">
-                               <Camera size={24} />
-                               <span className="text-[10px] font-black mt-1">Photo</span>
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-brand-action/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
-                              <ImageIcon size={20} className="text-white" />
-                          </div>
-                        </div>
-
-                        <div className="space-y-3 flex-1">
-                          <h4 className="text-sm font-black">Profile Portrait</h4>
-                          <p className="text-[11px] text-foreground/40 font-medium leading-relaxed">
-                            Upload a professional headshot. Clear, high-resolution photos make a better impression.
-                          </p>
-                          <CldUploadWidget 
-                            uploadPreset="cvforge_uploads"
-                            onSuccess={(result: any) => {
-                               if (result?.info?.secure_url) {
-                                 updatePersonalInfo("profileImage", result.info.secure_url)
-                               }
-                            }}
-                          >
-                            {({ open }) => (
-                              <button 
-                                onClick={() => open()}
-                                className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95"
-                              >
-                                {cvData.personalInfo.profileImage ? "Update Photo" : "Upload Image"}
-                              </button>
-                            )}
-                          </CldUploadWidget>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Full Name</label>
-                          <input 
-                            value={cvData.personalInfo.fullName}
-                            onChange={(e) => updatePersonalInfo("fullName", e.target.value)}
-                            className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                          />
-                        </div>
-                        <div className="space-y-1.5">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Title</label>
-                          <input 
-                            value={cvData.personalInfo.jobTitle}
-                            onChange={(e) => updatePersonalInfo("jobTitle", e.target.value)}
-                            placeholder="e.g. Designer"
-                            className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                          />
-                        </div>
-                        <div className="space-y-1.5">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Email</label>
-                          <input 
-                             value={cvData.personalInfo.email}
-                             onChange={(e) => updatePersonalInfo("email", e.target.value)}
-                             className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                          />
-                        </div>
-                          <div className="space-y-1.5 overflow-visible">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Phone Number</label>
-                            <div className="flex space-x-2 min-w-0">
-                              <div className="relative" ref={phoneDropdownRef}>
-                                <div 
-                                  onClick={() => setIsPhoneDropdownOpen(!isPhoneDropdownOpen)}
-                                  className="w-[90px] shrink-0 h-11 px-2 bg-white/5 border border-border-custom rounded-xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all text-sm font-bold focus:border-brand-action"
-                                >
-                                  <div className="flex items-center gap-2 overflow-hidden">
-                                    <span className="truncate">{cvData.personalInfo.phoneCode || "+000"}</span>
-                                  </div>
-                                  <ChevronDown size={14} className={`shrink-0 transition-transform ${isPhoneDropdownOpen ? 'rotate-180' : ''}`} />
-                                </div>
-
-                                <AnimatePresence>
-                                  {isPhoneDropdownOpen && (
-                                    <motion.div 
-                                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                      className="absolute z-150 left-0 mt-2 w-[220px] bg-card/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden shadow-brand-action/10"
-                                    >
-                                      <div className="p-2 border-b border-white/5 flex items-center gap-2 px-3">
-                                        <Search size={14} className="text-muted-foreground" />
-                                        <input 
-                                          autoFocus
-                                          placeholder="Search code..."
-                                          value={phoneSearch}
-                                          onChange={(e) => setPhoneSearch(e.target.value)}
-                                          className="w-full bg-transparent border-none outline-none text-[11px] font-bold h-8"
-                                        />
-                                      </div>
-                                      <div className="max-h-[250px] overflow-y-auto overflow-x-hidden p-0">
-                                        {countries
-                                          .filter(c => 
-                                            c.name.toLowerCase().includes(phoneSearch.toLowerCase()) || 
-                                            (c.phonecode || "").includes(phoneSearch)
-                                          )
-                                          .map(c => (
-                                          <div 
-                                            key={`${c.isoCode}-${c.phonecode}`}
-                                            ref={`+${c.phonecode}` === cvData.personalInfo.phoneCode ? activeItemRef : null}
-                                            onClick={() => {
-                                              updatePersonalInfo("phoneCode", `+${c.phonecode}`);
-                                              setIsPhoneDropdownOpen(false);
-                                              setPhoneSearch("");
-                                            }}
-                                            className={`flex items-center gap-2 p-2 px-3 hover:bg-brand-action/10 cursor-pointer transition-colors group ${`+${c.phonecode}` === cvData.personalInfo.phoneCode ? 'bg-brand-action text-white' : ''}`}
-                                          >
-                                            <span className={`text-[11px] font-bold ${`+${c.phonecode}` === cvData.personalInfo.phoneCode ? 'text-white' : 'text-foreground/80 group-hover:text-foreground'}`}>+{c.phonecode}</span>
-                                            <span className={`text-[10px] truncate ${`+${c.phonecode}` === cvData.personalInfo.phoneCode ? 'text-white/80' : 'text-muted-foreground group-hover:text-foreground/60'}`}>{c.name}</span>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    </motion.div>
-                                  )}
-                                </AnimatePresence>
-                              </div>
-                              <input 
-                                type="tel"
-                                inputMode="numeric"
-                                maxLength={11}
-                                value={cvData.personalInfo.phone}
-                                onChange={(e) => updatePersonalInfo("phone", e.target.value.replace(/\D/g, "").slice(0, 11))}
-                                placeholder="08012345678"
-                                className="flex-1 min-w-0 h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                              />
-                            </div>
-                          </div>
-                          <div className="space-y-1.5 relative" ref={countryDropdownRef}>
-                            <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Country</label>
-                            <div 
-                              onClick={() => setIsCountryDropdownOpen(!isCountryDropdownOpen)}
-                              className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all text-sm font-bold focus-within:border-brand-action"
-                            >
-                              <div className="flex items-center gap-2">
-                                <span>{cvData.personalInfo.country || "Select Country"}</span>
-                              </div>
-                              <ChevronDown size={14} className={`transition-transform duration-300 ${isCountryDropdownOpen ? 'rotate-180' : ''}`} />
-                            </div>
-                            
-                            <AnimatePresence>
-                              {isCountryDropdownOpen && (
-                                <motion.div 
-                                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                  className="absolute z-100 left-0 right-0 mt-2 bg-card/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden max-h-[300px] flex flex-col shadow-brand-action/10"
-                                >
-                                  <div className="p-3 border-b border-white/5 flex items-center gap-2 bg-white/5">
-                                    <Search size={16} className="text-muted-foreground" />
-                                    <input 
-                                      autoFocus
-                                      placeholder="Search countries..."
-                                      value={countrySearch}
-                                      className="w-full bg-transparent outline-none text-sm font-bold h-8"
-                                      onChange={(e) => setCountrySearch(e.target.value)}
-                                    />
-                                  </div>
-                                  <div className="overflow-y-auto p-0 overflow-x-hidden">
-                                    {countries.filter(c => c.name.toLowerCase().includes(countrySearch.toLowerCase())).map(c => (
-                                      <div 
-                                        key={c.isoCode}
-                                        ref={c.name === cvData.personalInfo.country ? activeItemRef : null}
-                                        onClick={() => {
-                                          updatePersonalInfo("country", c.name);
-                                          // Reset state when country changes
-                                          updatePersonalInfo("county", "");
-                                          setIsCountryDropdownOpen(false);
-                                          setCountrySearch("");
-                                        }}
-                                        className={`flex items-center gap-3 px-4 py-2 hover:bg-brand-action/10 cursor-pointer transition-colors group ${c.name === cvData.personalInfo.country ? 'bg-brand-action text-white' : ''}`}
-                                      >
-                                        <span className={`text-sm font-bold ${c.name === cvData.personalInfo.country ? 'text-white' : 'text-foreground/80 group-hover:text-foreground'}`}>{c.name}</span>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
-                          </div>
-                          <div className="space-y-1.5 relative" ref={stateDropdownRef}>
-                            <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">County / State</label>
-                            <div 
-                              onClick={() => setIsStateDropdownOpen(!isStateDropdownOpen)}
-                              className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all text-sm font-bold focus-within:border-brand-action"
-                            >
-                              <span>{cvData.personalInfo.county || "Select State"}</span>
-                              <ChevronDown size={14} className={`transition-transform duration-300 ${isStateDropdownOpen ? 'rotate-180' : ''}`} />
-                            </div>
-                            
-                            <AnimatePresence>
-                              {isStateDropdownOpen && (
-                                <motion.div 
-                                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                  className="absolute z-100 left-0 right-0 mt-2 bg-card/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden max-h-[300px] flex flex-col shadow-brand-action/10"
-                                >
-                                  <div className="p-3 border-b border-white/5 flex items-center gap-2 bg-white/5">
-                                    <Search size={16} className="text-muted-foreground" />
-                                    <input 
-                                      autoFocus
-                                      placeholder="Search states..."
-                                      value={stateSearch}
-                                      className="w-full bg-transparent outline-none text-sm font-bold h-8"
-                                      onChange={(e) => setStateSearch(e.target.value)}
-                                    />
-                                  </div>
-                                  <div className="overflow-y-auto p-1 overflow-x-hidden">
-                                    {countries
-                                      .find(c => c.name === cvData.personalInfo.country)
-                                      ?.states
-                                      .filter(s => s.name.toLowerCase().includes(stateSearch.toLowerCase()))
-                                      .map(s => (
-                                      <div 
-                                        key={s.code}
-                                        ref={s.name === cvData.personalInfo.county ? activeItemRef : null}
-                                        onClick={() => {
-                                          updatePersonalInfo("county", s.name);
-                                          setIsStateDropdownOpen(false);
-                                          setStateSearch("");
-                                        }}
-                                        className={`flex items-center gap-3 px-4 py-2 hover:bg-brand-action/10 cursor-pointer transition-colors group ${s.name === cvData.personalInfo.county ? 'bg-brand-action text-white' : ''}`}
-                                      >
-                                        <span className={`text-sm font-bold ${s.name === cvData.personalInfo.county ? 'text-white' : 'text-foreground/80 group-hover:text-foreground'}`}>{s.name}</span>
-                                      </div>
-                                    ))}
-                                    {(!cvData.personalInfo.country || (countries.find(c => c.name === cvData.personalInfo.country)?.states.length === 0)) && (
-                                      <div className="p-4 text-center text-xs text-muted-foreground italic">
-                                        No states available for selected country
-                                      </div>
-                                    )}
-                                  </div>
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
-                          </div>
-                         <div className="space-y-1.5">
-                           <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Zip / Postal Code</label>
-                           <input 
-                             value={cvData.personalInfo.location}
-                             onChange={(e) => updatePersonalInfo("location", e.target.value)}
-                             placeholder="e.g. 10001"
-                             className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                           />
-                         </div>
-                         <div className="space-y-1.5">
-                           <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Portfolio Website</label>
-                           <input 
-                             value={cvData.personalInfo.website}
-                             onChange={(e) => updatePersonalInfo("website", e.target.value)}
-                             placeholder="URL"
-                             className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                           />
-                         </div>
-                         <div className="space-y-1.5">
-                           <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">GitHub URL</label>
-                           <input 
-                             value={cvData.personalInfo.github}
-                             onChange={(e) => updatePersonalInfo("github", e.target.value)}
-                             placeholder="URL"
-                             className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                           />
-                         </div>
-                         <div className="space-y-1.5">
-                           <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Facebook URL</label>
-                           <input 
-                             value={cvData.personalInfo.facebook}
-                             onChange={(e) => updatePersonalInfo("facebook", e.target.value)}
-                             placeholder="URL"
-                             className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                           />
-                         </div>
-                       </div>
-                        <div className="flex items-center justify-between">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Summary</label>
-                          <button 
-                            onClick={() => handleRefine("summary")}
-                            disabled={isRefining || !cvData.personalInfo.summary}
-                            className="flex items-center space-x-1.5 text-[10px] font-black uppercase tracking-widest text-brand-action hover:text-brand-action/80 transition-colors disabled:opacity-50"
-                          >
-                             {isRefining ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
-                             <span>Refine with AI</span>
-                          </button>
-                        </div>
-                        <textarea 
-                          value={cvData.personalInfo.summary}
-                          onChange={(e) => updatePersonalInfo("summary", e.target.value)}
-                          placeholder="Briefly describe your professional journey..."
-                          className="w-full h-32 p-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-medium resize-none placeholder:text-foreground/10" 
-                        />
-                    </motion.div>
-                  )}
-                  {activeSection === "experience" && (
-                    <motion.div
-                      key="experience"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="space-y-8"
-                    >
-                      <div className="flex items-center justify-between mb-4">
-                         <h3 className="text-xl font-black">Work Experience</h3>
-                         <button 
-                            onClick={addExperience}
-                            className="flex items-center space-x-2 px-4 py-2 bg-brand-action text-white rounded-xl text-xs font-black uppercase tracking-widest hover:shadow-lg hover:shadow-brand-action/20 transition-all active:scale-95"
-                         >
-                            <Plus size={14} />
-                            <span>Add Role</span>
-                         </button>
-                      </div>
-
-                      <div className="space-y-6">
-                         {cvData.experience.map((exp, idx) => (
-                           <div key={exp.id} className="p-6 bg-white/5 border border-border-custom rounded-3xl space-y-4 relative group">
-                              <button 
-                                onClick={() => removeExperience(exp.id)}
-                                className="absolute top-4 right-4 text-foreground/20 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
-                              >
-                                 <Plus size={18} className="rotate-45" />
-                              </button>
-
-                              <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-1.5">
-                                  <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Role</label>
-                                  <input 
-                                    value={exp.role}
-                                    onChange={(e) => updateExperience(exp.id, "role", e.target.value)}
-                                    placeholder="e.g. Lead Developer"
-                                    className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                                  />
-                                </div>
-                                <div className="space-y-1.5">
-                                  <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Company</label>
-                                  <input 
-                                    value={exp.company}
-                                    onChange={(e) => updateExperience(exp.id, "company", e.target.value)}
-                                    placeholder="e.g. Acme Inc"
-                                    className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                                  />
-                                </div>
-                                <div className="space-y-1.5 col-span-2">
-                                  <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Duration</label>
-                                  <input 
-                                    value={exp.duration}
-                                    onChange={(e) => updateExperience(exp.id, "duration", e.target.value)}
-                                    placeholder="e.g. Jan 2020 - Present"
-                                    className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                                  />
-                                </div>
-                              </div>
-
-                              <div className="space-y-2">
-                                <div className="flex items-center justify-between">
-                                  <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Responsibilities (One per line)</label>
-                                  <button 
-                                    onClick={() => handleRefine("experience", exp.id)}
-                                    disabled={isRefining || exp.description.length === 0}
-                                    className="flex items-center space-x-1.5 text-[10px] font-black uppercase tracking-widest text-brand-action hover:text-brand-action/80 transition-colors disabled:opacity-50"
-                                  >
-                                     {isRefining ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
-                                     <span>Refine with AI</span>
-                                  </button>
-                                </div>
-                                <textarea 
-                                  value={exp.description.join("\n")}
-                                  onChange={(e) => updateExperience(exp.id, "description", e.target.value.split("\n"))}
-                                  placeholder="List your key achievements..."
-                                  className="w-full h-32 p-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-medium resize-none placeholder:text-foreground/10" 
-                                />
-                              </div>
-                           </div>
-                         ))}
-                      </div>
-                    </motion.div>
-                  )}
-                  {activeSection === "education" && (
-                    <motion.div
-                      key="education"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="space-y-8"
-                    >
-                      <div className="flex items-center justify-between mb-4">
-                         <h3 className="text-xl font-black">Education</h3>
-                         <button 
-                            onClick={addEducation}
-                            className="flex items-center space-x-2 px-4 py-2 bg-brand-action text-white rounded-xl text-xs font-black uppercase tracking-widest hover:shadow-lg hover:shadow-brand-action/20 transition-all active:scale-95"
-                         >
-                            <Plus size={14} />
-                            <span>Add Degree</span>
-                         </button>
-                      </div>
-                      <div className="space-y-6">
-                        {cvData.education.map((edu) => (
-                          <div key={edu.id} className="p-6 bg-white/5 border border-border-custom rounded-3xl space-y-4 relative group">
-                            <button 
-                              onClick={() => removeEducation(edu.id)}
-                              className="absolute top-4 right-4 text-foreground/20 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
-                            >
-                               <Plus size={18} className="rotate-45" />
-                            </button>
-                            <div className="grid grid-cols-2 gap-4">
-                               <div className="space-y-1.5">
-                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Degree</label>
-                                 <input 
-                                   value={edu.degree}
-                                   onChange={(e) => updateEducation(edu.id, "degree", e.target.value)}
-                                   placeholder="e.g. B.Sc. Computer Science"
-                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                                 />
-                               </div>
-                               <div className="space-y-1.5">
-                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">School</label>
-                                 <input 
-                                   value={edu.school}
-                                   onChange={(e) => updateEducation(edu.id, "school", e.target.value)}
-                                   placeholder="e.g. Harvard University"
-                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                                 />
-                               </div>
-                               <div className="space-y-1.5 col-span-2">
-                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Duration</label>
-                                 <input 
-                                   value={edu.duration}
-                                   onChange={(e) => updateEducation(edu.id, "duration", e.target.value)}
-                                   placeholder="e.g. 2018 - 2022"
-                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                                 />
-                               </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {activeSection === "skills" && (
-                    <motion.div
-                      key="skills"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="space-y-6"
-                    >
-                      <h3 className="text-xl font-black">Skills & Expertise</h3>
-                      
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Add a Skill</label>
-                        <div className="flex space-x-2">
-                          <input 
-                            value={skillInput}
-                            onChange={(e) => setSkillInput(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                e.preventDefault()
-                                addSkill(skillInput)
-                                setSkillInput("")
-                              }
-                            }}
-                            placeholder="Type a skill and press Enter"
-                            className="flex-1 h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                          />
-                          <button 
-                            onClick={() => { addSkill(skillInput); setSkillInput("") }}
-                            disabled={!skillInput.trim()}
-                            className="h-11 px-4 bg-brand-action  text-white rounded-xl text-xs font-black uppercase tracking-widest hover:shadow-lg hover:shadow-brand-action/20 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
-                          >
-                            <Plus size={16} />
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-wrap gap-2 min-h-[44px] p-4 bg-white/5 border border-border-custom rounded-2xl">
-                        {cvData.skills.flatMap(group => group.items).length === 0 && (
-                          <span className="text-xs text-foreground/20 italic">No skills added yet. Type above and press Enter.</span>
-                        )}
-                        {cvData.skills.flatMap(group => group.items).map((skill, i) => (
-                          <span 
-                            key={i}
-                            draggable
-                            onDragStart={(e) => {
-                              setDraggedSkillIndex(i);
-                              e.dataTransfer.effectAllowed = "move";
-                            }}
-                            onDragOver={(e) => {
-                              e.preventDefault();
-                              e.dataTransfer.dropEffect = "move";
-                              if (draggedSkillIndex !== null && draggedSkillIndex !== i) {
-                                setDragOverSkillIndex(i);
-                              }
-                            }}
-                            onDragLeave={() => setDragOverSkillIndex(null)}
-                            onDrop={(e) => {
-                              e.preventDefault();
-                              if (draggedSkillIndex !== null && draggedSkillIndex !== i) {
-                                reorderSkill(draggedSkillIndex, i);
-                              }
-                              setDraggedSkillIndex(null);
-                              setDragOverSkillIndex(null);
-                            }}
-                            onDragEnd={() => {
-                              setDraggedSkillIndex(null);
-                              setDragOverSkillIndex(null);
-                            }}
-                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-action/10 border text-brand-action rounded-lg text-xs font-bold group hover:bg-brand-action/20 transition-all cursor-move ${draggedSkillIndex === i ? 'opacity-50' : ''} ${dragOverSkillIndex === i ? 'border-brand-action ring-1 ring-brand-action' : 'border-brand-action/20'}`}
-                          >
-                            <GripVertical size={14} className="opacity-40 cursor-grab active:cursor-grabbing hover:opacity-100 transition-opacity" />
-                            <span className="dark:text-white/80">{skill}</span>
-                            <button 
-                              onClick={() => removeSkill(skill)}
-                              className="ml-0.5 text-brand-action/50 cursor-pointer hover:text-brand-action transition-colors"
-                            >
-                              <Plus size={16} className="rotate-45" />
-                            </button>
-                          </span>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {activeSection === "projects" && (
-                    <motion.div
-                      key="projects"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="space-y-8"
-                    >
-                      <div className="flex items-center justify-between mb-4">
-                         <h3 className="text-xl font-black">Key Projects</h3>
-                         <button 
-                            onClick={addProject}
-                            className="flex items-center space-x-2 px-4 py-2 bg-brand-action text-white rounded-xl text-xs font-black uppercase tracking-widest hover:shadow-lg hover:shadow-brand-action/20 transition-all active:scale-95"
-                         >
-                            <Plus size={14} />
-                            <span>Add Project</span>
-                         </button>
-                      </div>
-                      <div className="space-y-6">
-                        {cvData.projects.map((project) => (
-                          <div key={project.id} className="p-6 bg-white/5 border border-border-custom rounded-3xl space-y-4 relative group">
-                            <button 
-                              onClick={() => removeProject(project.id)}
-                              className="absolute top-4 right-4 text-foreground/20 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
-                            >
-                               <Plus size={18} className="rotate-45" />
-                            </button>
-                            <div className="grid grid-cols-2 gap-4">
-                               <div className="space-y-1.5">
-                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Project Name</label>
-                                 <input 
-                                   value={project.name}
-                                   onChange={(e) => updateProject(project.id, "name", e.target.value)}
-                                   placeholder="e.g. E-Commerce Platform"
-                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                                 />
-                               </div>
-                               <div className="space-y-1.5">
-                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Repo/Link</label>
-                                 <input 
-                                   value={project.link} 
-                                   onChange={(e) => updateProject(project.id, "link", e.target.value)}
-                                   placeholder="e.g. github.com/user/repo"
-                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                                 />
-                               </div>
-                               <div className="space-y-1.5 col-span-2">
-                                 <div className="flex items-center justify-between">
-                                   <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Description</label>
-                                   <button 
-                                     onClick={() => handleRefine("project", project.id)}
-                                     disabled={isRefining || !project.description}
-                                     className="flex items-center space-x-1.5 text-[10px] font-black uppercase tracking-widest text-brand-action hover:text-brand-action/80 transition-colors disabled:opacity-50"
-                                   >
-                                      {isRefining ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
-                                      <span>Refine with AI</span>
-                                   </button>
-                                 </div>
-                                 <textarea 
-                                   value={project.description}
-                                   onChange={(e) => updateProject(project.id, "description", e.target.value)}
-                                   placeholder="What did you build?"
-                                   className="w-full h-24 p-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-medium resize-none placeholder:text-foreground/10" 
-                                 />
-                               </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              <div className="pt-4 border-t border-border-custom space-y-3">
-                 <div className="flex flex-col gap-3">
-                    <button 
-                      onClick={() => handleSave(false)}
-                      disabled={isSaving}
-                      className="w-full h-12 bg-white/5 border border-border-custom hover:border-brand-action hover:bg-brand-action/5 rounded-2xl font-black text-sm transition-all flex items-center justify-center space-x-2 active:scale-95 disabled:opacity-50"
-                    >
-                        {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                        <span>Save as Draft</span>
-                    </button>
-                    <button 
-                      onClick={() => handleSave(true)}
-                      disabled={isSaving}
-                      className="w-full h-14 bg-brand-action text-white rounded-2xl font-black text-lg shadow-xl shadow-brand-action/20 hover:shadow-brand-action/40 hover:-translate-y-1 transition-all flex items-center justify-center space-x-2 active:scale-95 disabled:opacity-50"
-                    >
-                        {isSaving ? <Loader2 size={20} className="animate-spin" /> : <ArrowUpRight size={20} />}
-                        <span>Save & Finish</span>
-                    </button>
-                 </div>
-              </div>
-            </motion.aside>
-          )}
-
-          {/* Main Preview Area */}
-          <motion.div 
-             layout
-             className={`flex-1 bg-white/5 border border-border-custom rounded-[40px] overflow-hidden flex shadow-2xl relative transition-all duration-500 ${
-               isPreview 
-               ? "fixed inset-0 z-100 rounded-none m-0 flex-col bg-background" 
-               : "flex-col"
-             }`}
-          >
-             {/* Toolbar - Responsive adjustment */}
-              <div className={`border-border-custom flex items-center justify-between px-4 sm:px-8 bg-background/80 backdrop-blur-2xl z-40 transition-all duration-300 ${
-                isPreview 
-                ? "h-20 border-b" 
-                : "h-20 border-b"
-              }`}>
-                  <div className="flex items-center space-x-3 sm:space-x-5">
-                    <div 
-                      className="relative"
-                      ref={templateDropdownRef}
-                    >
-                      <button 
-                        onClick={() => setIsTemplateDropdownOpen(!isTemplateDropdownOpen)}
-                        className="flex items-center space-x-3 px-4 h-11 bg-white/5 hover:bg-white/10 border border-border-custom rounded-2xl transition-all active:scale-95 group"
+                  <AnimatePresence>
+                    {isTemplateDropdownOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        className="absolute top-full left-0 mt-3 w-[560px] bg-[#0c0c0c]/98 backdrop-blur-2xl border border-white/10 rounded-[32px] shadow-[0_32px_80px_-16px_rgba(0,0,0,0.8)] p-4 z-[100]"
                       >
-                        <div className="w-8 h-5 rounded-md overflow-hidden border border-white/10 hidden xs:block">
-                          <img 
-                            src={
-                              [
-                                { id: "modern", img: "/modern.png" },
-                                { id: "classic", img: "/classic.png" },
-                                { id: "executive", img: "/executive.png" },
-                                { id: "minimal", img: "/modern.png" },
-                                { id: "creative", img: "/modern.png" },
-                                { id: "startup", img: "/modern.png" },
-                                { id: "executive-board", img: "/modern.png" },
-                                { id: "midnight", img: "/modern.png" },
-                                { id: "bold-impact", img: "/modern.png" },
-                                { id: "corporate", img: "/modern.png" },
-                                { id: "fresh", img: "/modern.png" },
-                                { id: "refined", img: "/modern.png" }
-                              ].find(t => t.id === currentTemplate)?.img || "/modern.png"
-                            } 
-                            className="w-full h-full object-cover" 
-                            alt="Current Template" 
-                          />
+                        <div className="grid grid-cols-3 gap-3">
+                          {[
+                            { id: "modern", name: "Modern Elite" },
+                            { id: "classic", name: "Classic Grid" },
+                            { id: "executive", name: "Corporate Duo" },
+                            { id: "minimal", name: "ATS Optimized" },
+                            { id: "creative", name: "Creative Edge" },
+                            { id: "startup", name: "Startup Vibe" },
+                            { id: "midnight", name: "Midnight Elegance" },
+                            { id: "bold-impact", name: "Bold Impact" },
+                            { id: "corporate", name: "Corporate Clean" },
+                            { id: "fresh", name: "Fresh Minimal" },
+                            { id: "refined", name: "Refined Classic" }
+                          ].map((t) => (
+                            <button
+                              key={t.id}
+                              onClick={() => {
+                                setCurrentTemplate(t.id as any);
+                                setIsTemplateDropdownOpen(false);
+                              }}
+                              className={`flex flex-col items-center gap-2 p-3 rounded-2xl transition-all group ${currentTemplate === t.id ? 'bg-brand-action/10 border border-brand-action/30' : 'hover:bg-white/5 border border-transparent'}`}
+                            >
+                              <div className={`w-full h-20 rounded-xl overflow-hidden border transition-all ${currentTemplate === t.id ? 'border-brand-action/50' : 'border-white/5 group-hover:border-white/10'} bg-white/5`} />
+                              <span className={`text-[10px] font-black uppercase tracking-tight text-center ${currentTemplate === t.id ? 'text-brand-action' : 'text-foreground/40'}`}>{t.name}</span>
+                            </button>
+                          ))}
                         </div>
-                        <span className="text-[11px] font-black uppercase tracking-widest text-foreground/80">
-                          Template: <span className="text-brand-action ml-1">
-                            {
-                              [
-                                { id: "modern", name: "Modern" },
-                                { id: "classic", name: "Classic" },
-                                { id: "executive", name: "Executive" },
-                                { id: "minimal", name: "ATS" },
-                                { id: "creative", name: "Creative" },
-                                { id: "startup", name: "Startup" },
-                                { id: "executive-board", name: "Board" },
-                                { id: "midnight", name: "Midnight" },
-                                { id: "bold-impact", name: "Bold" },
-                                { id: "corporate", name: "Corporate" },
-                                { id: "fresh", name: "Fresh" },
-                                { id: "refined", name: "Refined" }
-                              ].find(t => t.id === currentTemplate)?.name
-                            }
-                          </span>
-                        </span>
-                        <ChevronDown size={14} className={`text-foreground/40 transition-transform duration-300 ${isTemplateDropdownOpen ? 'rotate-180' : ''}`} />
-                      </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
 
-                      <AnimatePresence>
-                        {isTemplateDropdownOpen && (
-                          <motion.div
-                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                            className="absolute top-full left-0 mt-2 w-[500px] bg-[#0a0a0a] border border-white/15 rounded-[28px] shadow-2xl p-3 z-100"
-                          >
-                            <div className="grid grid-cols-3 gap-2">
-                              {[
-                                { id: "modern", name: "Modern Professional", img: "/modern.png" },
-                                { id: "classic", name: "Classic Table", img: "/classic.png" },
-                                { id: "executive", name: "Executive Two-Column", img: "/executive.png" },
-                                { id: "minimal", name: "Minimal ATS", img: "/modern.png" },
-                                { id: "creative", name: "Creative Portfolio", img: "/modern.png" },
-                                { id: "startup", name: "Startup Tech", img: "/modern.png" },
-                                { id: "executive-board", name: "Executive Board", img: "/modern.png" },
-                                { id: "midnight", name: "Midnight Elegance", img: "/modern.png" },
-                                { id: "bold-impact", name: "Bold Impact", img: "/modern.png" },
-                                { id: "corporate", name: "Corporate Clean", img: "/modern.png" },
-                                { id: "fresh", name: "Fresh Minimal", img: "/modern.png" },
-                                { id: "refined", name: "Refined Classic", img: "/modern.png" }
-                              ].map((t) => (
-                                <button
-                                  key={t.id}
-                                  onClick={() => {
-                                    setCurrentTemplate(t.id as any)
-                                    setIsTemplateDropdownOpen(false)
-                                  }}
-                                  className={`flex items-center space-x-3 w-full p-2.5 rounded-2xl transition-all group ${currentTemplate === t.id ? 'bg-brand-action/15 text-brand-action border border-brand-action/20' : 'hover:bg-white/5 text-foreground/60 hover:text-foreground'}`}
-                                >
-                                  <div className={`w-12 h-7 rounded-lg overflow-hidden border transition-all ${currentTemplate === t.id ? 'border-brand-action/40' : 'border-white/10 group-hover:border-white/20'} shrink-0`}>
-                                    <img src={t.img} className="w-full h-full object-cover" alt={t.name} />
-                                  </div>
-                                  <span className="text-[9px] font-black uppercase tracking-tight leading-none text-left">{t.name}</span>
-                                </button>
-                              ))}
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                     <button 
-                        onClick={() => setIsAuditOpen(true)}
-                        className="flex items-center space-x-2.5 px-6 h-11 bg-brand-action/10 hover:bg-brand-action/20 border border-brand-action/30 rounded-2xl transition-all active:scale-95 group"
-                      >
-                         <ShieldCheck size={18} className="text-brand-action group-hover:scale-110 transition-transform" />
-                         <span className="text-[11px] font-black uppercase tracking-widest text-brand-action">Audit CV</span>
-                      </button>
-
-                      <div className="hidden lg:flex items-center space-x-4 border-l border-border-custom ml-2 pl-6">
-                      <div className="flex items-center space-x-2.5 bg-brand-success/5 px-3 py-1.5 rounded-full border border-brand-success/10">
-                        <div className="w-1.5 h-1.5 bg-brand-success rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-brand-success/80 leading-none">Synced</span>
-                      </div>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-foreground/30">{pageCount} A4 {pageCount > 1 ? 'Pages' : 'Page'}</span>
-                    </div>
+                {/* Cloud Sync Status */}
+                <div className="hidden lg:flex items-center space-x-6 border-l border-white/5 ml-2 pl-6">
+                  <div className={`flex items-center space-x-2.5 px-3.5 py-1.5 rounded-full border transition-all duration-500 ${isAutoSaving ? 'bg-brand-action/10 border-brand-action/40 shadow-[0_0_20px_rgba(var(--brand-action-rgb),0.1)]' : 'bg-brand-success/5 border-brand-success/20'}`}>
+                    <div className={`w-1.5 h-1.5 rounded-full ${isAutoSaving ? 'bg-brand-action animate-spin ring-4 ring-brand-action/20' : 'bg-brand-success animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.4)] ring-4 ring-brand-success/10'}`} />
+                    <span className={`text-[10px] font-black uppercase tracking-widest leading-none ${isAutoSaving ? 'text-brand-action' : 'text-brand-success/80'}`}>
+                      {isAutoSaving ? 'Cloud Synced...' : 'Changes Persisted'}
+                    </span>
                   </div>
+                  <div className="flex items-center gap-2 bg-brand-action/10 px-3.5 py-1.5 rounded-full border border-brand-action/20">
+                     <Edit3 size={10} className="text-brand-action" />
+                     <span className="text-[9px] font-black text-brand-action uppercase">WYSIWYG Mode</span>
+                  </div>
+                </div>
+              </div>
 
-                 <div className="flex items-center space-x-2 sm:space-x-4">
-                    <button 
-                      onClick={() => setIsAuditOpen(true)}
-                      className="flex items-center space-x-2 px-3 sm:px-4 h-9 sm:h-11 rounded-xl font-bold text-xs sm:text-sm bg-white/5 hover:bg-white/10 text-brand-action transition-all active:scale-95"
-                      title="ATS Audit"
-                    >
-                       <ShieldCheck size={18} />
-                       <span className="hidden lg:inline">Audit</span>
-                    </button>
-                    <button 
-                      onClick={() => setIsPreview(!isPreview)}
-                      className={`flex items-center space-x-2 px-3 sm:px-6 h-9 sm:h-11 rounded-xl font-bold text-xs sm:text-sm transition-all active:scale-95 ${isPreview ? "bg-white text-black shadow-lg" : "bg-white/5 hover:bg-white/10"}`}
-                    >
-                       <Eye size={16} />
-                       <span className="hidden xs:inline">{isPreview ? "Exit" : "Preview"}</span>
-                    </button>
-                 </div>
-             </div>
-
-              {/* Preview Container - Responsive scaling */}
-             <div className={`flex-1 w-full overflow-auto bg-[#050505] custom-scrollbar relative z-10 flex justify-center py-10 px-4 ${isPreview ? "pb-24" : ""}`}>
-                <div 
-                  className={`origin-top transition-transform duration-500 scale-[0.4] xs:scale-[0.5] sm:scale-75 md:scale-[0.85] lg:scale-[0.75] xl:scale-95 ${isPreview ? "scale-[0.4] xs:scale-[0.55] sm:scale-100 mt-4 mb-20 shadow-2xl" : "scale-90"}`}
-                  style={{ width: "210mm" }}
+              <div className="flex items-center space-x-3 sm:space-x-4">
+                 <button 
+                  onClick={() => setIsAuditOpen(true)}
+                  className="flex items-center space-x-2 px-5 h-11 rounded-2xl font-black text-[10px] uppercase tracking-widest bg-white/5 hover:bg-brand-action/10 hover:border-brand-action/30 border border-white/10 text-brand-action transition-all active:scale-95 group"
                 >
-                   <div ref={previewRef} className="relative bg-white shadow-2xl">
-                     {renderTemplate()}
-                     
-                     {/* Page Jump Overlay (Visual only) */}
-                     {Array.from({ length: pageCount }).map((_, i) => (
-                       <div 
-                         key={i}
-                         className="absolute right-[-60px] flex items-center justify-center w-10 h-10 rounded-full bg-white/5 border border-white/10 text-[10px] font-black text-foreground/40"
-                         style={{ top: `${i * 297}mm` }}
-                       >
-                         {i + 1}
-                       </div>
-                     ))}
-                   </div>
+                   <ShieldCheck size={16} className="group-hover:scale-110 transition-transform" />
+                   <span className="hidden lg:inline">ATS Compliance</span>
+                </button>
+
+                 <button 
+                  onClick={handleDownload}
+                  disabled={isSaving}
+                  className="flex items-center space-x-2 px-5 h-11 rounded-2xl font-black text-[10px] uppercase tracking-widest bg-white/5 hover:bg-brand-action/10 hover:border-brand-action/30 border border-white/10 text-white/60 hover:text-brand-action transition-all active:scale-95 group disabled:opacity-50"
+                >
+                   {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+                   <span className="hidden lg:inline">Download</span>
+                </button>
+
+                <button 
+                  onClick={() => setIsPreview(!isPreview)}
+                  className={`flex items-center space-x-2 px-6 h-11 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 ${isPreview ? "bg-white text-black" : "bg-brand-action text-white shadow-xl shadow-brand-action/20"}`}
+                >
+                   {isPreview ? <ArrowUpRight size={16} className="rotate-180" /> : <Eye size={16} />}
+                   <span>{isPreview ? "Resume Draft" : "Review & Export"}</span>
+                </button>
+              </div>
+          </div>
+
+          {/* Interactive Workspace (CV Canvas) */}
+          <div className={`flex-1 overflow-y-auto custom-scrollbar p-10 sm:p-24 transition-all duration-700 bg-[#050505] relative ${isPreview ? "bg-background" : ""}`}>
+             {/* The CV Document */}
+             <div 
+               className={`mx-auto transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] ${isPreview ? "scale-95" : "scale-105 shadow-[0_60px_120px_-30px_rgba(0,0,0,0.8)]"}`}
+               style={{ width: "210mm" }}
+             >
+                <div 
+                  ref={previewRef} 
+                  className="relative bg-white min-h-[297mm] ring-1 ring-black/5"
+                >
+                  {renderTemplate()}
+                  
+                  {/* Visual Page Margin Guides (Only in Editor) */}
+                  {!isPreview && (
+                    <>
+                      <div className="absolute top-0 bottom-0 left-[-40px] w-px bg-white/5 border-l border-dashed border-white/10" />
+                      <div className="absolute top-0 bottom-0 right-[-40px] w-px bg-white/5 border-r border-dashed border-white/10" />
+                    </>
+                  )}
                 </div>
              </div>
 
              {/* Background Decoration */}
-             <div className="absolute inset-0 pointer-events-none opacity-10 overflow-hidden">
-                <div className="absolute top-1/4 -right-20 w-[600px] h-[600px] bg-brand-action rounded-full blur-[160px]" />
-                <div className="absolute bottom-1/4 -left-20 w-[600px] h-[600px] bg-white rounded-full blur-[160px]" />
-             </div>
-          </motion.div>
-
+             {!isPreview && (
+                <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
+                   <div className="absolute top-[20%] left-[15%] w-[600px] h-[600px] bg-brand-action/5 rounded-full blur-[160px] animate-pulse" />
+                   <div className="absolute bottom-[20%] right-[15%] w-[600px] h-[600px] bg-white/5 rounded-full blur-[160px] animate-pulse" style={{ animationDelay: '2s' }} />
+                </div>
+             )}
+          </div>
         </div>
-          <ATSAuditPanel 
-            isOpen={isAuditOpen} 
-            onClose={() => setIsAuditOpen(false)} 
-            cvData={{...cvData, templateId: currentTemplate}} 
-          />
-       </main>
+
+        {/* ATS Audit Logic */}
+        <ATSAuditPanel 
+          isOpen={isAuditOpen} 
+          onClose={() => setIsAuditOpen(false)} 
+          cvData={{...cvData, templateId: currentTemplate}} 
+        />
+      </main>
     </div>
   )
 }

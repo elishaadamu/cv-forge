@@ -292,6 +292,12 @@ export async function saveCV(userId: string, data: any, id?: string) {
                 github: data.personalInfo.github,
                 summary: data.personalInfo.summary,
                 profileImage: data.personalInfo.profileImage,
+                dateOfBirth: data.personalInfo.dateOfBirth,
+                placeOfBirth: data.personalInfo.placeOfBirth,
+                nationality: data.personalInfo.nationality,
+                gender: data.personalInfo.gender,
+                passport: data.personalInfo.passport,
+                workPermit: data.personalInfo.workPermit,
               },
               update: {
                 fullName: data.personalInfo.fullName,
@@ -308,6 +314,12 @@ export async function saveCV(userId: string, data: any, id?: string) {
                 github: data.personalInfo.github,
                 summary: data.personalInfo.summary,
                 profileImage: data.personalInfo.profileImage,
+                dateOfBirth: data.personalInfo.dateOfBirth,
+                placeOfBirth: data.personalInfo.placeOfBirth,
+                nationality: data.personalInfo.nationality,
+                gender: data.personalInfo.gender,
+                passport: data.personalInfo.passport,
+                workPermit: data.personalInfo.workPermit,
               }
             }
           },
@@ -317,6 +329,7 @@ export async function saveCV(userId: string, data: any, id?: string) {
               company: exp.company,
               role: exp.role,
               duration: exp.duration,
+              location: exp.location,
               description: exp.description,
             }))
           },
@@ -326,6 +339,9 @@ export async function saveCV(userId: string, data: any, id?: string) {
               school: edu.school,
               degree: edu.degree,
               duration: edu.duration,
+              location: edu.location,
+              fieldOfStudy: edu.fieldOfStudy,
+              grade: edu.grade,
             }))
           },
           skills: {
@@ -341,6 +357,23 @@ export async function saveCV(userId: string, data: any, id?: string) {
               name: proj.name,
               description: proj.description,
               link: proj.link,
+            }))
+          },
+          languages: {
+            deleteMany: {},
+            create: (data.languages || []).map((lang: any) => ({
+              name: lang.name,
+              proficiency: lang.proficiency,
+            }))
+          },
+          volunteering: {
+            deleteMany: {},
+            create: (data.volunteering || []).map((vol: any) => ({
+              organization: vol.organization,
+              role: vol.role,
+              duration: vol.duration,
+              location: vol.location,
+              description: vol.description,
             }))
           }
         },
@@ -366,6 +399,12 @@ export async function saveCV(userId: string, data: any, id?: string) {
               github: data.personalInfo.github,
               summary: data.personalInfo.summary,
               profileImage: data.personalInfo.profileImage,
+              dateOfBirth: data.personalInfo.dateOfBirth,
+              placeOfBirth: data.personalInfo.placeOfBirth,
+              nationality: data.personalInfo.nationality,
+              gender: data.personalInfo.gender,
+              passport: data.personalInfo.passport,
+              workPermit: data.personalInfo.workPermit,
             }
           },
           experiences: {
@@ -373,6 +412,7 @@ export async function saveCV(userId: string, data: any, id?: string) {
               company: exp.company,
               role: exp.role,
               duration: exp.duration,
+              location: exp.location,
               description: exp.description,
             }))
           },
@@ -381,6 +421,9 @@ export async function saveCV(userId: string, data: any, id?: string) {
               school: edu.school,
               degree: edu.degree,
               duration: edu.duration,
+              location: edu.location,
+              fieldOfStudy: edu.fieldOfStudy,
+              grade: edu.grade,
             }))
           },
           skills: {
@@ -394,6 +437,21 @@ export async function saveCV(userId: string, data: any, id?: string) {
               name: proj.name,
               description: proj.description,
               link: proj.link,
+            }))
+          },
+          languages: {
+            create: (data.languages || []).map((lang: any) => ({
+              name: lang.name,
+              proficiency: lang.proficiency,
+            }))
+          },
+          volunteering: {
+            create: (data.volunteering || []).map((vol: any) => ({
+              organization: vol.organization,
+              role: vol.role,
+              duration: vol.duration,
+              location: vol.location,
+              description: vol.description,
             }))
           }
         },
@@ -417,6 +475,8 @@ export async function getCV(id: string, userId: string) {
         educations: true,
         skills: true,
         projects: true,
+        languages: true,
+        volunteering: true,
       }
     }) as any
 
@@ -439,12 +499,19 @@ export async function getCV(id: string, userId: string) {
         facebook: cv.personalInfo?.facebook || "",
         summary: cv.personalInfo?.summary || "",
         profileImage: cv.personalInfo?.profileImage || "",
+        dateOfBirth: cv.personalInfo?.dateOfBirth || "",
+        placeOfBirth: cv.personalInfo?.placeOfBirth || "",
+        nationality: cv.personalInfo?.nationality || "",
+        gender: cv.personalInfo?.gender || "",
+        passport: cv.personalInfo?.passport || "",
+        workPermit: cv.personalInfo?.workPermit || "",
       },
       experience: cv.experiences.map((e: any) => ({
         id: e.id,
         role: e.role,
         company: e.company,
         duration: e.duration,
+        location: e.location || "",
         description: e.description,
       })),
       education: cv.educations.map((e: any) => ({
@@ -452,6 +519,9 @@ export async function getCV(id: string, userId: string) {
         degree: e.degree,
         school: e.school,
         duration: e.duration,
+        location: e.location || "",
+        fieldOfStudy: e.fieldOfStudy || "",
+        grade: e.grade || "",
       })),
       skills: cv.skills.map((s: any) => ({
         category: s.category,
@@ -462,6 +532,18 @@ export async function getCV(id: string, userId: string) {
         name: p.name,
         description: p.description || "",
         link: p.link || "",
+      })),
+      languages: cv.languages.map((l: any) => ({
+        name: l.name,
+        proficiency: l.proficiency,
+      })),
+      volunteering: cv.volunteering.map((v: any) => ({
+        id: v.id,
+        role: v.role,
+        organization: v.organization,
+        duration: v.duration,
+        location: v.location || "",
+        description: v.description || "",
       })),
       templateId: cv.templateId,
     }

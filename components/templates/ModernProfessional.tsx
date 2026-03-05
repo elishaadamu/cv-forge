@@ -17,6 +17,12 @@ export interface CVData {
     facebook?: string
     summary: string
     profileImage?: string
+    dateOfBirth?: string
+    placeOfBirth?: string
+    nationality?: string
+    gender?: string
+    passport?: string
+    workPermit?: string
   }
   experience: Array<{
     id: string
@@ -24,12 +30,16 @@ export interface CVData {
     company: string
     duration: string
     description: string[]
+    location?: string
   }>
   education: Array<{
     id: string
     degree: string
     school: string
     duration: string
+    location?: string
+    fieldOfStudy?: string
+    grade?: string
   }>
   skills: Array<{
     category: string
@@ -40,6 +50,18 @@ export interface CVData {
     name: string
     description: string
     link: string
+  }>
+  languages?: Array<{
+    name: string
+    proficiency: string
+  }>
+  volunteering?: Array<{
+    id: string
+    role: string
+    organization: string
+    duration: string
+    location?: string
+    description: string
   }>
   templateId?: string
 }
@@ -53,7 +75,15 @@ function formatUrl(url: string) {
   return `https://${url}`
 }
 
-export function ModernProfessional({ data }: { data: CVData }) {
+export function ModernProfessional({ 
+  data, 
+  isEditable = false, 
+  onUpdate 
+}: { 
+  data: CVData, 
+  isEditable?: boolean, 
+  onUpdate?: (path: string, value: any) => void 
+}) {
   const { personalInfo, experience, education, skills, projects } = data
 
   // Flatten all skills into a simple list for sidebar display

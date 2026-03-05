@@ -28,7 +28,9 @@ import {
   ShieldCheck,
   ChevronDown,
   Search,
-  GripVertical
+  GripVertical,
+  Languages,
+  Heart
 } from "lucide-react"
 import { CldUploadWidget } from "next-cloudinary"
 
@@ -54,6 +56,8 @@ const sections = [
   { id: "education", title: "Education", icon: GraduationCap },
   { id: "skills", title: "Skills", icon: Code },
   { id: "projects", title: "Projects", icon: FolderGit2 },
+  { id: "languages", title: "Languages", icon: Languages },
+  { id: "volunteering", title: "Volunteering", icon: Heart },
 ]
 
 
@@ -401,6 +405,52 @@ function BuilderContent() {
     }))
   }
 
+  // Languages helpers
+  const addLanguage = () => {
+    setCvData(prev => ({
+      ...prev,
+      languages: [...(prev.languages || []), { name: "", proficiency: "Beginner" }]
+    }))
+  }
+
+  const updateLanguage = (index: number, field: "name" | "proficiency", value: string) => {
+    setCvData(prev => {
+      const langs = [...(prev.languages || [])]
+      langs[index] = { ...langs[index], [field]: value }
+      return { ...prev, languages: langs }
+    })
+  }
+
+  const removeLanguage = (index: number) => {
+    setCvData(prev => ({
+      ...prev,
+      languages: (prev.languages || []).filter((_, i) => i !== index)
+    }))
+  }
+
+  // Volunteering helpers
+  const addVolunteering = () => {
+    const newId = Math.random().toString(36).substring(7)
+    setCvData(prev => ({
+      ...prev,
+      volunteering: [...(prev.volunteering || []), { id: newId, role: "", organization: "", duration: "", location: "", description: "" }]
+    }))
+  }
+
+  const updateVolunteering = (id: string, field: string, value: string) => {
+    setCvData(prev => ({
+      ...prev,
+      volunteering: (prev.volunteering || []).map(v => v.id === id ? { ...v, [field]: value } : v)
+    }))
+  }
+
+  const removeVolunteering = (id: string) => {
+    setCvData(prev => ({
+      ...prev,
+      volunteering: (prev.volunteering || []).filter(v => v.id !== id)
+    }))
+  }
+
   const renderTemplate = () => {
     switch (currentTemplate) {
       case "classic":
@@ -455,19 +505,19 @@ function BuilderContent() {
                 </h1>
               </header>
 
-              <nav className="grid grid-cols-5 gap-2">
+              <nav className="grid grid-cols-4 sm:grid-cols-7 gap-2">
                 {sections.map(section => (
                   <button
                     key={section.id}
                     onClick={() => setActiveSection(section.id)}
                     title={section.title}
-                    className={`p-4 rounded-xl flex items-center justify-center transition-all duration-300 border-2 ${
+                    className={`p-3 rounded-xl flex items-center justify-center transition-all duration-300 border-2 ${
                       activeSection === section.id 
                       ? "bg-brand-action text-white border-brand-action shadow-lg shadow-brand-action/20" 
                       : "bg-white/5 border-transparent text-foreground/40 hover:bg-white/10"
                     }`}
                   >
-                     <section.icon size={20} />
+                     <section.icon size={18} />
                   </button>
                 ))}
               </nav>
@@ -787,6 +837,70 @@ function BuilderContent() {
                           placeholder="Briefly describe your professional journey..."
                           className="w-full h-32 p-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-medium resize-none placeholder:text-foreground/10" 
                         />
+
+                         {/* Additional Personal Details */}
+                         <div className="pt-4 border-t border-border-custom">
+                           <h4 className="text-sm font-black mb-4 text-foreground/60">Additional Details <span className="text-[10px] font-medium text-foreground/30">(Optional)</span></h4>
+                           <div className="grid grid-cols-2 gap-4">
+                             <div className="space-y-1.5">
+                               <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Date of Birth</label>
+                               <input 
+                                 type="date"
+                                 value={cvData.personalInfo.dateOfBirth || ""}
+                                 onChange={(e) => updatePersonalInfo("dateOfBirth", e.target.value)}
+                                 className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                               />
+                             </div>
+                             <div className="space-y-1.5">
+                               <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Place of Birth</label>
+                               <input 
+                                 value={cvData.personalInfo.placeOfBirth || ""}
+                                 onChange={(e) => updatePersonalInfo("placeOfBirth", e.target.value)}
+                                 placeholder="e.g. Lagos, Nigeria"
+                                 className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                               />
+                             </div>
+                             <div className="space-y-1.5">
+                               <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Nationality</label>
+                               <input 
+                                 value={cvData.personalInfo.nationality || ""}
+                                 onChange={(e) => updatePersonalInfo("nationality", e.target.value)}
+                                 placeholder="e.g. Nigerian"
+                                 className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                               />
+                             </div>
+                             <div className="space-y-1.5">
+                               <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Gender</label>
+                               <select
+                                 value={cvData.personalInfo.gender || ""}
+                                 onChange={(e) => updatePersonalInfo("gender", e.target.value)}
+                                 className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold"
+                               >
+                                 <option value="">Select</option>
+                                 <option value="Male">Male</option>
+                                 <option value="Female">Female</option>
+                               </select>
+                             </div>
+                             <div className="space-y-1.5">
+                               <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Passport</label>
+                               <input 
+                                 value={cvData.personalInfo.passport || ""}
+                                 onChange={(e) => updatePersonalInfo("passport", e.target.value)}
+                                 placeholder="e.g. Available"
+                                 className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                               />
+                             </div>
+                             <div className="space-y-1.5">
+                               <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Work Permit</label>
+                               <input 
+                                 value={cvData.personalInfo.workPermit || ""}
+                                 onChange={(e) => updatePersonalInfo("workPermit", e.target.value)}
+                                 placeholder="e.g. Nigerian (Nigeria)"
+                                 className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                               />
+                             </div>
+                           </div>
+                         </div>
                     </motion.div>
                   )}
                   {activeSection === "experience" && (
@@ -851,6 +965,15 @@ function BuilderContent() {
                                     value={exp.duration}
                                     onChange={(e) => updateExperience(exp.id, "duration", e.target.value)}
                                     placeholder="e.g. Jan 2020 - Present"
+                                    className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                                  />
+                                </div>
+                                <div className="space-y-1.5 col-span-2">
+                                  <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Location</label>
+                                  <input 
+                                    value={exp.location || ""}
+                                    onChange={(e) => updateExperience(exp.id, "location", e.target.value)}
+                                    placeholder="e.g. Lagos, Nigeria"
                                     className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
                                   />
                                 </div>
@@ -940,6 +1063,33 @@ function BuilderContent() {
                                    value={edu.duration}
                                    onChange={(e) => updateEducation(edu.id, "duration", e.target.value)}
                                    placeholder="e.g. 2018 - 2022"
+                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                                 />
+                               </div>
+                               <div className="space-y-1.5 col-span-2">
+                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Location</label>
+                                 <input 
+                                   value={edu.location || ""}
+                                   onChange={(e) => updateEducation(edu.id, "location", e.target.value)}
+                                   placeholder="e.g. Maiduguri, Nigeria"
+                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                                 />
+                               </div>
+                               <div className="space-y-1.5">
+                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Field of Study</label>
+                                 <input 
+                                   value={edu.fieldOfStudy || ""}
+                                   onChange={(e) => updateEducation(edu.id, "fieldOfStudy", e.target.value)}
+                                   placeholder="e.g. Electrical Engineering"
+                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                                 />
+                               </div>
+                               <div className="space-y-1.5">
+                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Final Grade</label>
+                                 <input 
+                                   value={edu.grade || ""}
+                                   onChange={(e) => updateEducation(edu.id, "grade", e.target.value)}
+                                   placeholder="e.g. Second Class Upper"
                                    className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
                                  />
                                </div>
@@ -1107,6 +1257,158 @@ function BuilderContent() {
                                    className="w-full h-24 p-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-medium resize-none placeholder:text-foreground/10" 
                                  />
                                </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {activeSection === "languages" && (
+                    <motion.div
+                      key="languages"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="space-y-8"
+                    >
+                      <div className="flex items-center justify-between mb-4">
+                         <h3 className="text-xl font-black">Languages</h3>
+                         <button 
+                            onClick={addLanguage}
+                            className="flex items-center space-x-2 px-4 py-2 bg-brand-action text-white rounded-xl text-xs font-black uppercase tracking-widest hover:shadow-lg hover:shadow-brand-action/20 transition-all active:scale-95"
+                         >
+                            <Plus size={14} />
+                            <span>Add Language</span>
+                         </button>
+                      </div>
+                      <div className="space-y-4">
+                        {(cvData.languages || []).length === 0 && (
+                          <div className="p-8 bg-white/5 border border-dashed border-border-custom rounded-3xl text-center">
+                            <Languages size={32} className="mx-auto text-foreground/20 mb-3" />
+                            <p className="text-sm text-foreground/40 font-medium">No languages added yet.</p>
+                          </div>
+                        )}
+                        {(cvData.languages || []).map((lang, idx) => (
+                          <div key={idx} className="p-5 bg-white/5 border border-border-custom rounded-2xl relative group">
+                            <button 
+                              onClick={() => removeLanguage(idx)}
+                              className="absolute top-3 right-3 text-foreground/20 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                            >
+                               <Plus size={16} className="rotate-45" />
+                            </button>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="space-y-1.5">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Language</label>
+                                <input 
+                                  value={lang.name}
+                                  onChange={(e) => updateLanguage(idx, "name", e.target.value)}
+                                  placeholder="e.g. English"
+                                  className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                                />
+                              </div>
+                              <div className="space-y-1.5">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Proficiency</label>
+                                <select
+                                  value={lang.proficiency}
+                                  onChange={(e) => updateLanguage(idx, "proficiency", e.target.value)}
+                                  className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold"
+                                >
+                                  <option value="Beginner">Beginner</option>
+                                  <option value="Elementary">Elementary</option>
+                                  <option value="Intermediate">Intermediate</option>
+                                  <option value="Upper Intermediate">Upper Intermediate</option>
+                                  <option value="Advanced">Advanced</option>
+                                  <option value="Proficient">Proficient</option>
+                                  <option value="Native">Native</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {activeSection === "volunteering" && (
+                    <motion.div
+                      key="volunteering"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="space-y-8"
+                    >
+                      <div className="flex items-center justify-between mb-4">
+                         <h3 className="text-xl font-black">Volunteering</h3>
+                         <button 
+                            onClick={addVolunteering}
+                            className="flex items-center space-x-2 px-4 py-2 bg-brand-action text-white rounded-xl text-xs font-black uppercase tracking-widest hover:shadow-lg hover:shadow-brand-action/20 transition-all active:scale-95"
+                         >
+                            <Plus size={14} />
+                            <span>Add Activity</span>
+                         </button>
+                      </div>
+                      <div className="space-y-6">
+                        {(cvData.volunteering || []).length === 0 && (
+                          <div className="p-8 bg-white/5 border border-dashed border-border-custom rounded-3xl text-center">
+                            <Heart size={32} className="mx-auto text-foreground/20 mb-3" />
+                            <p className="text-sm text-foreground/40 font-medium">No volunteering activities added yet.</p>
+                          </div>
+                        )}
+                        {(cvData.volunteering || []).map((vol) => (
+                          <div key={vol.id} className="p-6 bg-white/5 border border-border-custom rounded-3xl space-y-4 relative group">
+                            <button 
+                              onClick={() => removeVolunteering(vol.id)}
+                              className="absolute top-4 right-4 text-foreground/20 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                            >
+                               <Plus size={18} className="rotate-45" />
+                            </button>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="space-y-1.5">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Role / Title</label>
+                                <input 
+                                  value={vol.role}
+                                  onChange={(e) => updateVolunteering(vol.id, "role", e.target.value)}
+                                  placeholder="e.g. Community Organizer"
+                                  className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                                />
+                              </div>
+                              <div className="space-y-1.5">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Organization</label>
+                                <input 
+                                  value={vol.organization}
+                                  onChange={(e) => updateVolunteering(vol.id, "organization", e.target.value)}
+                                  placeholder="e.g. Red Cross"
+                                  className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                                />
+                              </div>
+                              <div className="space-y-1.5">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Duration</label>
+                                <input 
+                                  value={vol.duration}
+                                  onChange={(e) => updateVolunteering(vol.id, "duration", e.target.value)}
+                                  placeholder="e.g. Jan 2022 - Present"
+                                  className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                                />
+                              </div>
+                              <div className="space-y-1.5">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Location</label>
+                                <input 
+                                  value={vol.location || ""}
+                                  onChange={(e) => updateVolunteering(vol.id, "location", e.target.value)}
+                                  placeholder="e.g. Lagos, Nigeria"
+                                  className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                                />
+                              </div>
+                              <div className="space-y-1.5 col-span-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Description</label>
+                                <textarea 
+                                  value={vol.description}
+                                  onChange={(e) => updateVolunteering(vol.id, "description", e.target.value)}
+                                  placeholder="Describe your volunteer activities..."
+                                  className="w-full h-24 p-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-medium resize-none placeholder:text-foreground/10" 
+                                />
+                              </div>
                             </div>
                           </div>
                         ))}
