@@ -27,24 +27,38 @@ export async function POST(req: Request) {
     // For Vercel production, we'll use a simpler approach
     // Since puppeteer requires a browser binary which isn't available in serverless
     // We'll return an error message suggesting to download locally
-    const isProduction = process.env.VERCEL === '1'
+    // Detect environments
+    const isVercel = process.env.VERCEL === '1'
+    const isRender = process.env.RENDER === 'true' || process.env.NODE_ENV === 'production'
     
-    if (isProduction) {
-      // On Vercel, we can't run Puppeteer due to serverless limitations
-      // Return instructions for the user
+    if (isVercel) {
+      // On Vercel, we can't run Puppeteer due to serverless limitations (unless using sparticuz/chromium-min)
       return NextResponse.json({
-        error: 'PDF generation is only available in development mode',
-        details: 'Please download your PDF from the local development environment'
+        error: 'PDF generation is only available in development mode or on Render',
+        details: 'Vercel serverless functions have limitations for Puppeteer. Use a local environment or Render for PDF generation.'
       }, { status: 503 })
     }
 
-    // Development (Local Windows) - use installed Chrome
-    console.log('PDF Generation: Launching browser from', CHROME_PATH)
-    browser = await puppeteer.launch({
-      executablePath: CHROME_PATH,
+    // Set up launch options
+    const launchOptions = {
       args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
       headless: true,
-    })
+    }
+
+    // Use hardcoded path for Windows (development)
+    // For Render (Linux), let Puppeteer find its own Chromium or use the user-defined executable path
+    if (process.platform === 'win32' && !isRender) {
+      console.log('PDF Generation: Windows detected, using', CHROME_PATH)
+      launchOptions.executablePath = CHROME_PATH
+    } else if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+      console.log('PDF Generation: Using provided PUPPETEER_EXECUTABLE_PATH:', process.env.PUPPETEER_EXECUTABLE_PATH)
+      launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH
+    } else {
+      console.log('PDF Generation: Let Puppeteer handle browser launch (standard installation)')
+    }
+
+    console.log('PDF Generation: Launching browser...')
+    browser = await puppeteer.launch(launchOptions)
 
     console.log('PDF Generation: Browser launched successfully')
     const page = await browser.newPage()
