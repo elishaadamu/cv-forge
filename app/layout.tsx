@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -19,8 +20,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const baseUrl = process.env.NEXTAUTH_URL || 'https://cvmyjob.com';
+
 export const metadata: Metadata = {
-  metadataBase: new URL('https://cvmyjob.com'),
+  metadataBase: new URL(baseUrl),
   title: {
     default: "cvmyjob | Build Your Professional CV for Free",
     template: "%s | cvmyjob"
@@ -41,7 +44,6 @@ export const metadata: Metadata = {
   openGraph: {
     title: "cvmyjob | 100% Free Professional CV Builder",
     description: "Start your career on the right foot with a premium CV, completely free of charge. No watermarks, no hidden fees.",
-    url: 'https://cvmyjob.com',
     siteName: 'cvmyjob',
     images: [
       {

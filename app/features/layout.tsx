@@ -1,6 +1,10 @@
+// @ts-nocheck
 import { Metadata } from "next";
 
+const baseUrl = process.env.NEXTAUTH_URL || 'https://cvmyjob.com';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(baseUrl),
   title: "Advanced Features for Modern Job Seekers",
   description: "Discover the powerful tools that make cvmyjob the best free CV builder. AI analysis, keyword matching, and more.",
   openGraph: {

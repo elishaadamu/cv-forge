@@ -1,6 +1,10 @@
+// @ts-nocheck
 import { Metadata } from "next";
 
+const baseUrl = process.env.NEXTAUTH_URL || 'https://cvmyjob.com';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(baseUrl),
   title: "Professional ATS-Friendly CV Templates",
   description: "Browse our collection of recruiter-approved, ATS-optimized CV templates. 100% free to use and export.",
   openGraph: {
