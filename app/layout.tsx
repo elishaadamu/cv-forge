@@ -20,17 +20,56 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "cvmyjob | Build Your Professional CV for Free",
+  metadataBase: new URL('https://cvmyjob.com'),
+  title: {
+    default: "cvmyjob | Build Your Professional CV for Free",
+    template: "%s | cvmyjob"
+  },
   description: "cvmyjob is the ultimate 100% free CV builder. No watermark, no paywall, no hidden charges. Create your high-quality, ATS-friendly CV in minutes.",
-  keywords: ["cv builder", "resume builder", "free cv template", "no watermark resume", "professional resume", "job search tools", "cvmyjob"],
+  keywords: ["cv builder", "resume builder", "free cv template", "no watermark resume", "professional resume", "job search tools", "cvmyjob", "ATS resume"],
   authors: [{ name: "cvmyjob Team" }],
+  creator: "cvmyjob",
+  publisher: "cvmyjob",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   verification: {
     google: "ilt-gaTpoL9aFUhs-op9lSSCw_T3bIa2LiLmnvfWuh8",
   },
   openGraph: {
     title: "cvmyjob | 100% Free Professional CV Builder",
-    description: "Start your career on the right foot with a premium CV, completely free of charge.",
-    type: "website",
+    description: "Start your career on the right foot with a premium CV, completely free of charge. No watermarks, no hidden fees.",
+    url: 'https://cvmyjob.com',
+    siteName: 'cvmyjob',
+    images: [
+      {
+        url: '/midnight.png',
+        width: 1200,
+        height: 630,
+        alt: 'cvmyjob - Professional CV Builder'
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "cvmyjob | 100% Free Professional CV Builder",
+    description: "Create your high-quality, ATS-friendly CV in minutes. 100% free, no watermarks.",
+    images: ['/midnight.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 };
 
