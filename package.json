@@ -13,6 +13,7 @@
     "@auth/prisma-adapter": "^2.11.1",
     "@google/generative-ai": "^0.24.1",
     "@prisma/client": "^5.22.0",
+    "@react-pdf/renderer": "^4.3.2",
     "@sparticuz/chromium-min": "^143.0.4",
     "@tailwindcss/typography": "^0.5.19",
     "antd": "^6.3.1",

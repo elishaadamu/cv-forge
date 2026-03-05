@@ -37,10 +37,11 @@ import { getCV, saveCV } from "@/lib/actions"
 import { useSession } from "next-auth/react"
 import { useEffect, useState, useRef } from "react"
 import html2canvas from "html2canvas-pro"
-import jsPDF from "jspdf"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { message, Dropdown, MenuProps } from "antd"
+import { pdf } from '@react-pdf/renderer'
+import { CVDocument } from '@/lib/cv-pdf-document'
 
 export default function SuccessPage() {
   const { data: session } = useSession()
@@ -198,64 +199,21 @@ export default function SuccessPage() {
         link.click()
         document.body.removeChild(link)
       } else if (type === ".pdf") {
-        // Use jsPDF with better settings for text preservation
-        const element = cvRef.current
+        console.log('Generating PDF with data:', cvData)
+        console.log('Personal info:', cvData?.personalInfo)
         
-        // Wait for images to load
-        const images = Array.from(element.getElementsByTagName("img"))
-        await Promise.all(
-          images.map(
-            (img) =>
-              img.complete
-                ? Promise.resolve()
-                : new Promise<void>((resolve) => {
-                    img.onload = () => resolve()
-                    img.onerror = () => resolve()
-                  })
-          )
-        )
-
-        await new Promise((r) => setTimeout(r, 300))
-
-        const canvas = await html2canvas(element, {
-          scale: 3,
-          useCORS: true,
-          allowTaint: false,
-          logging: false,
-          backgroundColor: "#ffffff",
-          width: element.scrollWidth,
-          height: element.scrollHeight,
-          imageTimeout: 0,
-          removeContainer: true,
-        })
-
-        const imgData = canvas.toDataURL("image/png", 1.0)
-        const imgWidth = 210 // A4 width in mm
-        const pageHeight = 297 // A4 height in mm
-        const imgHeight = (canvas.height * imgWidth) / canvas.width
-        let heightLeft = imgHeight
-        let position = 0
-
-        const pdf = new jsPDF({
-          orientation: "portrait",
-          unit: "mm",
-          format: "a4",
-          compress: true,
-        })
-
-        // First page
-        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight, undefined, "NONE")
-        heightLeft -= pageHeight
-
-        // Additional pages if needed
-        while (heightLeft >= 0) {
-          position = heightLeft - imgHeight
-          pdf.addPage()
-          pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight, undefined, "NONE")
-          heightLeft -= pageHeight
-        }
-
-        pdf.save(`${cvData.personalInfo.fullName.replace(/\s+/g, "_") || "CV"}_CV.pdf`)
+        // Generate true text-based PDF using @react-pdf/renderer
+        const doc = CVDocument({ data: cvData })
+        const blob = await pdf(doc).toBlob()
+        
+        const url = window.URL.createObjectURL(blob)
+        const link = document.createElement("a")
+        link.href = url
+        link.download = `${cvData.personalInfo.fullName.replace(/\s+/g, "_") || "CV"}_CV.pdf`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
       } else if (type === ".docx") {
         const response = await fetch("/api/generate-docx", {
           method: "POST",

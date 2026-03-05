@@ -20,6 +20,18 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  logging: {
+    fetches: {
+      fullUrl: false,
+    },
+  },
+  // Suppress verbose Prisma query logging in development
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+  },
 };
+
 
 export default nextConfig;

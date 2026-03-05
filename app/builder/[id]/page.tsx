@@ -31,9 +31,12 @@ import {
   Search,
   GripVertical,
   Languages,
-  Heart
+  Heart,
+  Check
 } from "lucide-react"
 import { CldUploadWidget } from "next-cloudinary"
+import { pdf } from '@react-pdf/renderer'
+import { CVDocument } from '@/lib/cv-pdf-document'
 
 import { ModernProfessional, CVData } from "@/components/templates/ModernProfessional"
 import { ClassicTable } from "@/components/templates/ClassicTable"
@@ -100,7 +103,7 @@ function BuilderContent() {
   const [cvData, setCvData] = useState<CVData>(INITIAL_DATA)
   const [currentTemplate, setCurrentTemplate] = useState<"modern" | "classic" | "executive" | "minimal" | "creative" | "startup" | "executive-board" | "midnight" | "bold-impact" | "corporate" | "fresh" | "refined">("modern")
   const [isTemplateDropdownOpen, setIsTemplateDropdownOpen] = useState(false)
-  const [refiningId, setRefiningId] = useState<string | null>(null) // tracks which specific item is being AI-refined
+  const [refiningId, setRefiningId] = useState<string | null>(null)
   const [isPhoneDropdownOpen, setIsPhoneDropdownOpen] = useState(false)
   const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false)
 
@@ -120,6 +123,28 @@ function BuilderContent() {
   const [skillInput, setSkillInput] = useState("")
   const [draggedSkillIndex, setDraggedSkillIndex] = useState<number | null>(null)
   const [dragOverSkillIndex, setDragOverSkillIndex] = useState<number | null>(null)
+  const [isSkillsDropdownOpen, setIsSkillsDropdownOpen] = useState(false)
+  const [skillSearch, setSkillSearch] = useState("")
+  
+  // Predefined skills list
+  const predefinedSkills = [
+    "JavaScript", "TypeScript", "React", "Next.js", "Vue", "Angular", "Svelte",
+    "Node.js", "Express", "Python", "Django", "Flask", "FastAPI",
+    "Java", "Spring Boot", "C#", ".NET", "ASP.NET",
+    "Go", "Rust", "PHP", "Laravel", "Ruby", "Rails",
+    "HTML", "CSS", "Sass", "Tailwind CSS", "Bootstrap", "Material UI",
+    "GraphQL", "REST API", "gRPC",
+    "PostgreSQL", "MySQL", "MongoDB", "Redis", "Elasticsearch",
+    "Docker", "Kubernetes", "AWS", "Azure", "GCP", "DevOps", "CI/CD",
+    "Git", "GitHub", "GitLab", "Bitbucket",
+    "Agile", "Scrum", "Kanban", "Project Management",
+    "UI/UX Design", "Figma", "Adobe XD", "Sketch",
+    "Testing", "Jest", "Cypress", "Playwright", "TDD",
+    "Machine Learning", "Data Science", "TensorFlow", "PyTorch",
+    "Mobile Development", "React Native", "Flutter", "iOS", "Android",
+    "Microservices", "Serverless", "System Design",
+    "Communication", "Leadership", "Team Management", "Mentoring"
+  ]
   const [pageCount, setPageCount] = useState(1)
   const countries = countriesData
   const previewRef = useRef<HTMLDivElement>(null)
@@ -128,6 +153,7 @@ function BuilderContent() {
   const countryDropdownRef = useRef<HTMLDivElement>(null)
   const stateDropdownRef = useRef<HTMLDivElement>(null)
   const activeItemRef = useRef<HTMLDivElement>(null)
+  const skillsDropdownRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -170,6 +196,9 @@ function BuilderContent() {
       if (stateDropdownRef.current && !stateDropdownRef.current.contains(event.target as Node)) {
         setIsStateDropdownOpen(false)
       }
+      if (skillsDropdownRef.current && !skillsDropdownRef.current.contains(event.target as Node)) {
+        setIsSkillsDropdownOpen(false)
+      }
     }
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
@@ -202,7 +231,7 @@ function BuilderContent() {
       }
       loadCV()
     }
-  }, [id, session])
+  }, [id, session?.user?.id])
 
   const handleSave = async (shouldRedirect = false) => {
     if (!session?.user?.id) return
@@ -247,71 +276,19 @@ function BuilderContent() {
         await saveCV(session.user.id, { ...cvData, templateId: currentTemplate, status: "DOWNLOADED" }, id as string)
       }
 
-      // Generate PDF client-side with high quality
-      const element = previewRef.current
-      if (!element) {
-        message.error("CV preview not found")
-        setIsSavingFinish(false)
-        return
-      }
-
-      // Wait for images to load
-      const images = Array.from(element.getElementsByTagName("img"))
-      await Promise.all(
-        images.map(
-          (img) =>
-            img.complete
-              ? Promise.resolve()
-              : new Promise<void>((resolve) => {
-                  img.onload = () => resolve()
-                  img.onerror = () => resolve()
-                })
-        )
-      )
-
-      await new Promise((r) => setTimeout(r, 300))
-
-      const { default: jsPDF } = await import("jspdf")
-
-      const canvas = await html2canvas(element, {
-        scale: 3,
-        useCORS: true,
-        allowTaint: false,
-        logging: false,
-        backgroundColor: "#ffffff",
-        width: element.scrollWidth,
-        height: element.scrollHeight,
-        imageTimeout: 0,
-        removeContainer: true,
-      })
-
-      const imgData = canvas.toDataURL("image/png", 1.0)
-      const imgWidth = 210 // A4 width in mm
-      const pageHeight = 297 // A4 height in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width
-      let heightLeft = imgHeight
-      let position = 0
-
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-        compress: true,
-      })
-
-      // First page
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight, undefined, "NONE")
-      heightLeft -= pageHeight
-
-      // Additional pages if needed
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight
-        pdf.addPage()
-        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight, undefined, "NONE")
-        heightLeft -= pageHeight
-      }
-
-      pdf.save(`${cvData.personalInfo.fullName.replace(/\s+/g, "_") || "CV"}_CV.pdf`)
+      // Generate true text-based PDF using @react-pdf/renderer
+      const doc = CVDocument({ data: cvData })
+      const blob = await pdf(doc).toBlob()
+      
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.href = url
+      link.download = `${cvData.personalInfo.fullName.replace(/\s+/g, "_") || "CV"}_CV.pdf`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+      
       message.success("PDF downloaded successfully!")
     } catch (error) {
       console.error("Download error:", error)
@@ -1443,39 +1420,96 @@ function BuilderContent() {
                       className="space-y-6"
                     >
                       <h3 className="text-xl font-black">Skills & Expertise</h3>
-                      
-                      <div className="space-y-1.5">
+
+                      {/* Searchable Skills Dropdown */}
+                      <div className="space-y-1.5 relative" ref={skillsDropdownRef}>
                         <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Add a Skill</label>
-                        <div className="flex space-x-2">
-                          <input 
-                            value={skillInput}
-                            onChange={(e) => setSkillInput(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                e.preventDefault()
-                                addSkill(skillInput)
-                                setSkillInput("")
-                              }
-                            }}
-                            placeholder="Type a skill and press Enter"
-                            className="flex-1 h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
-                          />
-                          <button 
-                            onClick={() => { addSkill(skillInput); setSkillInput("") }}
-                            disabled={!skillInput.trim()}
-                            className="h-11 px-4 bg-brand-action text-white rounded-xl text-xs font-black uppercase tracking-widest hover:shadow-lg hover:shadow-brand-action/20 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
-                          >
-                            <Plus size={16} />
-                          </button>
+                        <div
+                          onClick={() => setIsSkillsDropdownOpen(!isSkillsDropdownOpen)}
+                          className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all text-sm font-bold focus-within:border-brand-action"
+                        >
+                          <span className="text-foreground/60">{skillInput || "Select or type a skill..."}</span>
+                          <ChevronDown size={14} className={`transition-transform duration-300 ${isSkillsDropdownOpen ? 'rotate-180' : ''}`} />
                         </div>
+
+                        <AnimatePresence>
+                          {isSkillsDropdownOpen && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                              animate={{ opacity: 1, y: 0, scale: 1 }}
+                              exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                              className="absolute z-100 left-0 right-0 mt-2 bg-card/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden max-h-[300px] flex flex-col shadow-brand-action/10"
+                            >
+                              <div className="p-3 border-b border-white/5 flex items-center gap-2 bg-white/5">
+                                <Search size={16} className="text-muted-foreground" />
+                                <input
+                                  autoFocus
+                                  placeholder="Search skills..."
+                                  value={skillSearch}
+                                  className="w-full bg-transparent outline-none text-sm font-bold h-8"
+                                  onChange={(e) => setSkillSearch(e.target.value)}
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              </div>
+                              <div className="overflow-y-auto p-0 overflow-x-hidden custom-scrollbar">
+                                {predefinedSkills
+                                  .filter(s => s.toLowerCase().includes(skillSearch.toLowerCase()))
+                                  .map((skill) => {
+                                    const alreadyAdded = cvData.skills.flatMap(g => g.items).includes(skill)
+                                    return (
+                                      <div
+                                        key={skill}
+                                        onClick={() => {
+                                          if (!alreadyAdded) {
+                                            addSkill(skill)
+                                          }
+                                          setSkillSearch("")
+                                          setIsSkillsDropdownOpen(false)
+                                        }}
+                                        className={`flex items-center gap-3 px-4 py-2.5 hover:bg-brand-action/10 cursor-pointer transition-colors group ${
+                                          alreadyAdded ? 'opacity-40 cursor-not-allowed' : ''
+                                        }`}
+                                      >
+                                        {alreadyAdded && (
+                                          <Check size={14} className="text-brand-success" />
+                                        )}
+                                        <span className={`text-sm font-bold ${
+                                          alreadyAdded ? 'text-foreground/40 line-through' : 'text-foreground/80 group-hover:text-foreground'
+                                        }`}>
+                                          {skill}
+                                        </span>
+                                      </div>
+                                    )
+                                  })}
+                                {predefinedSkills.filter(s => s.toLowerCase().includes(skillSearch.toLowerCase())).length === 0 && (
+                                  <div className="px-4 py-8 text-center">
+                                    <p className="text-sm text-foreground/40">No skills found</p>
+                                    <button
+                                      onClick={() => {
+                                        if (skillSearch.trim()) {
+                                          addSkill(skillSearch)
+                                          setSkillSearch("")
+                                          setIsSkillsDropdownOpen(false)
+                                        }
+                                      }}
+                                      className="mt-2 text-xs text-brand-action hover:text-brand-action/80 font-bold"
+                                    >
+                                      Add "{skillSearch}" as custom skill
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
 
                       <div className="flex flex-wrap gap-2 min-h-[44px] p-4 bg-white/5 border border-border-custom rounded-2xl">
                         {cvData.skills.flatMap(group => group.items).length === 0 && (
-                          <span className="text-xs text-foreground/20 italic">No skills added yet. Type above and press Enter.</span>
+                          <span className="text-xs text-foreground/20 italic">No skills added yet. Select from the dropdown above.</span>
                         )}
                         {cvData.skills.flatMap(group => group.items).map((skill, i) => (
-                          <span 
+                          <span
                             key={i}
                             draggable
                             onDragStart={(e) => {
@@ -1506,7 +1540,7 @@ function BuilderContent() {
                           >
                             <GripVertical size={14} className="opacity-40 cursor-grab active:cursor-grabbing hover:opacity-100 transition-opacity" />
                             <span className="dark:text-white/80">{skill}</span>
-                            <button 
+                            <button
                               onClick={() => removeSkill(skill)}
                               className="ml-0.5 text-brand-action/50 hover:text-red-500 transition-colors"
                             >
