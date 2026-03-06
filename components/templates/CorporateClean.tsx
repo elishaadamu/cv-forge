@@ -416,11 +416,14 @@ export function CorporateClean({
                     {isEditable ? (
                       <div>
                         <input defaultValue={edu.degree} placeholder="Degree" onBlur={(e) => onUpdate?.(`education.${edu.id}.degree`, e.target.value)} style={{ fontWeight: 700, fontSize: "12px", width: "100%", background: "transparent", border: "1px dashed #d1d5db" }} />
-                        <div style={{ display: "flex", gap: "4px", marginBottom: "4px" }}>
-                          <input defaultValue={edu.fieldOfStudy} placeholder="Field of Study" onBlur={(e) => onUpdate?.(`education.${edu.id}.fieldOfStudy`, e.target.value)} style={{ fontSize: "11px", flex: 1, background: "transparent", border: "1px dashed #d1d5db" }} />
-                          <input defaultValue={edu.grade} placeholder="Grade" onBlur={(e) => onUpdate?.(`education.${edu.id}.grade`, e.target.value)} style={{ fontSize: "11px", width: "60px", background: "transparent", border: "1px dashed #d1d5db" }} />
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px", marginBottom: "4px" }}>
+                          <input defaultValue={edu.fieldOfStudy} placeholder="Field of Study" onBlur={(e) => onUpdate?.(`education.${edu.id}.fieldOfStudy`, e.target.value)} style={{ fontSize: "11px", width: "100%", background: "transparent", border: "1px dashed #d1d5db", padding: "2px 4px" }} />
+                          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                            <span style={{ fontSize: "11px", color: "#6b7280" }}>Grade:</span>
+                            <input defaultValue={edu.grade} placeholder="Grade" onBlur={(e) => onUpdate?.(`education.${edu.id}.grade`, e.target.value)} style={{ fontSize: "11px", width: "120px", background: "transparent", border: "1px dashed #d1d5db", padding: "2px 4px" }} />
+                          </div>
                         </div>
-                        <input defaultValue={edu.school} placeholder="School" onBlur={(e) => onUpdate?.(`education.${edu.id}.school`, e.target.value)} style={{ fontSize: "11px", width: "100%", background: "transparent", border: "1px dashed #d1d5db", marginBottom: "4px" }} />
+                        <input defaultValue={edu.school} placeholder="School" onBlur={(e) => onUpdate?.(`education.${edu.id}.school`, e.target.value)} style={{ fontSize: "11px", width: "100%", background: "transparent", border: "1px dashed #d1d5db", marginBottom: "4px", padding: "2px 4px" }} />
                         <div style={{ display: "flex", gap: "4px", margin: "4px 0" }}>
                           <SearchableSelect
                             value={edu.country || "Country"}
@@ -440,8 +443,18 @@ export function CorporateClean({
                     ) : (
                       <>
                         <p style={{ fontWeight: 700, fontSize: "12px", color: "#111827", marginBottom: "1px" }}>{edu.degree}</p>
-                        {edu.fieldOfStudy && <p style={{ fontSize: "11.5px", color: "#374151" }}>{edu.fieldOfStudy} {edu.grade && <span style={{ color: "#6b7280" }}>• Grade: {edu.grade}</span>}</p>}
-                        <p style={{ fontSize: "11px", color: "#6b7280" }}>{edu.school}</p>
+                        {edu.fieldOfStudy && (
+                          <div style={{ fontSize: "11.5px", color: "#374151", display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px" }}>
+                            <span>{edu.fieldOfStudy}</span>
+                            {edu.grade && (
+                              <>
+                                <span style={{ color: "#d1d5db" }}>•</span>
+                                <span style={{ color: "#6b7280" }}>Grade: {edu.grade}</span>
+                              </>
+                            )}
+                          </div>
+                        )}
+                        <p style={{ fontSize: "11px", color: "#6b7280", marginTop: "1px" }}>{edu.school}</p>
                         {(edu.location || edu.country) && (
                           <p style={{ fontSize: "10px", color: "#6b7280" }}>
                              {[edu.location, edu.country].filter(Boolean).join(", ")}
@@ -517,6 +530,59 @@ export function CorporateClean({
                           )}
                         </div>
                       )}
+
+                      {isEditable ? (
+                        <div style={{ marginBottom: "8px" }}>
+                          <button
+                            onClick={() => onRefine?.("experience", exp.id)}
+                            disabled={refiningId === exp.id || (exp.description.length === 0 && !exp.workDescription)}
+                            style={{ 
+                              display: "flex", 
+                              alignItems: "center", 
+                              gap: "4px", 
+                              fontSize: "10px", 
+                              fontWeight: "bold", 
+                              color: "#0d9488", 
+                              background: "rgba(13, 148, 136, 0.05)", 
+                              border: "1px solid rgba(13, 148, 136, 0.2)", 
+                              padding: "2px 8px", 
+                              borderRadius: "4px", 
+                              cursor: "pointer", 
+                              marginBottom: "4px",
+                              opacity: (refiningId === exp.id || (exp.description.length === 0 && !exp.workDescription)) ? 0.5 : 1 
+                            }}
+                          >
+                            {refiningId === exp.id ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
+                            AI REFINE
+                          </button>
+                          <textarea
+                            defaultValue={exp.workDescription}
+                            placeholder="Role summary..."
+                            onBlur={(e) => onUpdate?.(`experience.${exp.id}.workDescription`, e.target.value)}
+                            style={{ 
+                              width: "100%", 
+                              fontSize: "12px", 
+                              color: "#374151", 
+                              lineHeight: 1.6, 
+                              background: "transparent", 
+                              border: "1px dashed #d1d5db", 
+                              outline: "none", 
+                              fontFamily: "inherit", 
+                              resize: "vertical", 
+                              minHeight: "40px" 
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        exp.workDescription && (
+                          <div style={{ marginBottom: "8px" }}>
+                            <MarkdownText
+                              content={exp.workDescription}
+                              style={{ fontSize: "12px", color: "#374151", lineHeight: 1.6 }}
+                            />
+                          </div>
+                        )
+                      )}
                       {isEditable ? (
                         <div style={{ marginTop: "4px" }}>
                           {(Array.isArray(exp.description) ? exp.description : []).map((bullet, i) => (
@@ -534,14 +600,6 @@ export function CorporateClean({
                           ))}
                           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
                             <button onClick={() => onUpdate?.(`experience.${exp.id}.description`, [...(Array.isArray(exp.description) ? exp.description : []), ""])} style={{ fontSize: "10px", fontWeight: "bold", background: "none", border: "none", cursor: "pointer", color: "#0d9488" }}>+ ADD BULLET</button>
-                            <button
-                              onClick={() => onRefine?.("experience", exp.id)}
-                              disabled={refiningId === exp.id || !exp.description}
-                              style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "10px", fontWeight: "bold", color: "#0d9488", background: "rgba(13, 148, 136, 0.05)", border: "1px solid rgba(13, 148, 136, 0.2)", padding: "2px 8px", borderRadius: "4px", cursor: "pointer", opacity: (refiningId === exp.id || !exp.description) ? 0.5 : 1 }}
-                            >
-                              {refiningId === exp.id ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
-                              AI REFINE
-                            </button>
                           </div>
                         </div>
                       ) : (
@@ -686,15 +744,87 @@ export function CorporateClean({
                             )}
                           </div>
                         )}
-                        {isEditable && (
-                          <button 
-                            onClick={() => onRefine?.("volunteering", vol.id)}
-                            disabled={refiningId === vol.id || !vol.description}
-                            style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "9px", fontWeight: "bold", color: "#0d9488", background: "rgba(13, 148, 136, 0.05)", border: "1px solid rgba(13, 148, 136, 0.2)", padding: "2px 8px", borderRadius: "4px", cursor: "pointer", marginTop: "2px", opacity: (refiningId === vol.id || !vol.description) ? 0.5 : 1 }}
-                          >
-                            {refiningId === vol.id ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
-                            AI REFINE
-                          </button>
+
+                        {isEditable ? (
+                          <div style={{ marginTop: "4px" }}>
+                            <button
+                              onClick={() => onRefine?.("volunteering", vol.id)}
+                              disabled={refiningId === vol.id || (vol.description?.length === 0 && !vol.workDescription)}
+                              style={{ 
+                                display: "flex", 
+                                alignItems: "center", 
+                                gap: "4px", 
+                                fontSize: "9px", 
+                                fontWeight: "bold", 
+                                color: "#0d9488", 
+                                background: "rgba(13, 148, 136, 0.05)", 
+                                border: "1px solid rgba(13, 148, 136, 0.2)", 
+                                padding: "2px 8px", 
+                                borderRadius: "4px", 
+                                cursor: "pointer", 
+                                marginBottom: "4px",
+                                opacity: (refiningId === vol.id || (vol.description?.length === 0 && !vol.workDescription)) ? 0.5 : 1 
+                              }}
+                            >
+                              {refiningId === vol.id ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
+                              AI REFINE
+                            </button>
+                            <textarea
+                              defaultValue={vol.workDescription}
+                              placeholder="Role summary..."
+                              onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.workDescription`, e.target.value)}
+                              style={{ 
+                                width: "100%", 
+                                fontSize: "11.5px", 
+                                color: "#374151", 
+                                background: "transparent", 
+                                border: "1px dashed #d1d5db", 
+                                outline: "none", 
+                                fontFamily: "inherit", 
+                                minHeight: "40px", 
+                                resize: "vertical" 
+                              }}
+                            />
+                          </div>
+                        ) : (
+                          vol.workDescription && (
+                            <div style={{ marginTop: "4px" }}>
+                              <MarkdownText
+                                content={vol.workDescription}
+                                style={{ fontSize: "11.5px", color: "#374151", lineHeight: 1.5 }}
+                              />
+                            </div>
+                          )
+                        )}
+
+                        {isEditable ? (
+                          <div style={{ marginTop: "4px" }}>
+                            <textarea
+                              defaultValue={vol.description}
+                              placeholder="Description..."
+                              onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.description`, e.target.value)}
+                              style={{ 
+                                width: "100%", 
+                                fontSize: "11.5px", 
+                                color: "#374151", 
+                                background: "transparent", 
+                                border: "1px dashed #d1d5db", 
+                                outline: "none", 
+                                fontFamily: "inherit", 
+                                minHeight: "60px", 
+                                resize: "vertical" 
+                              }}
+                            />
+                          </div>
+                        ) : (
+                          vol.description && (
+                            <div style={{ marginTop: "4px" }}>
+                              <MarkdownText
+                                content={vol.description}
+                                style={{ fontSize: "11.5px", color: "#374151", lineHeight: 1.5 }}
+                              />
+                            </div>
+                          )
                         )}
                       </div>
                     </div>

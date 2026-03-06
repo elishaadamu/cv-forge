@@ -60,6 +60,9 @@ export interface CVData {
     description: string
     link: string
     duration?: string
+    location?: string
+    country?: string
+    county?: string
   }>
   languages?: Array<{
     name: string
@@ -74,6 +77,7 @@ export interface CVData {
     country?: string
     county?: string
     description: string
+    workDescription?: string
   }>
   templateId?: string
 }

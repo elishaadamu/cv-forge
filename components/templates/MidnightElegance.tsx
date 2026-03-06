@@ -977,7 +977,7 @@ export function MidnightElegance({
                   {isEditable && (
                     <button 
                       onClick={() => onUpdate?.("languages.remove", i)}
-                      style={{ position: "absolute", top: "-8px", right: "-8px", background: "#ef4444", color: "white", borderRadius: "50%", border: "none", width: "16px", height: "16px", cursor: "pointer", display: "flex", alignItems: "center", justifyCenter: "center", padding: 0 }}
+                      style={{ position: "absolute", top: "-8px", right: "-8px", background: "#ef4444", color: "white", borderRadius: "50%", border: "none", width: "16px", height: "16px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}
                     >
                       <Trash2 size={8} />
                     </button>

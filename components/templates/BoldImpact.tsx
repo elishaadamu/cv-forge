@@ -522,6 +522,60 @@ export function BoldImpact({
                       </span>
                     )}
                   </div>
+                  
+                  {isEditable ? (
+                    <div style={{ marginBottom: "10px" }}>
+                      <button
+                        onClick={() => onRefine?.("experience", exp.id)}
+                        disabled={refiningId === exp.id || (exp.description.length === 0 && !exp.workDescription)}
+                        style={{ 
+                          display: "flex", 
+                          alignItems: "center", 
+                          gap: "4px", 
+                          fontSize: "10px", 
+                          fontWeight: "bold", 
+                          color: "#f97316", 
+                          background: "rgba(249, 115, 22, 0.05)", 
+                          border: "1px solid rgba(249, 115, 22, 0.2)", 
+                          padding: "2px 8px", 
+                          borderRadius: "4px", 
+                          cursor: "pointer", 
+                          marginBottom: "6px",
+                          opacity: (refiningId === exp.id || (exp.description.length === 0 && !exp.workDescription)) ? 0.5 : 1 
+                        }}
+                      >
+                        {refiningId === exp.id ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
+                        AI REFINE
+                      </button>
+                      <textarea
+                        defaultValue={exp.workDescription}
+                        placeholder="Role summary..."
+                        onBlur={(e) => onUpdate?.(`experience.${exp.id}.workDescription`, e.target.value)}
+                        style={{ 
+                          width: "100%", 
+                          fontSize: "12px", 
+                          color: "#334155", 
+                          lineHeight: 1.6, 
+                          background: "transparent", 
+                          border: "1px dashed #cbd5e1", 
+                          outline: "none", 
+                          fontFamily: "inherit", 
+                          resize: "vertical", 
+                          minHeight: "40px" 
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    exp.workDescription && (
+                      <div style={{ marginBottom: "10px" }}>
+                        <MarkdownText
+                          content={exp.workDescription}
+                          style={{ fontSize: "12px", color: "#334155", lineHeight: 1.6 }}
+                        />
+                      </div>
+                    )
+                  )}
+
                   {isEditable ? (
                     <div style={{ marginTop: "4px" }}>
                       {(Array.isArray(exp.description) ? exp.description : []).map((bullet, i) => (
@@ -539,14 +593,6 @@ export function BoldImpact({
                       ))}
                       <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
                         <button onClick={() => onUpdate?.(`experience.${exp.id}.description`, [...(Array.isArray(exp.description) ? exp.description : []), ""])} style={{ fontSize: "10px", fontWeight: "bold", background: "none", border: "none", cursor: "pointer", color: "#f97316" }}>+ ADD BULLET</button>
-                        <button
-                          onClick={() => onRefine?.("experience", exp.id)}
-                          disabled={refiningId === exp.id || !exp.description}
-                          style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "10px", fontWeight: "bold", color: "#f97316", background: "rgba(249, 115, 22, 0.05)", border: "1px solid rgba(249, 115, 22, 0.2)", padding: "2px 8px", borderRadius: "4px", cursor: "pointer", opacity: (refiningId === exp.id || !exp.description) ? 0.5 : 1 }}
-                        >
-                          {refiningId === exp.id ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
-                          AI REFINE
-                        </button>
                       </div>
                     </div>
                   ) : (
@@ -760,6 +806,60 @@ export function BoldImpact({
                         <span>{[vol.location, vol.county, vol.country].filter(Boolean).join(", ")}</span>
                       </div>
                     )}
+
+                    {isEditable ? (
+                      <div style={{ marginBottom: "10px" }}>
+                        <button
+                          onClick={() => onRefine?.("volunteering", vol.id)}
+                          disabled={refiningId === vol.id || (vol.description?.length === 0 && !vol.workDescription)}
+                          style={{ 
+                            display: "flex", 
+                            alignItems: "center", 
+                            gap: "4px", 
+                            fontSize: "10px", 
+                            fontWeight: "bold", 
+                            color: "#f97316", 
+                            background: "rgba(249, 115, 22, 0.05)", 
+                            border: "1px solid rgba(249, 115, 22, 0.2)", 
+                            padding: "2px 8px", 
+                            borderRadius: "4px", 
+                            cursor: "pointer", 
+                            marginBottom: "6px",
+                            opacity: (refiningId === vol.id || (vol.description?.length === 0 && !vol.workDescription)) ? 0.5 : 1 
+                          }}
+                        >
+                          {refiningId === vol.id ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
+                          AI REFINE
+                        </button>
+                        <textarea
+                          defaultValue={vol.workDescription}
+                          placeholder="Role summary..."
+                          onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.workDescription`, e.target.value)}
+                          style={{ 
+                            width: "100%", 
+                            fontSize: "12px", 
+                            color: "#334155", 
+                            lineHeight: 1.6, 
+                            background: "transparent", 
+                            border: "1px dashed #cbd5e1", 
+                            outline: "none", 
+                            fontFamily: "inherit", 
+                            resize: "vertical", 
+                            minHeight: "40px" 
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      vol.workDescription && (
+                        <div style={{ marginBottom: "10px" }}>
+                          <MarkdownText
+                            content={vol.workDescription}
+                            style={{ fontSize: "12px", color: "#334155", lineHeight: 1.6 }}
+                          />
+                        </div>
+                      )
+                    )}
+
                     {isEditable ? (
                       <div style={{ marginLeft: "16px", marginTop: "4px" }}>
                         <textarea value={vol.description} placeholder="Description..." onChange={(e) => onUpdate?.(`volunteering.${vol.id}.description`, e.target.value)} style={{ width: "100%", fontSize: "12px", background: "transparent", border: "1px dashed #cbd5e1", outline: "none", fontFamily: "inherit", resize: "vertical" }} />
