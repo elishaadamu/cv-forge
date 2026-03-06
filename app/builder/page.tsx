@@ -686,8 +686,9 @@ function BuilderContent() {
                 {/* Template Navigator */}
                 <div className="relative" ref={templateDropdownRef}>
                   <button 
-                    onClick={() => setIsTemplateDropdownOpen(!isTemplateDropdownOpen)}
-                    className="flex items-center space-x-3 px-4 h-11 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all active:scale-95 group"
+                    onClick={() => !isAutoSaving && !isSaving && setIsTemplateDropdownOpen(!isTemplateDropdownOpen)}
+                    disabled={isAutoSaving || isSaving}
+                    className={`flex items-center space-x-3 px-4 h-11 bg-white/5 border border-white/10 rounded-2xl transition-all group ${isAutoSaving || isSaving ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white/10 active:scale-95'}`}
                   >
                     <div className="w-8 h-5 rounded-md overflow-hidden border border-white/10 hidden xs:block bg-brand-action/20 flex items-center justify-center">
                        <img 
@@ -760,7 +761,7 @@ function BuilderContent() {
                   <div className={`flex items-center space-x-2.5 px-3.5 py-1.5 rounded-full border transition-all duration-500 ${isAutoSaving ? 'bg-brand-action/10 border-brand-action/40 shadow-[0_0_20px_rgba(var(--brand-action-rgb),0.1)]' : 'bg-brand-success/5 border-brand-success/20'}`}>
                     <div className={`w-1.5 h-1.5 rounded-full ${isAutoSaving ? 'bg-brand-action animate-spin ring-4 ring-brand-action/20' : 'bg-brand-success animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.4)] ring-4 ring-brand-success/10'}`} />
                     <span className={`text-[10px] font-black uppercase tracking-widest leading-none ${isAutoSaving ? 'text-brand-action' : 'text-brand-success/80'}`}>
-                      {isAutoSaving ? 'Cloud Synced...' : 'Changes Persisted'}
+                      {isAutoSaving ? 'Syncing...' : 'Changes Persisted'}
                     </span>
                   </div>
                 </div>
@@ -801,10 +802,10 @@ function BuilderContent() {
 
                  <button 
                   onClick={handleDownloadVarieties}
-                  disabled={isSaving}
+                  disabled={isSaving || isAutoSaving}
                   className="flex items-center space-x-2 px-5 h-11 rounded-2xl font-black text-[10px] uppercase tracking-widest bg-brand-action text-white shadow-lg shadow-brand-action/20 border border-brand-action/30 transition-all active:scale-95 group disabled:opacity-50"
                 >
-                   {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+                   {isSaving || isAutoSaving ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
                    <span className="hidden lg:inline">Download Varieties</span>
                 </button>
 

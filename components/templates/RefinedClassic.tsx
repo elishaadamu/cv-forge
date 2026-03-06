@@ -102,9 +102,9 @@ export function RefinedClassic({
         </div>
         {isEditable ? (
           <input
-            defaultValue={personalInfo.fullName}
+            value={personalInfo.fullName}
             placeholder="YOUR NAME"
-            onBlur={(e) => onUpdate?.("personalInfo.fullName", e.target.value)}
+            onChange={(e) => onUpdate?.("personalInfo.fullName", e.target.value)}
             style={{
               fontSize: "30px",
               fontWeight: 400,
@@ -138,9 +138,9 @@ export function RefinedClassic({
         )}
         {isEditable ? (
           <input
-            defaultValue={personalInfo.jobTitle}
+            value={personalInfo.jobTitle}
             placeholder="JOB TITLE"
-            onBlur={(e) => onUpdate?.("personalInfo.jobTitle", e.target.value)}
+            onChange={(e) => onUpdate?.("personalInfo.jobTitle", e.target.value)}
             style={{
               fontSize: "13px",
               color: "#b45309",
@@ -175,8 +175,8 @@ export function RefinedClassic({
                   {isEditable ? (
                     <input 
                       type="date"
-                      defaultValue={personalInfo.dateOfBirth}
-                      onBlur={(e) => onUpdate?.("personalInfo.dateOfBirth", e.target.value)}
+                      value={personalInfo.dateOfBirth}
+                      onChange={(e) => onUpdate?.("personalInfo.dateOfBirth", e.target.value)}
                       style={{ color: "#57534e", background: "transparent", border: "1px dashed #d6d3d1", padding: "1px 4px", outline: "none", fontSize: "11px" }}
                     />
                   ) : (
@@ -217,9 +217,9 @@ export function RefinedClassic({
                   <span style={{ color: "#78716c", fontWeight: 600 }}>Place of Birth:</span>
                   {isEditable ? (
                     <input 
-                      defaultValue={personalInfo.placeOfBirth}
+                      value={personalInfo.placeOfBirth}
                       placeholder="City, Country"
-                      onBlur={(e) => onUpdate?.("personalInfo.placeOfBirth", e.target.value)}
+                      onChange={(e) => onUpdate?.("personalInfo.placeOfBirth", e.target.value)}
                       style={{ color: "#57534e", background: "transparent", border: "1px dashed #d6d3d1", padding: "1px 4px", outline: "none", fontSize: "11px" }}
                     />
                   ) : (
@@ -232,9 +232,9 @@ export function RefinedClassic({
                   <span style={{ color: "#78716c", fontWeight: 600 }}>Passport:</span>
                   {isEditable ? (
                     <input 
-                      defaultValue={personalInfo.passport}
+                      value={personalInfo.passport}
                       placeholder="No."
-                      onBlur={(e) => onUpdate?.("personalInfo.passport", e.target.value)}
+                      onChange={(e) => onUpdate?.("personalInfo.passport", e.target.value)}
                       style={{ color: "#57534e", background: "transparent", border: "1px dashed #d6d3d1", padding: "1px 4px", outline: "none", fontSize: "11px", width: "80px" }}
                     />
                   ) : (
@@ -247,9 +247,9 @@ export function RefinedClassic({
                   <span style={{ color: "#78716c", fontWeight: 600 }}>Work Permit:</span>
                   {isEditable ? (
                     <input 
-                      defaultValue={personalInfo.workPermit}
+                      value={personalInfo.workPermit}
                       placeholder="Visa Type"
-                      onBlur={(e) => onUpdate?.("personalInfo.workPermit", e.target.value)}
+                      onChange={(e) => onUpdate?.("personalInfo.workPermit", e.target.value)}
                       style={{ color: "#57534e", background: "transparent", border: "1px dashed #d6d3d1", padding: "1px 4px", outline: "none", fontSize: "11px", width: "100px" }}
                     />
                   ) : (
@@ -281,7 +281,7 @@ export function RefinedClassic({
                <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", justifyContent: "center", width: "100%", alignItems: "center" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                     <span style={{ color: "#78716c", fontWeight: 600 }}>Email:</span>
-                    <input defaultValue={personalInfo.email || ""} placeholder="Email" onBlur={(e) => onUpdate?.("personalInfo.email", e.target.value)} style={{ background: "transparent", border: "1px dashed #d6d3d1", fontSize: "10.5px", width: "150px", textAlign: "center" }} />
+                    <input value={personalInfo.email || ""} placeholder="Email" onChange={(e) => onUpdate?.("personalInfo.email", e.target.value)} style={{ background: "transparent", border: "1px dashed #d6d3d1", fontSize: "10.5px", width: "150px", textAlign: "center" }} />
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                     <span style={{ color: "#78716c", fontWeight: 600 }}>Phone:</span>
@@ -291,7 +291,7 @@ export function RefinedClassic({
                         options={countriesData.map(c => c.phonecode)}
                         onSelect={(val) => onUpdate?.("personalInfo.phoneCode", val)}
                       />
-                      <input defaultValue={personalInfo.phone || ""} placeholder="Phone" onBlur={(e) => onUpdate?.("personalInfo.phone", e.target.value)} style={{ background: "transparent", border: "1px dashed #d6d3d1", fontSize: "10.5px", width: "100px" }} />
+                      <input value={personalInfo.phone || ""} placeholder="Phone" onChange={(e) => onUpdate?.("personalInfo.phone", e.target.value)} style={{ background: "transparent", border: "1px dashed #d6d3d1", fontSize: "10.5px", width: "100px" }} />
                     </div>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -316,25 +316,25 @@ export function RefinedClassic({
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                       <span style={{ color: "#78716c", fontWeight: 600 }}>City:</span>
-                      <input defaultValue={personalInfo.location || ""} placeholder="City" onBlur={(e) => onUpdate?.("personalInfo.location", e.target.value)} style={{ background: "transparent", border: "1px dashed #d6d3d1", fontSize: "10.5px", width: "80px" }} />
+                      <input value={personalInfo.location || ""} placeholder="City" onChange={(e) => onUpdate?.("personalInfo.location", e.target.value)} style={{ background: "transparent", border: "1px dashed #d6d3d1", fontSize: "10.5px", width: "80px" }} />
                     </div>
                   </div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", justifyContent: "center" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                       <span style={{ color: "#78716c", fontWeight: 600 }}>LinkedIn:</span>
-                      <input defaultValue={personalInfo.linkedin || ""} placeholder="LinkedIn" onBlur={(e) => onUpdate?.("personalInfo.linkedin", e.target.value)} style={{ background: "transparent", border: "1px dashed #d6d3d1", fontSize: "10.5px", width: "120px", textAlign: "center" }} />
+                      <input value={personalInfo.linkedin || ""} placeholder="LinkedIn" onChange={(e) => onUpdate?.("personalInfo.linkedin", e.target.value)} style={{ background: "transparent", border: "1px dashed #d6d3d1", fontSize: "10.5px", width: "120px", textAlign: "center" }} />
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                       <span style={{ color: "#78716c", fontWeight: 600 }}>Website:</span>
-                      <input defaultValue={personalInfo.website || ""} placeholder="Website" onBlur={(e) => onUpdate?.("personalInfo.website", e.target.value)} style={{ background: "transparent", border: "1px dashed #d6d3d1", fontSize: "10.5px", width: "120px", textAlign: "center" }} />
+                      <input value={personalInfo.website || ""} placeholder="Website" onChange={(e) => onUpdate?.("personalInfo.website", e.target.value)} style={{ background: "transparent", border: "1px dashed #d6d3d1", fontSize: "10.5px", width: "120px", textAlign: "center" }} />
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                       <span style={{ color: "#78716c", fontWeight: 600 }}>GitHub:</span>
-                      <input defaultValue={personalInfo.github || ""} placeholder="GitHub" onBlur={(e) => onUpdate?.("personalInfo.github", e.target.value)} style={{ background: "transparent", border: "1px dashed #d6d3d1", fontSize: "10.5px", width: "120px", textAlign: "center" }} />
+                      <input value={personalInfo.github || ""} placeholder="GitHub" onChange={(e) => onUpdate?.("personalInfo.github", e.target.value)} style={{ background: "transparent", border: "1px dashed #d6d3d1", fontSize: "10.5px", width: "120px", textAlign: "center" }} />
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                       <span style={{ color: "#78716c", fontWeight: 600 }}>Facebook:</span>
-                      <input defaultValue={personalInfo.facebook || ""} placeholder="Facebook" onBlur={(e) => onUpdate?.("personalInfo.facebook", e.target.value)} style={{ background: "transparent", border: "1px dashed #d6d3d1", fontSize: "10.5px", width: "120px", textAlign: "center" }} />
+                      <input value={personalInfo.facebook || ""} placeholder="Facebook" onChange={(e) => onUpdate?.("personalInfo.facebook", e.target.value)} style={{ background: "transparent", border: "1px dashed #d6d3d1", fontSize: "10.5px", width: "120px", textAlign: "center" }} />
                     </div>
                   </div>
                </div>
@@ -386,9 +386,9 @@ export function RefinedClassic({
             </div>
             {isEditable ? (
               <textarea
-                defaultValue={personalInfo.summary}
+                value={personalInfo.summary}
                 placeholder="Professional summary..."
-                onBlur={(e) => onUpdate?.("personalInfo.summary", e.target.value)}
+                onChange={(e) => onUpdate?.("personalInfo.summary", e.target.value)}
                 style={{ width: "100%", minHeight: "80px", fontSize: "13px", color: "#44403c", lineHeight: 1.75, background: "transparent", border: "1px dashed #d6d3d1", outline: "none", fontFamily: "inherit", resize: "vertical", fontStyle: "italic" }}
               />
             ) : (
@@ -428,9 +428,9 @@ export function RefinedClassic({
                       {isEditable ? (
                          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                            <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
-                              <input defaultValue={exp.role} placeholder="Role" onBlur={(e) => onUpdate?.(`experience.${exp.id}.role`, e.target.value)} style={{ fontWeight: 700, fontSize: "13.5px", background: "transparent", border: "1px dashed #d6d3d1", outline: "none" }} />
+                              <input value={exp.role} placeholder="Role" onChange={(e) => onUpdate?.(`experience.${exp.id}.role`, e.target.value)} style={{ fontWeight: 700, fontSize: "13.5px", background: "transparent", border: "1px dashed #d6d3d1", outline: "none" }} />
                               <span style={{ fontSize: "12px", color: "#b45309" }}>—</span>
-                              <input defaultValue={exp.company} placeholder="Company" onBlur={(e) => onUpdate?.(`experience.${exp.id}.company`, e.target.value)} style={{ color: "#b45309", fontSize: "12px", background: "transparent", border: "1px dashed #d6d3d1", outline: "none" }} />
+                              <input value={exp.company} placeholder="Company" onChange={(e) => onUpdate?.(`experience.${exp.id}.company`, e.target.value)} style={{ color: "#b45309", fontSize: "12px", background: "transparent", border: "1px dashed #d6d3d1", outline: "none" }} />
                            </div>
                            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
                               <SearchableSelect
@@ -449,9 +449,9 @@ export function RefinedClassic({
                                 width="100px"
                               />
                               <input 
-                                defaultValue={exp.location || ""} 
+                                value={exp.location || ""} 
                                 placeholder="City" 
-                                onBlur={(e) => onUpdate?.(`experience.${exp.id}.location`, e.target.value)} 
+                                onChange={(e) => onUpdate?.(`experience.${exp.id}.location`, e.target.value)} 
                                 style={{ background: "transparent", border: "1px dashed #d6d3d1", fontSize: "11px", width: "80px", color: "#78716c" }} 
                               />
                             </div>
@@ -490,9 +490,9 @@ export function RefinedClassic({
                       )}
                       {isEditable ? (
                         <textarea
-                          defaultValue={exp.workDescription}
+                          value={exp.workDescription}
                           placeholder="Role summary..."
-                          onBlur={(e) => onUpdate?.(`experience.${exp.id}.workDescription`, e.target.value)}
+                          onChange={(e) => onUpdate?.(`experience.${exp.id}.workDescription`, e.target.value)}
                           style={{ width: "100%", fontSize: "12.5px", color: "#44403c", lineHeight: 1.6, background: "transparent", border: "1px dashed #d6d3d1", outline: "none", fontFamily: "inherit", fontStyle: "italic", resize: "vertical", minHeight: "40px" }}
                         />
                       ) : (
@@ -508,7 +508,7 @@ export function RefinedClassic({
                     <div style={{ marginTop: "4px" }}>
                       {exp.description.map((bullet, i) => (
                         <div key={i} style={{ display: "flex", gap: "8px", marginBottom: "4px" }}>
-                          <input defaultValue={bullet} onBlur={(e) => {
+                          <input value={bullet} onChange={(e) => {
                             const newDesc = [...exp.description]
                             newDesc[i] = e.target.value
                             onUpdate?.(`experience.${exp.id}.description`, newDesc)
@@ -553,16 +553,16 @@ export function RefinedClassic({
                     {skills.map((skill, i) => (
                       <div key={i} style={{ padding: "8px", border: "1px dashed #d6d3d1", borderRadius: "6px" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
-                            <input defaultValue={skill.category} onBlur={(e) => onUpdate?.(`skills.${i}.category`, e.target.value)} style={{ fontWeight: 700, fontSize: "12px", background: "transparent", border: "none", outline: "none", color: "#b45309" }} placeholder="Skill Category" />
+                            <input value={skill.category} onChange={(e) => onUpdate?.(`skills.${i}.category`, e.target.value)} style={{ fontWeight: 700, fontSize: "12px", background: "transparent", border: "none", outline: "none", color: "#b45309" }} placeholder="Skill Category" />
                             <button onClick={() => onUpdate?.("skills.remove", i)} style={{ color: "#ef4444", background: "none", border: "none" }}><Trash2 size={12} /></button>
                         </div>
                         <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
                             {(skill.items || []).map((item, idx) => (
                               <div key={idx} style={{ display: "flex", alignItems: "center", gap: "2px", background: "#fef3c7", padding: "1px 6px", border: "1px solid #d6d3d1", borderRadius: "4px" }}>
                                   <input
-                                    defaultValue={item}
+                                    value={item}
                                     placeholder="Skill"
-                                    onBlur={(e) => {
+                                    onChange={(e) => {
                                       const newItems = [...skill.items]
                                       newItems[idx] = e.target.value
                                       onUpdate?.(`skills.${i}.items`, newItems)
@@ -626,13 +626,13 @@ export function RefinedClassic({
                       <div>
                         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                           <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
-                            <input defaultValue={edu.degree} placeholder="Degree" onBlur={(e) => onUpdate?.(`education.${edu.id}.degree`, e.target.value)} style={{ fontWeight: 700, fontSize: "12.5px", background: "transparent", border: "1px dashed #d6d3d1" }} />
+                            <input value={edu.degree} placeholder="Degree" onChange={(e) => onUpdate?.(`education.${edu.id}.degree`, e.target.value)} style={{ fontWeight: 700, fontSize: "12.5px", background: "transparent", border: "1px dashed #d6d3d1" }} />
                             <span style={{ fontSize: "12px", color: "#78716c" }}>—</span>
-                            <input defaultValue={edu.school} placeholder="School" onBlur={(e) => onUpdate?.(`education.${edu.id}.school`, e.target.value)} style={{ fontSize: "12px", color: "#78716c", background: "transparent", border: "1px dashed #d6d3d1" }} />
+                            <input value={edu.school} placeholder="School" onChange={(e) => onUpdate?.(`education.${edu.id}.school`, e.target.value)} style={{ fontSize: "12px", color: "#78716c", background: "transparent", border: "1px dashed #d6d3d1" }} />
                           </div>
                           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                            <input defaultValue={edu.fieldOfStudy} placeholder="Field of Study" onBlur={(e) => onUpdate?.(`education.${edu.id}.fieldOfStudy`, e.target.value)} style={{ fontSize: "11.5px", color: "#78716c", background: "transparent", border: "1px dashed #d6d3d1", outline: "none", width: "150px" }} />
-                            <input defaultValue={edu.grade} placeholder="Grade/GPA" onBlur={(e) => onUpdate?.(`education.${edu.id}.grade`, e.target.value)} style={{ fontSize: "11.5px", color: "#78716c", background: "transparent", border: "1px dashed #d6d3d1", outline: "none", width: "80px" }} />
+                            <input value={edu.fieldOfStudy} placeholder="Field of Study" onChange={(e) => onUpdate?.(`education.${edu.id}.fieldOfStudy`, e.target.value)} style={{ fontSize: "11.5px", color: "#78716c", background: "transparent", border: "1px dashed #d6d3d1", outline: "none", width: "150px" }} />
+                            <input value={edu.grade} placeholder="Grade/GPA" onChange={(e) => onUpdate?.(`education.${edu.id}.grade`, e.target.value)} style={{ fontSize: "11.5px", color: "#78716c", background: "transparent", border: "1px dashed #d6d3d1", outline: "none", width: "80px" }} />
                           </div>
                           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
                             <SearchableSelect
@@ -651,9 +651,9 @@ export function RefinedClassic({
                               width="100px"
                             />
                             <input 
-                              defaultValue={edu.location || ""} 
+                              value={edu.location || ""} 
                               placeholder="City" 
-                              onBlur={(e) => onUpdate?.(`education.${edu.id}.location`, e.target.value)} 
+                              onChange={(e) => onUpdate?.(`education.${edu.id}.location`, e.target.value)} 
                               style={{ background: "transparent", border: "1px dashed #d6d3d1", fontSize: "11px", width: "80px", color: "#78716c" }} 
                             />
                           </div>
@@ -706,9 +706,9 @@ export function RefinedClassic({
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                     {isEditable ? (
                       <div style={{ display: "flex", flexDirection: "column", gap: "4px", width: "100%" }}>
-                         <input defaultValue={proj.name} placeholder="Project Name" onBlur={(e) => onUpdate?.(`projects.${proj.id}.name`, e.target.value)} style={{ fontWeight: 700, fontSize: "13px", color: "#1c1917", background: "transparent", border: "1px dashed #d6d3d1" }} />
-                         <input defaultValue={proj.link} placeholder="Link" onBlur={(e) => onUpdate?.(`projects.${proj.id}.link`, e.target.value)} style={{ fontSize: "10px", color: "#b45309", background: "transparent", border: "1px dashed #d6d3d1", fontStyle: "italic" }} />
-                         <textarea defaultValue={proj.description} placeholder="Description..." onBlur={(e) => onUpdate?.(`projects.${proj.id}.description`, e.target.value)} style={{ width: "100%", fontSize: "12px", color: "#44403c", background: "transparent", border: "1px dashed #d6d3d1", outline: "none", fontFamily: "inherit" }} />
+                         <input value={proj.name} placeholder="Project Name" onChange={(e) => onUpdate?.(`projects.${proj.id}.name`, e.target.value)} style={{ fontWeight: 700, fontSize: "13px", color: "#1c1917", background: "transparent", border: "1px dashed #d6d3d1" }} />
+                         <input value={proj.link} placeholder="Link" onChange={(e) => onUpdate?.(`projects.${proj.id}.link`, e.target.value)} style={{ fontSize: "10px", color: "#b45309", background: "transparent", border: "1px dashed #d6d3d1", fontStyle: "italic" }} />
+                         <textarea value={proj.description} placeholder="Description..." onChange={(e) => onUpdate?.(`projects.${proj.id}.description`, e.target.value)} style={{ width: "100%", fontSize: "12px", color: "#44403c", background: "transparent", border: "1px dashed #d6d3d1", outline: "none", fontFamily: "inherit" }} />
                       </div>
                     ) : (
                       <>
@@ -751,8 +751,8 @@ export function RefinedClassic({
                     <div style={{ marginBottom: "2px" }}>
                       {isEditable ? (
                         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                          <input defaultValue={vol.role} placeholder="Role" onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.role`, e.target.value)} style={{ fontSize: "13px", fontWeight: 700, color: "#1c1917", background: "transparent", border: "1px dashed #d6d3d1", width: "100%" }} />
-                          <input defaultValue={vol.organization} placeholder="Organization" onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.organization`, e.target.value)} style={{ color: "#b45309", fontSize: "12px", background: "transparent", border: "1px dashed #d6d3d1", width: "100%" }} />
+                          <input value={vol.role} placeholder="Role" onChange={(e) => onUpdate?.(`volunteering.${vol.id}.role`, e.target.value)} style={{ fontSize: "13px", fontWeight: 700, color: "#1c1917", background: "transparent", border: "1px dashed #d6d3d1", width: "100%" }} />
+                          <input value={vol.organization} placeholder="Organization" onChange={(e) => onUpdate?.(`volunteering.${vol.id}.organization`, e.target.value)} style={{ color: "#b45309", fontSize: "12px", background: "transparent", border: "1px dashed #d6d3d1", width: "100%" }} />
                           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
                             <SearchableSelect
                               value={vol.country || "Country"}
@@ -770,9 +770,9 @@ export function RefinedClassic({
                               width="100px"
                             />
                             <input 
-                              defaultValue={vol.location || ""} 
+                              value={vol.location || ""} 
                               placeholder="City" 
-                              onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.location`, e.target.value)} 
+                              onChange={(e) => onUpdate?.(`volunteering.${vol.id}.location`, e.target.value)} 
                               style={{ background: "transparent", border: "1px dashed #d6d3d1", fontSize: "11px", width: "80px", color: "#78716c" }} 
                             />
                           </div>
@@ -796,7 +796,7 @@ export function RefinedClassic({
                       )}
                     </div>
                     {isEditable ? (
-                      <textarea defaultValue={vol.description} placeholder="Description..." onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.description`, e.target.value)} style={{ width: "100%", fontSize: "12px", color: "#44403c", background: "transparent", border: "1px dashed #d6d3d1", outline: "none", fontFamily: "inherit", resize: "vertical" }} />
+                      <textarea value={vol.description} placeholder="Description..." onChange={(e) => onUpdate?.(`volunteering.${vol.id}.description`, e.target.value)} style={{ width: "100%", fontSize: "12px", color: "#44403c", background: "transparent", border: "1px dashed #d6d3d1", outline: "none", fontFamily: "inherit", resize: "vertical" }} />
                     ) : (
                       <MarkdownText content={vol.description} style={{ fontSize: "11.5px", color: "#44403c", lineHeight: 1.5 }} />
                     )}

@@ -133,9 +133,9 @@ export function ModernProfessional({
         <div style={{ marginBottom: "28px" }}>
           {isEditable ? (
             <input
-              defaultValue={personalInfo.fullName}
+              value={personalInfo.fullName}
               placeholder="Your Full Name"
-              onBlur={(e) => onUpdate?.("personalInfo.fullName", e.target.value)}
+              onChange={(e) => onUpdate?.("personalInfo.fullName", e.target.value)}
               style={{
                 fontSize: "36px",
                 fontWeight: 900,
@@ -208,9 +208,9 @@ export function ModernProfessional({
             </div>
             {isEditable ? (
               <textarea
-                defaultValue={personalInfo.summary}
+                value={personalInfo.summary}
                 placeholder="Professional summary..."
-                onBlur={(e) => onUpdate?.("personalInfo.summary", e.target.value)}
+                onChange={(e) => onUpdate?.("personalInfo.summary", e.target.value)}
                 style={{
                   width: "100%",
                   minHeight: "100px",
@@ -274,9 +274,9 @@ export function ModernProfessional({
                   >
                     {isEditable ? (
                       <input
-                        defaultValue={exp.company}
+                        value={exp.company}
                         placeholder="Company"
-                        onBlur={(e) => onUpdate?.(`experience.${exp.id}.company`, e.target.value)}
+                        onChange={(e) => onUpdate?.(`experience.${exp.id}.company`, e.target.value)}
                         style={{
                           fontWeight: 700,
                           fontSize: "13px",
@@ -321,9 +321,9 @@ export function ModernProfessional({
                   <div style={{ display: "flex", gap: "12px", alignItems: "center", marginBottom: "6px" }}>
                     {isEditable ? (
                       <input
-                        defaultValue={exp.role}
+                        value={exp.role}
                         placeholder="Role"
-                        onBlur={(e) => onUpdate?.(`experience.${exp.id}.role`, e.target.value)}
+                        onChange={(e) => onUpdate?.(`experience.${exp.id}.role`, e.target.value)}
                         style={{
                           fontSize: "11.5px",
                           color: "#6b7280",
@@ -352,9 +352,9 @@ export function ModernProfessional({
                       <MapPin size={10} color="#9ca3af" />
                       {isEditable ? (
                         <input
-                          defaultValue={exp.location}
+                          value={exp.location}
                           placeholder="City, Country"
-                          onBlur={(e) => onUpdate?.(`experience.${exp.id}.location`, e.target.value)}
+                          onChange={(e) => onUpdate?.(`experience.${exp.id}.location`, e.target.value)}
                           style={{
                             fontSize: "11px",
                             color: "#9ca3af",
@@ -398,9 +398,9 @@ export function ModernProfessional({
                     <div style={{ marginBottom: "10px" }}>
                       {isEditable ? (
                         <textarea 
-                          defaultValue={exp.workDescription}
+                          value={exp.workDescription}
                           placeholder="Briefly describe your role and key responsibilities..."
-                          onBlur={(e) => onUpdate?.(`experience.${exp.id}.workDescription`, e.target.value.trim())}
+                          onChange={(e) => onUpdate?.(`experience.${exp.id}.workDescription`, e.target.value)}
                           style={{ 
                             fontSize: "12px", 
                             color: "#374151", 
@@ -429,12 +429,12 @@ export function ModernProfessional({
                         <div key={i} style={{ display: "flex", gap: "8px", marginBottom: "4px", alignItems: "start" }}>
                           <span style={{ fontSize: "12px", color: "#9ca3af", minWidth: "20px", marginTop: "4px", fontWeight: 700 }}>{i + 1}.</span>
                           <input
-                            defaultValue={bullet}
+                            value={bullet}
                             placeholder="List tasks (e.g. Developed user interfaces)..."
-                            onBlur={(e) => {
+                            onChange={(e) => {
                               const newDesc = [...exp.description]
                               newDesc[i] = e.target.value
-                              onUpdate?.(`experience.${exp.id}.description`, newDesc.filter(b => b.trim() || isEditable))
+                              onUpdate?.(`experience.${exp.id}.description`, newDesc)
                             }}
                             style={{
                               flex: 1,
@@ -519,9 +519,9 @@ export function ModernProfessional({
                   >
                     {isEditable ? (
                       <input
-                        defaultValue={proj.name}
+                        value={proj.name}
                         placeholder="Project Name"
-                        onBlur={(e) => onUpdate?.(`projects.${proj.id}.name`, e.target.value)}
+                        onChange={(e) => onUpdate?.(`projects.${proj.id}.name`, e.target.value)}
                         style={{
                           fontWeight: 700,
                           fontSize: "13px",
@@ -547,9 +547,9 @@ export function ModernProfessional({
                     )}
                     {isEditable ? (
                       <input
-                        defaultValue={proj.link}
+                        value={proj.link}
                         placeholder="Link (e.g. github.com/user/repo)"
-                        onBlur={(e) => onUpdate?.(`projects.${proj.id}.link`, e.target.value)}
+                        onChange={(e) => onUpdate?.(`projects.${proj.id}.link`, e.target.value)}
                         style={{
                           fontSize: "10px",
                           color: "#3b82c4",
@@ -575,9 +575,9 @@ export function ModernProfessional({
                   </div>
                   {isEditable ? (
                     <textarea
-                      defaultValue={proj.description}
+                      value={proj.description}
                       placeholder="Project description..."
-                      onBlur={(e) => onUpdate?.(`projects.${proj.id}.description`, e.target.value)}
+                      onChange={(e) => onUpdate?.(`projects.${proj.id}.description`, e.target.value)}
                       style={{
                         width: "100%",
                         fontSize: "12px",
@@ -636,9 +636,9 @@ export function ModernProfessional({
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                     {isEditable ? (
                       <input 
-                        defaultValue={vol.role}
+                        value={vol.role}
                         placeholder="Volunteer Role"
-                        onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.role`, e.target.value)}
+                        onChange={(e) => onUpdate?.(`volunteering.${vol.id}.role`, e.target.value)}
                         style={{ fontWeight: 700, fontSize: "14px", color: "#1a3a5c", outline: "none", background: "transparent", border: "1px dashed rgba(26, 58, 92, 0.3)", padding: "2px 8px", borderRadius: "3px", width: "60%", fontFamily: "inherit" }}
                       />
                     ) : (
@@ -656,9 +656,9 @@ export function ModernProfessional({
                   {isEditable ? (
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center", marginBottom: "6px" }}>
                       <input 
-                        defaultValue={vol.organization}
+                        value={vol.organization}
                         placeholder="Organization"
-                        onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.organization`, e.target.value)}
+                        onChange={(e) => onUpdate?.(`volunteering.${vol.id}.organization`, e.target.value)}
                         style={{ fontSize: "13px", color: "#3b82c4", fontWeight: 600, outline: "none", background: "transparent", border: "1px dashed rgba(59, 130, 196, 0.3)", padding: "2px 8px", borderRadius: "3px", width: "150px", fontFamily: "inherit" }}
                       />
                       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -676,9 +676,9 @@ export function ModernProfessional({
                           width="100px"
                         />
                          <input 
-                          defaultValue={vol.location}
+                          value={vol.location}
                           placeholder="City"
-                          onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.location`, e.target.value)}
+                          onChange={(e) => onUpdate?.(`volunteering.${vol.id}.location`, e.target.value)}
                           style={{ fontSize: "11px", color: "#9ca3af", outline: "none", background: "transparent", border: "1px dashed rgba(26, 58, 92, 0.3)", padding: "2px 8px", borderRadius: "3px", width: "90px", fontFamily: "inherit" }}
                         />
                       </div>
@@ -698,9 +698,9 @@ export function ModernProfessional({
                   )}
                   {isEditable ? (
                     <textarea 
-                      defaultValue={vol.description}
+                      value={vol.description}
                       placeholder="Describe your volunteer work..."
-                      onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.description`, e.target.value)}
+                      onChange={(e) => onUpdate?.(`volunteering.${vol.id}.description`, e.target.value)}
                       style={{ width: "100%", fontSize: "12px", color: "#4b5563", lineHeight: 1.6, background: "transparent", border: "1px dashed rgba(26, 58, 92, 0.3)", padding: "4px 8px", outline: "none", resize: "vertical", fontFamily: "inherit" }}
                     />
                   ) : (

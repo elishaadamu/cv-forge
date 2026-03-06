@@ -105,9 +105,9 @@ export function BoldImpact({
         <div style={{ flex: 1 }}>
           {isEditable ? (
              <input
-              defaultValue={personalInfo.fullName}
+              value={personalInfo.fullName}
               placeholder="YOUR NAME"
-              onBlur={(e) => onUpdate?.("personalInfo.fullName", e.target.value)}
+              onChange={(e) => onUpdate?.("personalInfo.fullName", e.target.value)}
               style={{
                 fontSize: "38px",
                 fontWeight: 900,
@@ -139,9 +139,9 @@ export function BoldImpact({
           )}
           {isEditable ? (
             <input
-              defaultValue={personalInfo.jobTitle}
+              value={personalInfo.jobTitle}
               placeholder="JOB TITLE"
-              onBlur={(e) => onUpdate?.("personalInfo.jobTitle", e.target.value)}
+              onChange={(e) => onUpdate?.("personalInfo.jobTitle", e.target.value)}
               style={{
                 display: "inline-block",
                 background: "#f97316",
@@ -229,8 +229,8 @@ export function BoldImpact({
                   <span style={{ fontWeight: 800, color: "#f97316" }}>Passport:</span>
                   {isEditable ? (
                     <input
-                      defaultValue={personalInfo.passport}
-                      onBlur={(e) => onUpdate?.("personalInfo.passport", e.target.value)}
+                      value={personalInfo.passport}
+                      onChange={(e) => onUpdate?.("personalInfo.passport", e.target.value)}
                       placeholder="e.g. US"
                       style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.3)", color: "#fff", fontSize: "11px", width: "60px", outline: "none" }}
                     />
@@ -244,8 +244,8 @@ export function BoldImpact({
                   <span style={{ fontWeight: 800, color: "#f97316" }}>Work Permit:</span>
                   {isEditable ? (
                     <input
-                      defaultValue={personalInfo.workPermit}
-                      onBlur={(e) => onUpdate?.("personalInfo.workPermit", e.target.value)}
+                      value={personalInfo.workPermit}
+                      onChange={(e) => onUpdate?.("personalInfo.workPermit", e.target.value)}
                       placeholder="e.g. EU"
                       style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.3)", color: "#fff", fontSize: "11px", width: "60px", outline: "none" }}
                     />
@@ -274,7 +274,7 @@ export function BoldImpact({
       >
         {isEditable ? (
            <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", width: "100%", alignItems: "center" }}>
-              <input defaultValue={personalInfo.email || ""} placeholder="Email" onBlur={(e) => onUpdate?.("personalInfo.email", e.target.value)} style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.2)", color: "#fff", fontSize: "10.5px", width: "140px", outline: "none" }} />
+              <input value={personalInfo.email || ""} placeholder="Email" onChange={(e) => onUpdate?.("personalInfo.email", e.target.value)} style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.2)", color: "#fff", fontSize: "10.5px", width: "140px", outline: "none" }} />
               <div style={{ display: "flex", alignItems: "center", gap: "2px" }}>
                 <SearchableSelect
                   value={personalInfo.phoneCode || "+1"}
@@ -293,7 +293,7 @@ export function BoldImpact({
                     }
                   }}
                 />
-                <input defaultValue={personalInfo.phone || ""} placeholder="Phone" onBlur={(e) => onUpdate?.("personalInfo.phone", e.target.value)} style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.2)", color: "#fff", fontSize: "10.5px", width: "90px", outline: "none" }} />
+                <input value={personalInfo.phone || ""} placeholder="Phone" onChange={(e) => onUpdate?.("personalInfo.phone", e.target.value)} style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.2)", color: "#fff", fontSize: "10.5px", width: "90px", outline: "none" }} />
               </div>
               <SearchableSelect
                 value={personalInfo.country || "Country"}
@@ -310,13 +310,13 @@ export function BoldImpact({
                 onSelect={(val) => onUpdate?.("personalInfo.county", val)}
                 width="100px"
               />
-              <input defaultValue={personalInfo.location || ""} placeholder="City/Zip" onBlur={(e) => onUpdate?.("personalInfo.location", e.target.value)} style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.2)", color: "#fff", fontSize: "10.5px", width: "80px", outline: "none" }} />
+              <input value={personalInfo.location || ""} placeholder="City/Zip" onChange={(e) => onUpdate?.("personalInfo.location", e.target.value)} style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.2)", color: "#fff", fontSize: "10.5px", width: "80px", outline: "none" }} />
               
               {/* Socials */}
-              <input defaultValue={personalInfo.linkedin || ""} placeholder="LinkedIn" onBlur={(e) => onUpdate?.("personalInfo.linkedin", e.target.value)} style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.2)", color: "#fff", fontSize: "10.5px", width: "100px", outline: "none" }} />
-              <input defaultValue={personalInfo.website || ""} placeholder="Website" onBlur={(e) => onUpdate?.("personalInfo.website", e.target.value)} style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.2)", color: "#fff", fontSize: "10.5px", width: "100px", outline: "none" }} />
-              <input defaultValue={personalInfo.github || ""} placeholder="GitHub" onBlur={(e) => onUpdate?.("personalInfo.github", e.target.value)} style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.2)", color: "#fff", fontSize: "10.5px", width: "100px", outline: "none" }} />
-              <input defaultValue={personalInfo.facebook || ""} placeholder="Facebook" onBlur={(e) => onUpdate?.("personalInfo.facebook", e.target.value)} style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.2)", color: "#fff", fontSize: "10.5px", width: "100px", outline: "none" }} />
+              <input value={personalInfo.linkedin || ""} placeholder="LinkedIn" onChange={(e) => onUpdate?.("personalInfo.linkedin", e.target.value)} style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.2)", color: "#fff", fontSize: "10.5px", width: "100px", outline: "none" }} />
+              <input value={personalInfo.website || ""} placeholder="Website" onChange={(e) => onUpdate?.("personalInfo.website", e.target.value)} style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.2)", color: "#fff", fontSize: "10.5px", width: "100px", outline: "none" }} />
+              <input value={personalInfo.github || ""} placeholder="GitHub" onChange={(e) => onUpdate?.("personalInfo.github", e.target.value)} style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.2)", color: "#fff", fontSize: "10.5px", width: "100px", outline: "none" }} />
+              <input value={personalInfo.facebook || ""} placeholder="Facebook" onChange={(e) => onUpdate?.("personalInfo.facebook", e.target.value)} style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.2)", color: "#fff", fontSize: "10.5px", width: "100px", outline: "none" }} />
            </div>
         ) : (
           <>
@@ -364,9 +364,9 @@ export function BoldImpact({
             </div>
             {isEditable ? (
               <textarea
-                defaultValue={personalInfo.summary}
+                value={personalInfo.summary}
                 placeholder="About you..."
-                onBlur={(e) => onUpdate?.("personalInfo.summary", e.target.value)}
+                onChange={(e) => onUpdate?.("personalInfo.summary", e.target.value)}
                 style={{ width: "100%", minHeight: "80px", fontSize: "12.5px", color: "#334155", lineHeight: 1.75, background: "transparent", border: "1px dashed #cbd5e1", outline: "none", fontFamily: "inherit", resize: "vertical" }}
               />
             ) : (
@@ -402,12 +402,12 @@ export function BoldImpact({
                   )}
                   {isEditable ? (
                     <div>
-                      <input defaultValue={edu.degree} placeholder="Degree" onBlur={(e) => onUpdate?.(`education.${edu.id}.degree`, e.target.value)} style={{ fontWeight: 800, fontSize: "12px", width: "100%", background: "transparent", border: "1px dashed #cbd5e1" }} />
+                      <input value={edu.degree} placeholder="Degree" onChange={(e) => onUpdate?.(`education.${edu.id}.degree`, e.target.value)} style={{ fontWeight: 800, fontSize: "12px", width: "100%", background: "transparent", border: "1px dashed #cbd5e1" }} />
                       <div style={{ display: "flex", gap: "8px", margin: "4px 0" }}>
-                        <input defaultValue={edu.fieldOfStudy} placeholder="Field of Study" onBlur={(e) => onUpdate?.(`education.${edu.id}.fieldOfStudy`, e.target.value)} style={{ fontSize: "11px", width: "60%", background: "transparent", border: "1px dashed #cbd5e1" }} />
-                        <input defaultValue={edu.grade} placeholder="Grade/GPA" onBlur={(e) => onUpdate?.(`education.${edu.id}.grade`, e.target.value)} style={{ fontSize: "11px", width: "30%", background: "transparent", border: "1px dashed #cbd5e1" }} />
+                        <input value={edu.fieldOfStudy} placeholder="Field of Study" onChange={(e) => onUpdate?.(`education.${edu.id}.fieldOfStudy`, e.target.value)} style={{ fontSize: "11px", width: "60%", background: "transparent", border: "1px dashed #cbd5e1" }} />
+                        <input value={edu.grade} placeholder="Grade/GPA" onChange={(e) => onUpdate?.(`education.${edu.id}.grade`, e.target.value)} style={{ fontSize: "11px", width: "30%", background: "transparent", border: "1px dashed #cbd5e1" }} />
                       </div>
-                      <input defaultValue={edu.school} placeholder="School" onBlur={(e) => onUpdate?.(`education.${edu.id}.school`, e.target.value)} style={{ fontSize: "11px", width: "100%", background: "transparent", border: "1px dashed #cbd5e1", marginBottom: "4px" }} />
+                      <input value={edu.school} placeholder="School" onChange={(e) => onUpdate?.(`education.${edu.id}.school`, e.target.value)} style={{ fontSize: "11px", width: "100%", background: "transparent", border: "1px dashed #cbd5e1", marginBottom: "4px" }} />
                       <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
                          <SearchableSelect
                           value={edu.country || "Country"}
@@ -424,7 +424,7 @@ export function BoldImpact({
                           onSelect={(val) => onUpdate?.(`education.${edu.id}.county`, val)}
                           width="100px"
                         />
-                        <input defaultValue={edu.location} placeholder="City" onBlur={(e) => onUpdate?.(`education.${edu.id}.location`, e.target.value)} style={{ fontSize: "11px", background: "transparent", border: "1px dashed #cbd5e1", width: "80px" }} />
+                        <input value={edu.location} placeholder="City" onChange={(e) => onUpdate?.(`education.${edu.id}.location`, e.target.value)} style={{ fontSize: "11px", background: "transparent", border: "1px dashed #cbd5e1", width: "80px" }} />
                         <DurationPicker value={edu.duration} onChange={(val) => onUpdate?.(`education.${edu.id}.duration`, val)} />
                       </div>
                     </div>
@@ -478,9 +478,9 @@ export function BoldImpact({
                     <div>
                       {isEditable ? (
                          <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", alignItems: "center" }}>
-                            <input defaultValue={exp.role} placeholder="Role" onBlur={(e) => onUpdate?.(`experience.${exp.id}.role`, e.target.value)} style={{ fontWeight: 800, fontSize: "14px", background: "transparent", border: "1px dashed #cbd5e1", outline: "none" }} />
+                            <input value={exp.role} placeholder="Role" onChange={(e) => onUpdate?.(`experience.${exp.id}.role`, e.target.value)} style={{ fontWeight: 800, fontSize: "14px", background: "transparent", border: "1px dashed #cbd5e1", outline: "none" }} />
                             <span style={{ color: "#64748b", fontSize: "12px" }}>at</span>
-                            <input defaultValue={exp.company} placeholder="Company" onBlur={(e) => onUpdate?.(`experience.${exp.id}.company`, e.target.value)} style={{ color: "#64748b", fontSize: "12px", background: "transparent", border: "1px dashed #cbd5e1", outline: "none", width: "120px" }} />
+                            <input value={exp.company} placeholder="Company" onChange={(e) => onUpdate?.(`experience.${exp.id}.company`, e.target.value)} style={{ color: "#64748b", fontSize: "12px", background: "transparent", border: "1px dashed #cbd5e1", outline: "none", width: "120px" }} />
                             <SearchableSelect
                               value={exp.country || "Country"}
                               options={countriesData.map(c => c.name)}
@@ -526,7 +526,7 @@ export function BoldImpact({
                     <div style={{ marginTop: "4px" }}>
                       {(Array.isArray(exp.description) ? exp.description : []).map((bullet, i) => (
                         <div key={i} style={{ display: "flex", gap: "8px", marginBottom: "4px" }}>
-                          <input defaultValue={bullet} onBlur={(e) => {
+                          <input value={bullet} onChange={(e) => {
                             const newDesc = [...exp.description]
                             newDesc[i] = e.target.value
                             onUpdate?.(`experience.${exp.id}.description`, newDesc)
@@ -582,8 +582,8 @@ export function BoldImpact({
                     <div key={i} style={{ padding: "10px", border: "1px dashed #cbd5e1", borderRadius: "6px", background: "rgba(241, 245, 249, 0.5)" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
                         <input 
-                          defaultValue={skill.category} 
-                          onBlur={(e) => onUpdate?.(`skills.${i}.category`, e.target.value)} 
+                          value={skill.category} 
+                          onChange={(e) => onUpdate?.(`skills.${i}.category`, e.target.value)} 
                           style={{ fontWeight: 800, fontSize: "12px", color: "#0f172a", background: "transparent", border: "none", outline: "none", textTransform: "uppercase", letterSpacing: "1px", width: "100%" }} 
                           placeholder="Category Name"
                         />
@@ -593,9 +593,9 @@ export function BoldImpact({
                         {(skill.items || []).map((item, idx) => (
                           <div key={idx} style={{ display: "flex", alignItems: "center", gap: "2px", background: "#fff", padding: "2px 8px", border: "1px solid #e2e8f0", borderRadius: "4px" }}>
                             <input
-                              defaultValue={item}
+                              value={item}
                               placeholder="Skill"
-                              onBlur={(e) => {
+                              onChange={(e) => {
                                 const newItems = [...skill.items]
                                 newItems[idx] = e.target.value
                                 onUpdate?.(`skills.${i}.items`, newItems)
@@ -665,10 +665,10 @@ export function BoldImpact({
                   )}
                   {isEditable ? (
                     <div>
-                      <input defaultValue={proj.name} placeholder="Project Name" onBlur={(e) => onUpdate?.(`projects.${proj.id}.name`, e.target.value)} style={{ fontWeight: 800, fontSize: "12px", width: "100%", background: "transparent", border: "1px dashed #cbd5e1" }} />
-                      <input defaultValue={proj.link} placeholder="Link" onBlur={(e) => onUpdate?.(`projects.${proj.id}.link`, e.target.value)} style={{ fontSize: "9px", width: "100%", background: "transparent", border: "1px dashed #cbd5e1", color: "#f97316" }} />
+                      <input value={proj.name} placeholder="Project Name" onChange={(e) => onUpdate?.(`projects.${proj.id}.name`, e.target.value)} style={{ fontWeight: 800, fontSize: "12px", width: "100%", background: "transparent", border: "1px dashed #cbd5e1" }} />
+                      <input value={proj.link} placeholder="Link" onChange={(e) => onUpdate?.(`projects.${proj.id}.link`, e.target.value)} style={{ fontSize: "9px", width: "100%", background: "transparent", border: "1px dashed #cbd5e1", color: "#f97316" }} />
                       <div style={{ marginLeft: "16px", marginTop: "4px" }}>
-                        <textarea defaultValue={proj.description} placeholder="Description..." onBlur={(e) => onUpdate?.(`projects.${proj.id}.description`, e.target.value)} style={{ width: "100%", fontSize: "11px", background: "transparent", border: "1px dashed #cbd5e1", outline: "none", fontFamily: "inherit" }} />
+                        <textarea value={proj.description} placeholder="Description..." onChange={(e) => onUpdate?.(`projects.${proj.id}.description`, e.target.value)} style={{ width: "100%", fontSize: "11px", background: "transparent", border: "1px dashed #cbd5e1", outline: "none", fontFamily: "inherit" }} />
                       </div>
                     </div>
                   ) : (
@@ -714,9 +714,9 @@ export function BoldImpact({
                       <div>
                         {isEditable ? (
                            <div style={{ display: "flex", gap: "4px" }}>
-                              <input defaultValue={vol.role} placeholder="Role" onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.role`, e.target.value)} style={{ fontWeight: 800, fontSize: "14px", background: "transparent", border: "1px dashed #cbd5e1", outline: "none" }} />
+                              <input value={vol.role} placeholder="Role" onChange={(e) => onUpdate?.(`volunteering.${vol.id}.role`, e.target.value)} style={{ fontWeight: 800, fontSize: "14px", background: "transparent", border: "1px dashed #cbd5e1", outline: "none" }} />
                               <span style={{ color: "#64748b", fontSize: "12px" }}>at</span>
-                              <input defaultValue={vol.organization} placeholder="Organization" onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.organization`, e.target.value)} style={{ color: "#64748b", fontSize: "12px", background: "transparent", border: "1px dashed #cbd5e1", outline: "none" }} />
+                              <input value={vol.organization} placeholder="Organization" onChange={(e) => onUpdate?.(`volunteering.${vol.id}.organization`, e.target.value)} style={{ color: "#64748b", fontSize: "12px", background: "transparent", border: "1px dashed #cbd5e1", outline: "none" }} />
                            </div>
                         ) : (
                           <>
@@ -748,9 +748,9 @@ export function BoldImpact({
                           width="100px"
                         />
                         <input
-                          defaultValue={vol.location}
+                          value={vol.location}
                           placeholder="City"
-                          onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.location`, e.target.value)}
+                          onChange={(e) => onUpdate?.(`volunteering.${vol.id}.location`, e.target.value)}
                           style={{ fontSize: "11px", color: "#64748b", background: "transparent", border: "1px dashed #cbd5e1", outline: "none", padding: "2px 4px", width: "90px" }}
                         />
                       </div>
@@ -762,7 +762,7 @@ export function BoldImpact({
                     )}
                     {isEditable ? (
                       <div style={{ marginLeft: "16px", marginTop: "4px" }}>
-                        <textarea defaultValue={vol.description} placeholder="Description..." onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.description`, e.target.value)} style={{ width: "100%", fontSize: "12px", background: "transparent", border: "1px dashed #cbd5e1", outline: "none", fontFamily: "inherit", resize: "vertical" }} />
+                        <textarea value={vol.description} placeholder="Description..." onChange={(e) => onUpdate?.(`volunteering.${vol.id}.description`, e.target.value)} style={{ width: "100%", fontSize: "12px", background: "transparent", border: "1px dashed #cbd5e1", outline: "none", fontFamily: "inherit", resize: "vertical" }} />
                       </div>
                     ) : (
                       <MarkdownText content={vol.description} style={{ fontSize: "12px", color: "#334155", lineHeight: 1.6, marginLeft: "16px" }} />
@@ -790,9 +790,9 @@ export function BoldImpact({
                       )}
                       {isEditable ? (
                         <input 
-                          defaultValue={lang.name} 
+                          value={lang.name} 
                           placeholder="Language"
-                          onBlur={(e) => onUpdate?.(`languages.${i}.name`, e.target.value)} 
+                          onChange={(e) => onUpdate?.(`languages.${i}.name`, e.target.value)} 
                           style={{ fontWeight: 800, background: "transparent", border: "1px dashed #cbd5e1", width: "100px", color: "#0f172a", outline: "none", padding: "1px 4px" }} 
                         />
                       ) : (
