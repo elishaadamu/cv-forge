@@ -126,50 +126,7 @@ export function ModernProfessional({
         boxSizing: "border-box",
       }}
     >
-      <div style={{ position: "absolute", top: "40px", right: "40px", zIndex: 10 }}>
-        {personalInfo.profileImage ? (
-          <div style={{ position: "relative" }}>
-            <img
-              src={personalInfo.profileImage}
-              alt={personalInfo.fullName}
-              style={{
-                width: "90px",
-                height: "90px",
-                borderRadius: "12px",
-                objectFit: "cover",
-                border: "4px solid #fff",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-              }}
-            />
-            {isEditable && (
-              <button
-                onClick={onImageClick}
-                style={{ position: "absolute", bottom: "-8px", right: "-8px", background: "#1a3a5c", color: "white", borderRadius: "50%", padding: "6px", border: "2px solid white", cursor: "pointer", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}
-              >
-                <Camera size={14} />
-              </button>
-            )}
-          </div>
-        ) : isEditable ? (
-          <button
-            onClick={onImageClick}
-            style={{
-              width: "90px",
-              height: "90px",
-              borderRadius: "12px",
-              border: "2px dashed #1a3a5c",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: "rgba(26, 58, 92, 0.05)",
-              color: "#1a3a5c",
-              cursor: "pointer"
-            }}
-          >
-            <Camera size={24} />
-          </button>
-        ) : null}
-      </div>
+
       {/* ── LEFT MAIN COLUMN ── */}
       <div style={{ flex: 1, padding: "48px 36px 48px 48px", boxSizing: "border-box" }}>
         {/* Name + Title */}
@@ -394,10 +351,20 @@ export function ModernProfessional({
                     <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                       <MapPin size={10} color="#9ca3af" />
                       {isEditable ? (
-                        <SearchableSelect 
-                          value={exp.location || "Location"} 
-                          options={countriesData.map(c => c.name)} 
-                          onSelect={(val) => onUpdate?.(`experience.${exp.id}.location`, val)} 
+                        <input
+                          defaultValue={exp.location}
+                          placeholder="City, Country"
+                          onBlur={(e) => onUpdate?.(`experience.${exp.id}.location`, e.target.value)}
+                          style={{
+                            fontSize: "11px",
+                            color: "#9ca3af",
+                            background: "transparent",
+                            border: "1px dashed rgba(26, 58, 92, 0.3)",
+                            padding: "1px 4px",
+                            outline: "none",
+                            width: "120px",
+                            fontFamily: "inherit"
+                          }}
                         />
                       ) : (
                         <span style={{ fontSize: "11px", color: "#9ca3af" }}>{exp.location}</span>
@@ -954,16 +921,19 @@ export function ModernProfessional({
               <ContactRow 
                 icon={<Mail size={12} />} 
                 text={personalInfo.email || ""} 
+                placeholder="email@example.com"
                 href={isEditable ? undefined : `mailto:${personalInfo.email || ""}`}
                 isEditable={isEditable}
                 onUpdate={(val) => onUpdate?.("personalInfo.email", val)}
               />
             )}
-            {personalInfo.linkedin && (
-              <ContactRow
-                icon={<Linkedin size={12} />}
-                isEditable={false} // "no input for linkedin"
-                text={personalInfo.linkedin}
+            {(personalInfo.linkedin || isEditable) && (
+              <ContactRow 
+                icon={<Linkedin size={12} />} 
+                text={personalInfo.linkedin || ""} 
+                placeholder="linkedin.com/in/username"
+                href={isEditable ? undefined : formatUrl(personalInfo.linkedin)}
+                isEditable={isEditable}
                 onUpdate={(val) => onUpdate?.("personalInfo.linkedin", val)}
               />
             )}
@@ -999,18 +969,18 @@ export function ModernProfessional({
             )}
             {(personalInfo.location || isEditable) && (
               <ContactRow
-                icon={<Hash size={12} />} 
+                icon={<Hash size={12} />}
                 text={personalInfo.location || ""}
-                placeholder=""
+                placeholder="Postal code (e.g. 10123)"
                 isEditable={isEditable}
                 onUpdate={(val) => onUpdate?.("personalInfo.location", val)}
               />
             )}
             {(personalInfo.website || isEditable) && (
-              <ContactRow 
-                icon={<Globe size={12} />} 
-                text={personalInfo.website || ""} 
-                placeholder=""
+              <ContactRow
+                icon={<Globe size={12} />}
+                text={personalInfo.website || ""}
+                placeholder="portfolio.com"
                 href={isEditable ? undefined : formatUrl(personalInfo.website)}
                 isEditable={isEditable}
                 onUpdate={(val) => onUpdate?.("personalInfo.website", val)}
@@ -1020,7 +990,7 @@ export function ModernProfessional({
               <ContactRow 
                 icon={<Github size={12} />} 
                 text={personalInfo.github || ""} 
-                placeholder=""
+                placeholder="github.com/username"
                 href={isEditable ? undefined : formatUrl(personalInfo.github)}
                 isEditable={isEditable}
                 onUpdate={(val) => onUpdate?.("personalInfo.github", val)}
@@ -1030,7 +1000,7 @@ export function ModernProfessional({
               <ContactRow 
                 icon={<Facebook size={12} />} 
                 text={personalInfo.facebook || ""} 
-                placeholder=""
+                placeholder="facebook.com/username"
                 href={isEditable ? undefined : formatUrl(personalInfo.facebook)}
                 isEditable={isEditable}
                 onUpdate={(val) => onUpdate?.("personalInfo.facebook", val)}
@@ -1047,7 +1017,7 @@ export function ModernProfessional({
               {isEditable && (
                 <button 
                   onClick={() => {
-                    onUpdate?.("skills", [...allSkills, "New Skill"])
+                    onUpdate?.("skills", [...allSkills, ""])
                   }}
                   style={{ background: "none", border: "none", color: "#1a3a5c", cursor: "pointer", display: "flex", alignItems: "center" }}
                 >
@@ -1442,11 +1412,12 @@ function SidebarDetail({
   )
 }
 
-function ContactRow({ icon, text, href, isEditable, onUpdate, renderEditable }: { icon: React.ReactNode; text: string; href?: string; isEditable: boolean; onUpdate?: (val: string) => void; renderEditable?: () => React.ReactNode }) {
+function ContactRow({ icon, text, href, isEditable, onUpdate, renderEditable, placeholder }: { icon: React.ReactNode; text: string; href?: string; isEditable: boolean; onUpdate?: (val: string) => void; renderEditable?: () => React.ReactNode; placeholder?: string }) {
   const content = isEditable ? (
     renderEditable ? renderEditable() : (
       <input
         defaultValue={text}
+        placeholder={placeholder}
         onBlur={(e) => onUpdate?.(e.target.value)}
         style={{
           fontSize: "11px",

@@ -118,6 +118,99 @@ export function ClassicTable({
             {personalInfo.jobTitle}
           </p>
         )}
+        {(hasPersonalDetails || isEditable) && (
+          <div style={{ 
+            display: "grid", 
+            gridTemplateColumns: "repeat(3, 1fr)", 
+            gap: "8px 20px",
+            marginTop: "12px",
+            padding: "8px 0",
+            borderTop: "1px solid #eee",
+            fontSize: "11px",
+            textAlign: "left"
+          }}>
+            {(personalInfo.dateOfBirth || isEditable) && (
+              <div style={{ display: "flex", gap: "4px" }}>
+                <span style={{ fontWeight: 700 }}>DOB:</span>
+                {isEditable ? (
+                  <input 
+                    type="date"
+                    defaultValue={personalInfo.dateOfBirth}
+                    onChange={(e) => onUpdate?.("personalInfo.dateOfBirth", e.target.value)}
+                    style={{ background: "transparent", border: "1px dashed #000", fontSize: "11px", outline: "none", width: "100%" }}
+                  />
+                ) : <span>{personalInfo.dateOfBirth}</span>}
+              </div>
+            )}
+            {(personalInfo.nationality || isEditable) && (
+              <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+                <span style={{ fontWeight: 700 }}>Nationality:</span>
+                {isEditable ? (
+                  <SearchableSelect
+                    value={personalInfo.nationality || "Select"}
+                    options={countriesData.map(c => c.name)}
+                    onSelect={(val) => onUpdate?.("personalInfo.nationality", val)}
+                  />
+                ) : <span>{personalInfo.nationality}</span>}
+              </div>
+            )}
+            {(personalInfo.gender || isEditable) && (
+              <div style={{ display: "flex", gap: "4px" }}>
+                <span style={{ fontWeight: 700 }}>Gender:</span>
+                {isEditable ? (
+                  <select 
+                    value={personalInfo.gender}
+                    onChange={(e) => onUpdate?.("personalInfo.gender", e.target.value)}
+                    style={{ background: "transparent", border: "1px dashed #000", fontSize: "11px", outline: "none", width: "100%" }}
+                  >
+                    <option value="">Select</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
+                ) : <span>{personalInfo.gender}</span>}
+              </div>
+            )}
+            {(personalInfo.placeOfBirth || isEditable) && (
+              <div style={{ display: "flex", gap: "4px" }}>
+                <span style={{ fontWeight: 700 }}>Place of Birth:</span>
+                {isEditable ? (
+                  <input 
+                    defaultValue={personalInfo.placeOfBirth}
+                    onBlur={(e) => onUpdate?.("personalInfo.placeOfBirth", e.target.value)}
+                    placeholder="Place of Birth"
+                    style={{ background: "transparent", border: "1px dashed #000", fontSize: "11px", outline: "none", width: "100%" }}
+                  />
+                ) : <span>{personalInfo.placeOfBirth}</span>}
+              </div>
+            )}
+            {(personalInfo.passport || isEditable) && (
+              <div style={{ display: "flex", gap: "4px" }}>
+                <span style={{ fontWeight: 700 }}>Passport:</span>
+                {isEditable ? (
+                  <input 
+                    defaultValue={personalInfo.passport}
+                    placeholder="Passport"
+                    onBlur={(e) => onUpdate?.("personalInfo.passport", e.target.value)}
+                    style={{ background: "transparent", border: "1px dashed #000", fontSize: "11px", outline: "none", width: "100%" }}
+                  />
+                ) : <span>{personalInfo.passport}</span>}
+              </div>
+            )}
+            {(personalInfo.workPermit || isEditable) && (
+              <div style={{ display: "flex", gap: "4px" }}>
+                <span style={{ fontWeight: 700 }}>Permit:</span>
+                {isEditable ? (
+                  <input 
+                    placeholder="Permit"
+                    defaultValue={personalInfo.workPermit}
+                    onBlur={(e) => onUpdate?.("personalInfo.workPermit", e.target.value)}
+                    style={{ background: "transparent", border: "1px dashed #000", fontSize: "11px", outline: "none", width: "100%" }}
+                  />
+                ) : <span>{personalInfo.workPermit}</span>}
+              </div>
+            )}
+          </div>
+        )}
         <div
           style={{
             fontSize: "11.5px",
@@ -127,7 +220,9 @@ export function ClassicTable({
             justifyContent: "center",
             gap: "12px",
             marginTop: "10px",
-            alignItems: "center"
+            alignItems: "center",
+            borderTop: "1px solid #eee",
+            paddingTop: "8px"
           }}
         >
           {(personalInfo.phone || isEditable) && (
@@ -143,8 +238,9 @@ export function ClassicTable({
               }}
               renderEditable={() => (
                 <div style={{ display: "flex", alignItems: "center", gap: "2px" }}>
-                  <PopSelect
+                  <SearchableSelect
                     value={personalInfo.phoneCode || "+1"}
+                    width="70px"
                     options={countriesData.map(c => {
                       const pc = c.phonecode || ""
                       const displayCode = pc.startsWith('+') ? pc : `+${pc}`
@@ -161,57 +257,103 @@ export function ClassicTable({
                   />
                   <input
                     defaultValue={personalInfo.phone}
+                    placeholder="Phone Number"
                     onBlur={(e) => onUpdate?.("personalInfo.phone", e.target.value)}
-                    style={{ fontSize: "11.5px", color: "#000", background: "transparent", border: "1px dashed #000", outline: "none", padding: "1px 4px", width: "80px" }}
+                    style={{ fontSize: "11.5px", color: "#000", background: "transparent", border: "1px dashed #000", outline: "none", padding: "1px 4px", width: "100px" }}
                   />
                 </div>
               )}
             />
           )}
           {(personalInfo.email || isEditable) && (
-            <ContactItem icon={<Mail size={11} />} text={personalInfo.email} href={isEditable ? undefined : `mailto:${personalInfo.email}`} isEditable={isEditable} onUpdate={(val) => onUpdate?.("personalInfo.email", val)} />
+            <ContactItem icon={<Mail size={11} />} text={personalInfo.email} placeholder="email@example.com" href={isEditable ? undefined : `mailto:${personalInfo.email}`} isEditable={isEditable} onUpdate={(val) => onUpdate?.("personalInfo.email", val)} />
           )}
           {(personalInfo.linkedin || isEditable) && (
-            <ContactItem icon={<Linkedin size={11} />} text={personalInfo.linkedin} href={isEditable ? undefined : formatUrl(personalInfo.linkedin)} isEditable={isEditable} onUpdate={(val) => onUpdate?.("personalInfo.linkedin", val)} />
+            <ContactItem icon={<Linkedin size={11} />} text={personalInfo.linkedin} placeholder="linkedin.com/in/username" href={isEditable ? undefined : formatUrl(personalInfo.linkedin)} isEditable={isEditable} onUpdate={(val) => onUpdate?.("personalInfo.linkedin", val)} />
           )}
           {(personalInfo.country || personalInfo.county || personalInfo.location || isEditable) && (
-            <ContactItem
-              icon={<MapPin size={11} />}
-              text={[personalInfo.county, personalInfo.country, personalInfo.location].filter(Boolean).join(", ")}
-              isEditable={isEditable}
-              onUpdate={(val) => onUpdate?.("personalInfo.location", val)}
-              renderEditable={() => (
+            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              <span style={{ display: "flex", alignItems: "center", color: "#666" }}><MapPin size={11} /></span>
+              {isEditable ? (
                 <div style={{ display: "flex", gap: "4px" }}>
                   <SearchableSelect
                     value={personalInfo.country || "Country"}
                     options={countriesData.map(c => c.name)}
-                    onSelect={(val) => onUpdate?.("personalInfo.country", val)}
+                    onSelect={(val) => {
+                       onUpdate?.("personalInfo.country", val)
+                       onUpdate?.("personalInfo.county", "")
+                    }}
                   />
                   <SearchableSelect
-                    value={personalInfo.county || "State/Province"}
+                    value={personalInfo.county || "State"}
                     options={personalInfo.country ? (countriesData.find((c: any) => c.name === personalInfo.country)?.states || []).map((s: any) => s.name) : []}
                     onSelect={(val) => onUpdate?.("personalInfo.county", val)}
                   />
                   <input
-                    defaultValue={personalInfo.location}
+                    defaultValue={personalInfo.location || ""}
+                    placeholder="Postal Code"
                     onBlur={(e) => onUpdate?.("personalInfo.location", e.target.value)}
                     style={{ fontSize: "11.5px", color: "#000", background: "transparent", border: "1px dashed #000", outline: "none", padding: "1px 4px", width: "80px" }}
                   />
                 </div>
+              ) : (
+                <span style={{ fontSize: "11.5px", color: "#333" }}>
+                  {[personalInfo.location, personalInfo.county, personalInfo.country].filter(Boolean).join(", ")}
+                </span>
               )}
-            />
+            </div>
           )}
           {(personalInfo.website || isEditable) && (
-            <ContactItem icon={<Globe size={11} />} text={personalInfo.website || ""} href={isEditable ? undefined : formatUrl(personalInfo.website)} isEditable={isEditable} onUpdate={(val) => onUpdate?.("personalInfo.website", val)} />
+            <ContactItem icon={<Globe size={11} />} text={personalInfo.website || ""} placeholder="portfolio.com" href={isEditable ? undefined : formatUrl(personalInfo.website)} isEditable={isEditable} onUpdate={(val) => onUpdate?.("personalInfo.website", val)} />
           )}
           {(personalInfo.github || isEditable) && (
-            <ContactItem icon={<Github size={11} />} text={personalInfo.github || ""} href={isEditable ? undefined : formatUrl(personalInfo.github)} isEditable={isEditable} onUpdate={(val) => onUpdate?.("personalInfo.github", val)} />
+            <ContactItem icon={<Github size={11} />} text={personalInfo.github || ""} placeholder="github.com/username" href={isEditable ? undefined : formatUrl(personalInfo.github)} isEditable={isEditable} onUpdate={(val) => onUpdate?.("personalInfo.github", val)} />
           )}
           {(personalInfo.facebook || isEditable) && (
-            <ContactItem icon={<Facebook size={11} />} text={personalInfo.facebook || ""} href={isEditable ? undefined : formatUrl(personalInfo.facebook)} isEditable={isEditable} onUpdate={(val) => onUpdate?.("personalInfo.facebook", val)} />
+            <ContactItem icon={<Facebook size={11} />} text={personalInfo.facebook || ""} placeholder="facebook.com/username" href={isEditable ? undefined : formatUrl(personalInfo.facebook)} isEditable={isEditable} onUpdate={(val) => onUpdate?.("personalInfo.facebook", val)} />
           )}
         </div>
       </div>
+
+      {/* ── PROFESSIONAL SUMMARY ── */}
+      {(personalInfo.summary || isEditable) && (
+        <Section 
+          label="Professional Summary" 
+          isEditable={isEditable}
+          onRefine={() => onRefine?.("summary")}
+          refining={refiningId === "summary"}
+        >
+          {isEditable ? (
+            <textarea
+              defaultValue={personalInfo.summary}
+              placeholder="Summary..."
+              onBlur={(e) => onUpdate?.("personalInfo.summary", e.target.value)}
+              style={{
+                width: "100%",
+                minHeight: "100px",
+                fontSize: "13px",
+                lineHeight: 1.7,
+                color: "#111",
+                background: "transparent",
+                border: "1px dashed #000",
+                outline: "none",
+                fontFamily: "inherit",
+                resize: "vertical"
+              }}
+            />
+          ) : (
+            <MarkdownText 
+              content={personalInfo.summary}
+              style={{
+                fontSize: "13px",
+                lineHeight: 1.7,
+                color: "#111",
+                textAlign: "justify",
+              }}
+            />
+          )}
+        </Section>
+      )}
 
       {/* ── EDUCATION ── */}
       {(education.length > 0 || isEditable) && (
@@ -240,16 +382,47 @@ export function ClassicTable({
                       </button>
                     )}
                     {isEditable ? (
-                      <input
-                        defaultValue={edu.degree}
-                        placeholder="Degree"
-                        onBlur={(e) => onUpdate?.(`education.${edu.id}.degree`, e.target.value)}
-                        style={{ fontWeight: 700, fontSize: "13px", width: "95%", background: "transparent", border: "1px dashed #000", outline: "none" }}
-                      />
+                      <div style={{ width: "95%" }}>
+                        <input
+                          defaultValue={edu.degree}
+                          placeholder="Degree"
+                          onBlur={(e) => onUpdate?.(`education.${edu.id}.degree`, e.target.value)}
+                          style={{ fontWeight: 700, fontSize: "13px", width: "100%", background: "transparent", border: "1px dashed #000", outline: "none", marginBottom: "2px" }}
+                        />
+                        <div style={{ display: "flex", alignItems: "center", gap: "4px", flexWrap: "wrap" }}>
+                          <MapPin size={10} color="#666" />
+                          <SearchableSelect
+                            value={edu.country || "Country"}
+                            options={countriesData.map(c => c.name)}
+                            onSelect={(val) => {
+                               onUpdate?.(`education.${edu.id}.country`, val)
+                               onUpdate?.(`education.${edu.id}.county`, "")
+                            }}
+                          />
+                          <SearchableSelect
+                            value={edu.county || "State"}
+                            options={edu.country ? (countriesData.find((c: any) => c.name === edu.country)?.states || []).map((s: any) => s.name) : []}
+                            onSelect={(val) => onUpdate?.(`education.${edu.id}.county`, val)}
+                          />
+                          <input
+                            defaultValue={edu.location}
+                            placeholder="City/Zip"
+                            onBlur={(e) => onUpdate?.(`education.${edu.id}.location`, e.target.value)}
+                            style={{ fontSize: "11px", width: "80px", background: "transparent", border: "1px dashed #000", outline: "none", color: "#666" }}
+                          />
+                        </div>
+                      </div>
                     ) : (
-                      <span style={{ fontWeight: 700, fontSize: "13px" }}>
-                        {edu.degree}
-                      </span>
+                      <div>
+                        <span style={{ fontWeight: 700, fontSize: "13px" }}>
+                          {edu.degree}
+                        </span>
+                        {edu.location || edu.county || edu.country ? (
+                          <div style={{ fontSize: "11px", color: "#666", display: "flex", alignItems: "center", gap: "4px", marginTop: "1px" }}>
+                            <MapPin size={10} /> {[edu.location, edu.county, edu.country].filter(Boolean).join(", ")}
+                          </div>
+                        ) : null}
+                      </div>
                     )}
                   </td>
                   <td
@@ -295,114 +468,62 @@ export function ClassicTable({
         </Section>
       )}
 
-      {/* ── PROFESSIONAL SUMMARY ── */}
-      {(personalInfo.summary || isEditable) && (
-        <Section 
-          label="Professional Summary" 
-          isEditable={isEditable}
-          onRefine={() => onRefine?.("summary")}
-          refining={refiningId === "summary"}
-        >
-          {isEditable ? (
-            <textarea
-              defaultValue={personalInfo.summary}
-              placeholder="Summary..."
-              onBlur={(e) => onUpdate?.("personalInfo.summary", e.target.value)}
-              style={{
-                width: "100%",
-                minHeight: "100px",
-                fontSize: "13px",
-                lineHeight: 1.7,
-                color: "#111",
-                background: "transparent",
-                border: "1px dashed #000",
-                outline: "none",
-                fontFamily: "inherit",
-                resize: "vertical"
-              }}
-            />
-          ) : (
-            <MarkdownText 
-              content={personalInfo.summary}
-              style={{
-                fontSize: "13px",
-                lineHeight: 1.7,
-                color: "#111",
-                textAlign: "justify",
-              }}
-            />
-          )}
-        </Section>
-      )}
 
       {/* ── CORE COMPETENCIES ── */}
       {(allSkillItems.length > 0 || isEditable) && (
         <Section 
           label="Core Competencies" 
           isEditable={isEditable}
-          onAdd={() => onUpdate?.("skills.add", "New Category")}
+          onAdd={() => onUpdate?.("skills", [...allSkillItems, ""])}
         >
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              border: "1px solid #999",
-            }}
-          >
-            <tbody>
-              {skills.map((group, idx) => (
-                <tr
-                  key={idx}
-                  style={{
-                    borderBottom:
-                      idx < skills.length - 1 ? "1px solid #bbb" : "none",
-                    position: "relative"
-                  }}
-                >
-                  <td
-                    style={{
-                      padding: "5px 10px",
-                      fontWeight: 700,
-                      fontSize: "12px",
-                      verticalAlign: "top",
-                      width: "25%",
-                      background: "#f5f5f5",
-                      borderRight: "1px solid #bbb",
-                    }}
-                  >
-                    {isEditable ? (
-                      <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                        <button 
-                          onClick={() => onUpdate?.("skills.remove", idx)}
-                          style={{ color: "#ef4444", background: "none", border: "none", cursor: "pointer" }}
-                        >
-                          <Trash2 size={10} />
-                        </button>
-                        <input
-                          defaultValue={group.category}
-                          onBlur={(e) => onUpdate?.(`skills.${idx}.category`, e.target.value)}
-                          style={{ fontSize: "12px", fontWeight: 700, width: "80%", background: "transparent", border: "1px dashed #000", outline: "none" }}
-                        />
-                      </div>
-                    ) : (
-                      group.category
-                    )}
-                  </td>
-                  <td style={{ padding: "5px 10px", fontSize: "12px" }}>
-                    {isEditable ? (
-                      <input
-                        defaultValue={group.items.join(", ")}
-                        onBlur={(e) => onUpdate?.(`skills.${idx}.items`, e.target.value.split(",").map(s => s.trim()))}
-                        style={{ fontSize: "12px", width: "100%", background: "transparent", border: "1px dashed #000", outline: "none" }}
-                      />
-                    ) : (
-                      group.items.join(", ")
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div style={{ 
+            display: "flex", 
+            flexWrap: "wrap", 
+            gap: "8px 16px", 
+            padding: "10px", 
+            border: "1px solid #999",
+            minHeight: "40px",
+            alignItems: "center"
+          }}>
+            {allSkillItems.map((skill, idx) => (
+              <div key={idx} style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                {isEditable ? (
+                  <div style={{ display: "flex", alignItems: "center", gap: "2px", background: "#f9f9f9", padding: "2px 6px", border: "1px dashed #ccc", borderRadius: "4px" }}>
+                    <input
+                      defaultValue={skill}
+                      placeholder="Add skill"
+                      onBlur={(e) => {
+                        const newSkills = [...allSkillItems]
+                        newSkills[idx] = e.target.value
+                        onUpdate?.("skills", newSkills)
+                      }}
+                      style={{ fontSize: "11px", background: "transparent", border: "none", outline: "none", width: "80px" }}
+                    />
+                    <button 
+                      onClick={() => onUpdate?.("skills", allSkillItems.filter((_, i) => i !== idx))}
+                      style={{ color: "#ef4444", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", opacity: 0.6 }}
+                      onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+                      onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}
+                    >
+                      <X size={10} />
+                    </button>
+                  </div>
+                ) : (
+                  <span style={{ fontSize: "12px", fontWeight: 500 }}>
+                    {skill}{idx < allSkillItems.length - 1 ? " •" : ""}
+                  </span>
+                )}
+              </div>
+            ))}
+            {isEditable && allSkillItems.length === 0 && (
+              <span 
+                onClick={() => onUpdate?.("skills", [""])}
+                style={{ fontSize: "12px", color: "#999", fontStyle: "italic", cursor: "pointer", textDecoration: "underline dashed" }}
+              >
+                Click here to add your first skill...
+              </span>
+            )}
+          </div>
         </Section>
       )}
 
@@ -462,23 +583,47 @@ export function ClassicTable({
                   )}
                 </div>
                 {isEditable ? (
-                  <input
-                    defaultValue={exp.role}
-                    placeholder="Role"
-                    onBlur={(e) => onUpdate?.(`experience.${exp.id}.role`, e.target.value)}
-                    style={{ fontSize: "12.5px", fontStyle: "italic", color: "#555", width: "100%", background: "transparent", border: "1px dashed #000", outline: "none", marginBottom: "6px" }}
-                  />
+                  <div style={{ marginBottom: "6px" }}>
+                    <input
+                      defaultValue={exp.role}
+                      placeholder="Role"
+                      onBlur={(e) => onUpdate?.(`experience.${exp.id}.role`, e.target.value)}
+                      style={{ fontSize: "12.5px", fontStyle: "italic", color: "#555", width: "100%", background: "transparent", border: "1px dashed #000", outline: "none", marginBottom: "2px" }}
+                    />
+                    <div style={{ display: "flex", alignItems: "center", gap: "4px", flexWrap: "wrap" }}>
+                      <MapPin size={11} color="#666" />
+                      <SearchableSelect
+                        value={exp.country || "Country"}
+                        options={countriesData.map(c => c.name)}
+                        onSelect={(val) => {
+                           onUpdate?.(`experience.${exp.id}.country`, val)
+                           onUpdate?.(`experience.${exp.id}.county`, "")
+                        }}
+                      />
+                      <SearchableSelect
+                        value={exp.county || "State"}
+                        options={exp.country ? (countriesData.find((c: any) => c.name === exp.country)?.states || []).map((s: any) => s.name) : []}
+                        onSelect={(val) => onUpdate?.(`experience.${exp.id}.county`, val)}
+                      />
+                      <input
+                        defaultValue={exp.location}
+                        placeholder="City"
+                        onBlur={(e) => onUpdate?.(`experience.${exp.id}.location`, e.target.value)}
+                        style={{ fontSize: "11.5px", fontStyle: "italic", color: "#666", width: "80px", background: "transparent", border: "1px dashed #000", outline: "none" }}
+                      />
+                    </div>
+                  </div>
                 ) : (
-                  <p
-                    style={{
-                      fontSize: "12.5px",
-                      fontStyle: "italic",
-                      color: "#555",
-                      marginBottom: "6px",
-                    }}
-                  >
-                    {exp.role}
-                  </p>
+                  <div style={{ marginBottom: "6px" }}>
+                    <p style={{ fontSize: "12.5px", fontStyle: "italic", color: "#555", margin: 0 }}>
+                      {exp.role}
+                    </p>
+                    {exp.location || exp.county || exp.country ? (
+                      <p style={{ fontSize: "12px", fontStyle: "italic", color: "#666", display: "flex", alignItems: "center", gap: "4px", margin: 0 }}>
+                        <MapPin size={11} /> {[exp.location, exp.county, exp.country].filter(Boolean).join(", ")}
+                      </p>
+                    ) : null}
+                  </div>
                 )}
                 {isEditable ? (
                   <div style={{ marginTop: "4px" }}>
@@ -626,19 +771,6 @@ export function ClassicTable({
         </Section>
       )}
 
-      {/* ── PERSONAL DETAILS ── */}
-      {(hasPersonalDetails || isEditable) && (
-        <Section label="Personal Details">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 40px" }}>
-            {(personalInfo.dateOfBirth || isEditable) && <DetailRow label="Date of Birth" value={personalInfo.dateOfBirth} onUpdate={(val) => onUpdate?.("personalInfo.dateOfBirth", val)} isEditable={isEditable} />}
-            {(personalInfo.placeOfBirth || isEditable) && <DetailRow label="Place of Birth" value={personalInfo.placeOfBirth} onUpdate={(val) => onUpdate?.("personalInfo.placeOfBirth", val)} isEditable={isEditable} />}
-            {(personalInfo.nationality || isEditable) && <DetailRow label="Nationality" value={personalInfo.nationality} onUpdate={(val) => onUpdate?.("personalInfo.nationality", val)} isEditable={isEditable} />}
-            {(personalInfo.gender || isEditable) && <DetailRow label="Gender" value={personalInfo.gender} onUpdate={(val) => onUpdate?.("personalInfo.gender", val)} isEditable={isEditable} />}
-            {(personalInfo.passport || isEditable) && <DetailRow label="Passport" value={personalInfo.passport} onUpdate={(val) => onUpdate?.("personalInfo.passport", val)} isEditable={isEditable} />}
-            {(personalInfo.workPermit || isEditable) && <DetailRow label="Work Permit" value={personalInfo.workPermit} onUpdate={(val) => onUpdate?.("personalInfo.workPermit", val)} isEditable={isEditable} />}
-          </div>
-        </Section>
-      )}
 
       {/* ── VOLUNTEERING ── */}
       {(volunteering && volunteering.length > 0 || isEditable) && (
@@ -734,20 +866,20 @@ export function ClassicTable({
                     </button>
                   )}
                   {isEditable ? (
-                    <input 
-                      defaultValue={lang.name}
-                      onBlur={(e) => onUpdate?.(`languages.${i}.name`, e.target.value)}
-                      style={{ background: "transparent", border: "1px dashed #000", fontSize: "13px", padding: "1px 4px", outline: "none", width: "100px" }}
+                    <SearchableSelect 
+                      value={lang.name || "Language"}
+                      options={["English", "French", "Spanish", "German", "Chinese", "Arabic", "Portuguese", "Japanese", "Russian", "Hindi", "Bengali", "Yoruba", "Igbo", "Hausa"]}
+                      onSelect={(val) => onUpdate?.(`languages.${i}.name`, val)}
                     />
                   ) : (
                     <span style={{ fontWeight: 700 }}>{lang.name}</span>
                   )}
                 </div>
                 {isEditable ? (
-                  <input 
-                    defaultValue={lang.proficiency}
-                    onBlur={(e) => onUpdate?.(`languages.${i}.proficiency`, e.target.value)}
-                    style={{ background: "transparent", border: "1px dashed #000", fontSize: "12px", padding: "1px 4px", outline: "none", width: "80px", textAlign: "right" }}
+                  <PopSelect 
+                    value={lang.proficiency || "Level"}
+                    options={["Native", "Fluent", "Professional", "Intermediate", "Basic"]}
+                    onSelect={(val) => onUpdate?.(`languages.${i}.proficiency`, val)}
                   />
                 ) : (
                   <span style={{ fontStyle: "italic", color: "#555" }}>{lang.proficiency}</span>
@@ -837,13 +969,16 @@ function Section({
   )
 }
 
-function ContactItem({ icon, text, href, isEditable, onUpdate }: { icon: React.ReactNode; text: string; href?: string; isEditable?: boolean; onUpdate?: (val: string) => void }) {
+function ContactItem({ icon, text, placeholder, href, isEditable, onUpdate, renderEditable }: { icon: React.ReactNode; text: string; placeholder?: string; href?: string; isEditable?: boolean; onUpdate?: (val: string) => void; renderEditable?: () => React.ReactNode }) {
   const content = isEditable ? (
-    <input
-      defaultValue={text}
-      onBlur={(e) => onUpdate?.(e.target.value)}
-      style={{ fontSize: "11.5px", color: "#000", background: "transparent", border: "1px dashed #000", outline: "none", padding: "1px 4px" }}
-    />
+    renderEditable ? renderEditable() : (
+      <input
+        defaultValue={text}
+        placeholder={placeholder}
+        onBlur={(e) => onUpdate?.(e.target.value)}
+        style={{ fontSize: "11.5px", color: "#000", background: "transparent", border: "1px dashed #000", outline: "none", padding: "1px 4px" }}
+      />
+    )
   ) : (
     <span style={{ color: href ? "#1a3a5c" : "#333", textDecoration: "none" }}>
       {text}
@@ -859,6 +994,203 @@ function ContactItem({ icon, text, href, isEditable, onUpdate }: { icon: React.R
         </a>
       ) : (
         content
+      )}
+    </div>
+  )
+}
+function PopSelect({ value, options, onSelect }: { value: string; options: string[]; onSelect: (val: string) => void }) {
+  const [isOpen, setIsOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  const [openUp, setOpenUp] = useState(false)
+
+  useEffect(() => {
+    if (isOpen && ref.current) {
+      const rect = ref.current.getBoundingClientRect()
+      const spaceBelow = window.innerHeight - rect.bottom
+      const spaceAbove = rect.top
+      setOpenUp(spaceBelow < 250 && spaceAbove > spaceBelow)
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setIsOpen(false)
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  return (
+    <div ref={ref} style={{ position: "relative", display: "inline-block" }}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          background: "none",
+          border: "none",
+          borderBottom: "1px dashed #000",
+          fontSize: "11px",
+          cursor: "pointer",
+          padding: "1px 2px",
+          outline: "none"
+        }}
+      >
+        {value} <ChevronDown size={10} />
+      </button>
+      {isOpen && (
+        <div style={{
+          position: "absolute",
+          top: "100%",
+          left: 0,
+          zIndex: 1000,
+          background: "#fff",
+          border: "1px solid #e5e7eb",
+          borderRadius: "6px",
+          boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
+          padding: "4px",
+          maxHeight: "250px",
+          overflowY: "auto",
+          marginTop: "2px",
+          minWidth: "150px"
+        }}>
+          {options.map((opt) => (
+            <div
+              key={opt}
+              onClick={() => {
+                onSelect(opt)
+                setIsOpen(false)
+              }}
+              style={{
+                padding: "4px 8px",
+                fontSize: "10px",
+                cursor: "pointer",
+                borderRadius: "4px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                backgroundColor: value === opt ? "#e0f2fe" : "transparent",
+                color: value === opt ? "#1a3a5c" : "#374151",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0f9ff")}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = value === opt ? "#e0f2fe" : "transparent")}
+            >
+              {opt} {value === opt && <Check size={10} />}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function SearchableSelect({ value, options, onSelect, width }: { value: string; options: string[]; onSelect: (val: string) => void; width?: string }) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [search, setSearch] = useState("")
+  const ref = useRef<HTMLDivElement>(null)
+
+  const [openUp, setOpenUp] = useState(false)
+
+  useEffect(() => {
+    if (isOpen && ref.current) {
+      const rect = ref.current.getBoundingClientRect()
+      const spaceBelow = window.innerHeight - rect.bottom
+      const spaceAbove = rect.top
+      setOpenUp(spaceBelow < 250 && spaceAbove > spaceBelow)
+    }
+  }, [isOpen])
+
+  const filtered = options.filter(o => o.toLowerCase().includes(search.toLowerCase()))
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setIsOpen(false)
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  return (
+    <div ref={ref} style={{ position: "relative", display: "inline-block", minWidth: width || "100px" }}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "4px",
+          background: "none",
+          border: "none",
+          borderBottom: "1px dashed #000",
+          color: "#000",
+          fontSize: "11px",
+          cursor: "pointer",
+          padding: "1px 4px",
+          outline: "none",
+          width: "100%"
+        }}
+      >
+        {value} <ChevronDown size={10} />
+      </button>
+      {isOpen && (
+        <div style={{
+          position: "absolute",
+          top: "100%",
+          left: 0,
+          zIndex: 1000,
+          background: "#fff",
+          border: "1px solid #e5e7eb",
+          borderRadius: "6px",
+          boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
+          padding: "6px",
+          minWidth: "180px",
+          marginTop: "2px"
+        }}>
+          <div style={{ position: "relative", marginBottom: "6px" }}>
+            <Search size={10} style={{ position: "absolute", left: "6px", top: "50%", transform: "translateY(-50%)", color: "#9ca3af" }} />
+            <input
+              autoFocus
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search..."
+              style={{
+                width: "100%",
+                padding: "4px 6px 4px 22px",
+                fontSize: "10px",
+                border: "1px solid #e5e7eb",
+                borderRadius: "4px",
+                outline: "none"
+              }}
+            />
+          </div>
+          <div style={{ maxHeight: "280px", overflowY: "auto" }}>
+            {filtered.map((opt) => (
+              <div
+                key={opt}
+                onClick={() => {
+                  onSelect(opt)
+                  setIsOpen(false)
+                }}
+                style={{
+                  padding: "4px 8px",
+                  fontSize: "10px",
+                  cursor: "pointer",
+                  borderRadius: "4px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  backgroundColor: value === opt ? "#e0f2fe" : "transparent",
+                  color: value === opt ? "#1a3a5c" : "#374151",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0f9ff")}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = value === opt ? "#e0f2fe" : "transparent")}
+              >
+                {opt} {value === opt && <Check size={10} />}
+              </div>
+            ))}
+            {filtered.length === 0 && (
+              <div style={{ padding: "6px", fontSize: "10px", color: "#9ca3af", textAlign: "center" }}>No results</div>
+            )}
+          </div>
+        </div>
       )}
     </div>
   )

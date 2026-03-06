@@ -418,18 +418,18 @@ export function MidnightElegance({
           <ContactChip 
             icon={<Hash size={10} />} 
             text={personalInfo.location || ""}
-            placeholder=""
+            placeholder="Postal code (e.g. 10123)"
             isEditable={isEditable}
             onUpdate={(val) => onUpdate?.("personalInfo.location", val)}
           />
         )}
-        {personalInfo.linkedin && (
+        {(personalInfo.linkedin || isEditable) && (
           <ContactChip 
             icon={<Linkedin size={10} />} 
-            text={personalInfo.linkedin}
-            placeholder=""
+            text={personalInfo.linkedin || ""} 
+            placeholder="linkedin.com/in/username"
             href={formatUrl(personalInfo.linkedin)}
-            isEditable={false} // No input for linkedin as requested
+            isEditable={isEditable}
             onUpdate={(val) => onUpdate?.("personalInfo.linkedin", val)}
           />
         )}
@@ -437,7 +437,7 @@ export function MidnightElegance({
           <ContactChip 
             icon={<Globe size={10} />} 
             text={personalInfo.website || ""} 
-            placeholder=""
+            placeholder="portfolio.com"
             href={formatUrl(personalInfo.website)}
             isEditable={isEditable}
             onUpdate={(val) => onUpdate?.("personalInfo.website", val)}
@@ -447,7 +447,7 @@ export function MidnightElegance({
           <ContactChip 
             icon={<Github size={10} />} 
             text={personalInfo.github || ""} 
-            placeholder=""
+            placeholder="github.com/username"
             href={formatUrl(personalInfo.github)}
             isEditable={isEditable}
             onUpdate={(val) => onUpdate?.("personalInfo.github", val)}
@@ -457,7 +457,7 @@ export function MidnightElegance({
           <ContactChip 
             icon={<Facebook size={10} />} 
             text={personalInfo.facebook || ""} 
-            placeholder=""
+            placeholder="facebook.com/username"
             href={formatUrl(personalInfo.facebook)}
             isEditable={isEditable}
             onUpdate={(val) => onUpdate?.("personalInfo.facebook", val)}
@@ -628,10 +628,20 @@ export function MidnightElegance({
                     <span style={{ fontSize: "11px", color: "#6b7280", display: "inline-flex", alignItems: "center", gap: "4px" }}>
                       {isEditable && <MapPin size={10} strokeWidth={3} />}
                       {isEditable ? (
-                        <SearchableSelect 
-                          value={exp.location || "Location"} 
-                          options={countriesData.map(c => c.name)} 
-                          onSelect={(val) => onUpdate?.(`experience.${exp.id}.location`, val)} 
+                        <input
+                          defaultValue={exp.location}
+                          placeholder="City, Country"
+                          onBlur={(e) => onUpdate?.(`experience.${exp.id}.location`, e.target.value)}
+                          style={{
+                            fontSize: "11px",
+                            color: "#9ca3af",
+                            background: "transparent",
+                            border: "1px dashed rgba(124,58,237,0.3)",
+                            padding: "1px 4px",
+                            outline: "none",
+                            width: "120px",
+                            fontFamily: "inherit"
+                          }}
                         />
                       ) : (
                         exp.location ? <><MapPin size={10} strokeWidth={2} /><span>{exp.location}</span></> : null
@@ -912,7 +922,7 @@ export function MidnightElegance({
               </AnimatePresence>
               {isEditable && (
                 <button
-                  onClick={() => onUpdate?.("skills", [...allSkills, "New Skill"])}
+                  onClick={() => onUpdate?.("skills", [...allSkills, ""])}
                   style={{
                     background: "rgba(124, 58, 237, 0.1)",
                     color: "#7c3aed",
