@@ -23,22 +23,36 @@ function PdfRenderContent() {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    try {
-      const dataParam = searchParams.get("data")
-      const template = searchParams.get("template") || "modern"
-      
-      if (dataParam) {
-        const decodedData = decodeURIComponent(dataParam)
-        const parsedData = JSON.parse(decodedData)
-        setCvData(parsedData)
-        setTemplateId(template)
-      } else {
-        setError("No CV data provided in URL")
+    const dataParam = searchParams.get("data")
+    const idParam = searchParams.get("id")
+    const template = searchParams.get("template") || "modern"
+    
+    const loadData = async () => {
+      try {
+        if (idParam) {
+          const { getCVPreview } = await import("@/lib/actions")
+          const res = await getCVPreview(idParam)
+          if (res.success && res.data) {
+            setCvData(res.data)
+            setTemplateId(template)
+          } else {
+            setError(res.error || "Failed to fetch CV data by ID")
+          }
+        } else if (dataParam) {
+          const decodedData = decodeURIComponent(dataParam)
+          const parsedData = JSON.parse(decodedData)
+          setCvData(parsedData)
+          setTemplateId(template)
+        } else {
+          setError("No CV data or ID provided in URL")
+        }
+      } catch (e) {
+        console.error("Failed to parse CV data:", e)
+        setError("Failed to parse CV data: " + e.message)
       }
-    } catch (e) {
-      console.error("Failed to parse CV data:", e)
-      setError("Failed to parse CV data: " + e.message)
     }
+
+    loadData()
   }, [searchParams])
 
   const TemplateComponent = () => {

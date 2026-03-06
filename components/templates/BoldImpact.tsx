@@ -1,8 +1,9 @@
-import { Phone, Mail, Linkedin, MapPin, Globe, Github, Facebook, PlusCircle, Trash2, Sparkles, Loader2, Camera, X } from "lucide-react"
+import { Phone, Mail, Linkedin, MapPin, Globe, Github, Facebook, PlusCircle, Trash2, Sparkles, Loader2, Camera, X, ChevronDown, Check, Search } from "lucide-react"
 import { CVData } from "./ModernProfessional"
 import { MarkdownText } from "../MarkdownText"
 import { DurationPicker } from "../DurationPicker"
-import React from "react"
+import React, { useRef, useState, useEffect } from "react"
+import countriesData from "@/lib/countries-data.json"
 
 function formatUrl(url: string) {
   if (!url) return ""
@@ -174,6 +175,87 @@ export function BoldImpact({
               {personalInfo.jobTitle}
             </div>
           )}
+
+          {/* Personal Details in Header */}
+          {(hasPersonalDetails || isEditable) && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginTop: "12px", fontSize: "11px", color: "rgba(255,255,255,0.7)" }}>
+              {(personalInfo.dateOfBirth || isEditable) && (
+                <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+                  <span style={{ fontWeight: 800, color: "#f97316" }}>DOB:</span>
+                  {isEditable ? (
+                    <input
+                      type="date"
+                      defaultValue={personalInfo.dateOfBirth}
+                      onChange={(e) => onUpdate?.("personalInfo.dateOfBirth", e.target.value)}
+                      style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.3)", color: "#fff", fontSize: "11px", width: "110px", outline: "none", colorScheme: "dark" }}
+                    />
+                  ) : (
+                    <span>{personalInfo.dateOfBirth}</span>
+                  )}
+                </div>
+              )}
+              {(personalInfo.nationality || isEditable) && (
+                <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+                  <span style={{ fontWeight: 800, color: "#f97316" }}>Nationality:</span>
+                  {isEditable ? (
+                    <SearchableSelect
+                      value={personalInfo.nationality || "Select"}
+                      options={countriesData.map(c => c.name)}
+                      onSelect={(val) => onUpdate?.("personalInfo.nationality", val)}
+                      width="120px"
+                    />
+                  ) : (
+                    <span>{personalInfo.nationality}</span>
+                  )}
+                </div>
+              )}
+               {(personalInfo.gender || isEditable) && (
+                <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+                  <span style={{ fontWeight: 800, color: "#f97316" }}>Gender:</span>
+                  {isEditable ? (
+                    <PopSelect
+                      value={personalInfo.gender || "Select"}
+                      options={["Male", "Female", "Other", "Prefer not to say"]}
+                      onSelect={(val) => onUpdate?.("personalInfo.gender", val)}
+                      color="#fff"
+                    />
+                  ) : (
+                    <span>{personalInfo.gender}</span>
+                  )}
+                </div>
+              )}
+              {(personalInfo.passport || isEditable) && (
+                <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+                  <span style={{ fontWeight: 800, color: "#f97316" }}>Passport:</span>
+                  {isEditable ? (
+                    <input
+                      defaultValue={personalInfo.passport}
+                      onBlur={(e) => onUpdate?.("personalInfo.passport", e.target.value)}
+                      placeholder="e.g. US"
+                      style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.3)", color: "#fff", fontSize: "11px", width: "60px", outline: "none" }}
+                    />
+                  ) : (
+                    <span>{personalInfo.passport}</span>
+                  )}
+                </div>
+              )}
+              {(personalInfo.workPermit || isEditable) && (
+                <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+                  <span style={{ fontWeight: 800, color: "#f97316" }}>Work Permit:</span>
+                  {isEditable ? (
+                    <input
+                      defaultValue={personalInfo.workPermit}
+                      onBlur={(e) => onUpdate?.("personalInfo.workPermit", e.target.value)}
+                      placeholder="e.g. EU"
+                      style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.3)", color: "#fff", fontSize: "11px", width: "60px", outline: "none" }}
+                    />
+                  ) : (
+                    <span>{personalInfo.workPermit}</span>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -184,17 +266,57 @@ export function BoldImpact({
           padding: "10px 52px",
           display: "flex",
           flexWrap: "wrap",
-          gap: "18px",
+          gap: "12px",
           alignItems: "center",
           fontSize: "10.5px",
           color: "#94a3b8",
         }}
       >
         {isEditable ? (
-           <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", width: "100%" }}>
-              <input defaultValue={personalInfo.email || ""} placeholder="Email" onBlur={(e) => onUpdate?.("personalInfo.email", e.target.value)} style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.2)", color: "#fff", fontSize: "10.5px", width: "150px" }} />
-              <input defaultValue={personalInfo.phone || ""} placeholder="Phone" onBlur={(e) => onUpdate?.("personalInfo.phone", e.target.value)} style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.2)", color: "#fff", fontSize: "10.5px", width: "120px" }} />
-              <input defaultValue={personalInfo.location || ""} placeholder="Location" onBlur={(e) => onUpdate?.("personalInfo.location", e.target.value)} style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.2)", color: "#fff", fontSize: "10.5px", width: "150px" }} />
+           <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", width: "100%", alignItems: "center" }}>
+              <input defaultValue={personalInfo.email || ""} placeholder="Email" onBlur={(e) => onUpdate?.("personalInfo.email", e.target.value)} style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.2)", color: "#fff", fontSize: "10.5px", width: "140px", outline: "none" }} />
+              <div style={{ display: "flex", alignItems: "center", gap: "2px" }}>
+                <SearchableSelect
+                  value={personalInfo.phoneCode || "+1"}
+                  width="70px"
+                  options={countriesData.map(c => {
+                    const pc = c.phonecode || ""
+                    const displayCode = pc.startsWith('+') ? pc : `+${pc}`
+                    return `${c.name} (${displayCode})`
+                  })}
+                  onSelect={(val) => {
+                    const match = val.match(/\((.*?)\)/)
+                    if (match) {
+                      const code = match[1]
+                      const finalCode = code.startsWith('+') ? code : `+${code}`
+                      onUpdate?.("personalInfo.phoneCode", finalCode)
+                    }
+                  }}
+                />
+                <input defaultValue={personalInfo.phone || ""} placeholder="Phone" onBlur={(e) => onUpdate?.("personalInfo.phone", e.target.value)} style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.2)", color: "#fff", fontSize: "10.5px", width: "90px", outline: "none" }} />
+              </div>
+              <SearchableSelect
+                value={personalInfo.country || "Country"}
+                options={countriesData.map(c => c.name)}
+                onSelect={(val) => {
+                   onUpdate?.("personalInfo.country", val)
+                   onUpdate?.("personalInfo.county", "")
+                }}
+                width="110px"
+              />
+              <SearchableSelect
+                value={personalInfo.county || "State"}
+                options={personalInfo.country ? (countriesData.find((c: any) => c.name === personalInfo.country)?.states || []).map((s: any) => s.name) : []}
+                onSelect={(val) => onUpdate?.("personalInfo.county", val)}
+                width="100px"
+              />
+              <input defaultValue={personalInfo.location || ""} placeholder="City/Zip" onBlur={(e) => onUpdate?.("personalInfo.location", e.target.value)} style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.2)", color: "#fff", fontSize: "10.5px", width: "80px", outline: "none" }} />
+              
+              {/* Socials */}
+              <input defaultValue={personalInfo.linkedin || ""} placeholder="LinkedIn" onBlur={(e) => onUpdate?.("personalInfo.linkedin", e.target.value)} style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.2)", color: "#fff", fontSize: "10.5px", width: "100px", outline: "none" }} />
+              <input defaultValue={personalInfo.website || ""} placeholder="Website" onBlur={(e) => onUpdate?.("personalInfo.website", e.target.value)} style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.2)", color: "#fff", fontSize: "10.5px", width: "100px", outline: "none" }} />
+              <input defaultValue={personalInfo.github || ""} placeholder="GitHub" onBlur={(e) => onUpdate?.("personalInfo.github", e.target.value)} style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.2)", color: "#fff", fontSize: "10.5px", width: "100px", outline: "none" }} />
+              <input defaultValue={personalInfo.facebook || ""} placeholder="Facebook" onBlur={(e) => onUpdate?.("personalInfo.facebook", e.target.value)} style={{ background: "transparent", border: "1px dashed rgba(255,255,255,0.2)", color: "#fff", fontSize: "10.5px", width: "100px", outline: "none" }} />
            </div>
         ) : (
           <>
@@ -208,7 +330,7 @@ export function BoldImpact({
               <ContactItem icon={<Linkedin size={10} />} text={personalInfo.linkedin} href={formatUrl(personalInfo.linkedin)} />
             )}
             {(personalInfo.location || personalInfo.county || personalInfo.country) && (
-              <ContactItem icon={<MapPin size={10} />} text={[personalInfo.county, personalInfo.country, personalInfo.location].filter(Boolean).join(", ")} />
+              <ContactItem icon={<MapPin size={10} />} text={[personalInfo.location, personalInfo.county, personalInfo.country].filter(Boolean).join(", ")} />
             )}
             {personalInfo.website && (
               <ContactItem icon={<Globe size={10} />} text={personalInfo.website} href={formatUrl(personalInfo.website)} />
@@ -261,6 +383,73 @@ export function BoldImpact({
           </div>
         )}
 
+        {/* Education */}
+        {(education.length > 0 || isEditable) && (
+          <div style={{ marginBottom: "26px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+              <HeavyHeading label="Education" />
+              {isEditable && (
+                 <button onClick={() => onUpdate?.("education.add", {})} style={{ background: "none", border: "none", color: "#f97316", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", fontSize: "11px" }}>
+                  <PlusCircle size={14} /> ADD EDUCATION
+                </button>
+              )}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              {education.map((edu) => (
+                <div key={edu.id} style={{ position: "relative" }}>
+                   {isEditable && (
+                    <button onClick={() => onUpdate?.("education.remove", edu.id)} style={{ position: "absolute", left: "-20px", color: "#ef4444", background: "none", border: "none" }}><Trash2 size={12} /></button>
+                  )}
+                  {isEditable ? (
+                    <div>
+                      <input defaultValue={edu.degree} placeholder="Degree" onBlur={(e) => onUpdate?.(`education.${edu.id}.degree`, e.target.value)} style={{ fontWeight: 800, fontSize: "12px", width: "100%", background: "transparent", border: "1px dashed #cbd5e1" }} />
+                      <div style={{ display: "flex", gap: "8px", margin: "4px 0" }}>
+                        <input defaultValue={edu.fieldOfStudy} placeholder="Field of Study" onBlur={(e) => onUpdate?.(`education.${edu.id}.fieldOfStudy`, e.target.value)} style={{ fontSize: "11px", width: "60%", background: "transparent", border: "1px dashed #cbd5e1" }} />
+                        <input defaultValue={edu.grade} placeholder="Grade/GPA" onBlur={(e) => onUpdate?.(`education.${edu.id}.grade`, e.target.value)} style={{ fontSize: "11px", width: "30%", background: "transparent", border: "1px dashed #cbd5e1" }} />
+                      </div>
+                      <input defaultValue={edu.school} placeholder="School" onBlur={(e) => onUpdate?.(`education.${edu.id}.school`, e.target.value)} style={{ fontSize: "11px", width: "100%", background: "transparent", border: "1px dashed #cbd5e1", marginBottom: "4px" }} />
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                         <SearchableSelect
+                          value={edu.country || "Country"}
+                          options={countriesData.map(c => c.name)}
+                          onSelect={(val) => {
+                             onUpdate?.(`education.${edu.id}.country`, val)
+                             onUpdate?.(`education.${edu.id}.county`, "")
+                          }}
+                          width="120px"
+                        />
+                         <SearchableSelect
+                          value={edu.county || "State"}
+                          options={edu.country ? (countriesData.find((c: any) => c.name === edu.country)?.states || []).map((s: any) => s.name) : []}
+                          onSelect={(val) => onUpdate?.(`education.${edu.id}.county`, val)}
+                          width="100px"
+                        />
+                        <input defaultValue={edu.location} placeholder="City" onBlur={(e) => onUpdate?.(`education.${edu.id}.location`, e.target.value)} style={{ fontSize: "11px", background: "transparent", border: "1px dashed #cbd5e1", width: "80px" }} />
+                        <DurationPicker value={edu.duration} onChange={(val) => onUpdate?.(`education.${edu.id}.duration`, val)} />
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                        <p style={{ fontWeight: 800, fontSize: "12px", color: "#0f172a", marginBottom: "1px" }}>{edu.degree}</p>
+                        {edu.duration && <p style={{ fontSize: "10px", color: "#f97316", fontWeight: 700 }}>{edu.duration}</p>}
+                      </div>
+                      {(edu.fieldOfStudy || edu.grade) && (
+                        <p style={{ fontSize: "11.5px", color: "#334155", marginBottom: "1px" }}>
+                          {edu.fieldOfStudy}{edu.grade && ` • Grade: ${edu.grade}`}
+                        </p>
+                      )}
+                      <p style={{ fontSize: "11px", color: "#64748b" }}>
+                        {edu.school} • {[edu.location, edu.county, edu.country].filter(Boolean).join(", ")}
+                      </p>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Experience */}
         {(experience.length > 0 || isEditable) && (
           <div style={{ marginBottom: "26px" }}>
@@ -268,7 +457,7 @@ export function BoldImpact({
                <HeavyHeading label="Experience" />
                {isEditable && (
                  <button onClick={() => onUpdate?.("experience.add", {})} style={{ background: "none", border: "none", color: "#f97316", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", fontSize: "11px" }}>
-                  <PlusCircle size={14} /> ADD ROLE
+                  <PlusCircle size={14} /> ADD EXPERIENCE
                 </button>
               )}
             </div>
@@ -288,15 +477,30 @@ export function BoldImpact({
                   >
                     <div>
                       {isEditable ? (
-                         <div style={{ display: "flex", gap: "4px" }}>
+                         <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", alignItems: "center" }}>
                             <input defaultValue={exp.role} placeholder="Role" onBlur={(e) => onUpdate?.(`experience.${exp.id}.role`, e.target.value)} style={{ fontWeight: 800, fontSize: "14px", background: "transparent", border: "1px dashed #cbd5e1", outline: "none" }} />
                             <span style={{ color: "#64748b", fontSize: "12px" }}>at</span>
-                            <input defaultValue={exp.company} placeholder="Company" onBlur={(e) => onUpdate?.(`experience.${exp.id}.company`, e.target.value)} style={{ color: "#64748b", fontSize: "12px", background: "transparent", border: "1px dashed #cbd5e1", outline: "none" }} />
+                            <input defaultValue={exp.company} placeholder="Company" onBlur={(e) => onUpdate?.(`experience.${exp.id}.company`, e.target.value)} style={{ color: "#64748b", fontSize: "12px", background: "transparent", border: "1px dashed #cbd5e1", outline: "none", width: "120px" }} />
+                            <SearchableSelect
+                              value={exp.country || "Country"}
+                              options={countriesData.map(c => c.name)}
+                              onSelect={(val) => {
+                                 onUpdate?.(`experience.${exp.id}.country`, val)
+                                 onUpdate?.(`experience.${exp.id}.location`, "")
+                              }}
+                              width="100px"
+                            />
+                            <SearchableSelect
+                                value={exp.location || "State"}
+                                options={exp.country ? (countriesData.find((c: any) => c.name === exp.country)?.states || []).map((s: any) => s.name) : []}
+                                onSelect={(val) => onUpdate?.(`experience.${exp.id}.location`, val)}
+                                width="100px"
+                              />
                          </div>
                       ) : (
                         <>
                           <span style={{ fontWeight: 800, fontSize: "14px", color: "#0f172a" }}>{exp.role}</span>
-                          <span style={{ color: "#64748b", fontSize: "12px", marginLeft: "8px" }}>at {exp.company}</span>
+                          <span style={{ color: "#64748b", fontSize: "12px", marginLeft: "8px" }}>at {exp.company} • {[exp.location, exp.country].filter(Boolean).join(", ")}</span>
                         </>
                       )}
                     </div>
@@ -320,7 +524,7 @@ export function BoldImpact({
                   </div>
                   {isEditable ? (
                     <div style={{ marginTop: "4px" }}>
-                      {exp.description.map((bullet, i) => (
+                      {(Array.isArray(exp.description) ? exp.description : []).map((bullet, i) => (
                         <div key={i} style={{ display: "flex", gap: "8px", marginBottom: "4px" }}>
                           <input defaultValue={bullet} onBlur={(e) => {
                             const newDesc = [...exp.description]
@@ -333,11 +537,21 @@ export function BoldImpact({
                           }} style={{ color: "#ef4444", background: "none", border: "none" }}><X size={12} /></button>
                         </div>
                       ))}
-                      <button onClick={() => onUpdate?.(`experience.${exp.id}.description`, [...exp.description, ""])} style={{ fontSize: "10px", fontWeight: "bold", background: "none", border: "none", cursor: "pointer", color: "#f97316" }}>+ ADD BULLET</button>
+                      <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                        <button onClick={() => onUpdate?.(`experience.${exp.id}.description`, [...(Array.isArray(exp.description) ? exp.description : []), ""])} style={{ fontSize: "10px", fontWeight: "bold", background: "none", border: "none", cursor: "pointer", color: "#f97316" }}>+ ADD BULLET</button>
+                        <button
+                          onClick={() => onRefine?.("experience", exp.id)}
+                          disabled={refiningId === exp.id || !exp.description}
+                          style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "10px", fontWeight: "bold", color: "#f97316", background: "rgba(249, 115, 22, 0.05)", border: "1px solid rgba(249, 115, 22, 0.2)", padding: "2px 8px", borderRadius: "4px", cursor: "pointer", opacity: (refiningId === exp.id || !exp.description) ? 0.5 : 1 }}
+                        >
+                          {refiningId === exp.id ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
+                          AI REFINE
+                        </button>
+                      </div>
                     </div>
                   ) : (
                     <ul style={{ paddingLeft: "16px", margin: 0, listStyleType: "square" }}>
-                      {exp.description.filter(Boolean).map((bullet, i) => (
+                      {(Array.isArray(exp.description) ? exp.description : []).filter(Boolean).map((bullet, i) => (
                         <li key={i} style={{ fontSize: "12px", color: "#334155", lineHeight: 1.65, marginBottom: "3px" }}>
                           <MarkdownText content={bullet} />
                         </li>
@@ -356,17 +570,56 @@ export function BoldImpact({
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
               <HeavyHeading label="Skills & Expertise" />
               {isEditable && (
-                 <button onClick={() => onUpdate?.("skills.add", "New Category")} style={{ background: "none", border: "none", color: "#f97316", cursor: "pointer" }}><PlusCircle size={14} /></button>
+                 <button onClick={() => onUpdate?.("skills.add", "New Category")} style={{ background: "none", border: "none", color: "#f97316", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", fontSize: "11px" }}>
+                  <PlusCircle size={14} /> ADD SKILL
+                </button>
               )}
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "4px" }}>
               {isEditable ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px", width: "100%" }}>
                   {skills.map((skill, i) => (
-                    <div key={i} style={{ display: "flex", gap: "8px", alignItems: "baseline" }}>
-                       <input defaultValue={skill.category} onBlur={(e) => onUpdate?.(`skills.${i}.category`, e.target.value)} style={{ fontWeight: 800, width: "120px", background: "transparent", border: "1px dashed #cbd5e1" }} />
-                       <input defaultValue={skill.items.join(", ")} onBlur={(e) => onUpdate?.(`skills.${i}.items`, e.target.value.split(",").map(s => s.trim()))} style={{ flex: 1, background: "transparent", border: "1px dashed #cbd5e1" }} />
-                       <button onClick={() => onUpdate?.("skills.remove", i)} style={{ color: "#ef4444", background: "none", border: "none" }}><Trash2 size={12} /></button>
+                    <div key={i} style={{ padding: "10px", border: "1px dashed #cbd5e1", borderRadius: "6px", background: "rgba(241, 245, 249, 0.5)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                        <input 
+                          defaultValue={skill.category} 
+                          onBlur={(e) => onUpdate?.(`skills.${i}.category`, e.target.value)} 
+                          style={{ fontWeight: 800, fontSize: "12px", color: "#0f172a", background: "transparent", border: "none", outline: "none", textTransform: "uppercase", letterSpacing: "1px", width: "100%" }} 
+                          placeholder="Category Name"
+                        />
+                        <button onClick={() => onUpdate?.("skills.remove", i)} style={{ color: "#ef4444", background: "none", border: "none", cursor: "pointer", marginLeft: "8px" }}><Trash2 size={14} /></button>
+                      </div>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                        {(skill.items || []).map((item, idx) => (
+                          <div key={idx} style={{ display: "flex", alignItems: "center", gap: "2px", background: "#fff", padding: "2px 8px", border: "1px solid #e2e8f0", borderRadius: "4px" }}>
+                            <input
+                              defaultValue={item}
+                              placeholder="Skill"
+                              onBlur={(e) => {
+                                const newItems = [...skill.items]
+                                newItems[idx] = e.target.value
+                                onUpdate?.(`skills.${i}.items`, newItems)
+                              }}
+                              style={{ fontSize: "11px", background: "transparent", border: "none", outline: "none", width: "80px", color: "#334155" }}
+                            />
+                            <button 
+                              onClick={() => {
+                                const newItems = skill.items.filter((_, index) => index !== idx)
+                                onUpdate?.(`skills.${i}.items`, newItems)
+                              }}
+                              style={{ color: "#ef4444", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", opacity: 0.6 }}
+                            >
+                              <X size={10} />
+                            </button>
+                          </div>
+                        ))}
+                        <button 
+                          onClick={() => onUpdate?.(`skills.${i}.items`, [...(skill.items || []), ""])}
+                          style={{ fontSize: "10px", fontWeight: "bold", color: "#f97316", background: "none", border: "1px dashed #f97316", borderRadius: "4px", padding: "2px 8px", cursor: "pointer" }}
+                        >
+                          + Add Item
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -393,134 +646,45 @@ export function BoldImpact({
           </div>
         )}
 
-        {/* Education + Projects side by side */}
-        <div style={{ display: "flex", gap: "36px" }}>
-          {(education.length > 0 || isEditable) && (
-            <div style={{ flex: 1 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                <HeavyHeading label="Education" />
-                {isEditable && (
-                   <button onClick={() => onUpdate?.("education.add", {})} style={{ background: "none", border: "none", color: "#f97316", cursor: "pointer" }}><PlusCircle size={14} /></button>
-                )}
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                {education.map((edu) => (
-                  <div key={edu.id} style={{ position: "relative" }}>
-                     {isEditable && (
-                      <button onClick={() => onUpdate?.("education.remove", edu.id)} style={{ position: "absolute", left: "-20px", color: "#ef4444", background: "none", border: "none" }}><Trash2 size={12} /></button>
-                    )}
-                    {isEditable ? (
-                      <div>
-                        <input defaultValue={edu.degree} placeholder="Degree" onBlur={(e) => onUpdate?.(`education.${edu.id}.degree`, e.target.value)} style={{ fontWeight: 800, fontSize: "12px", width: "100%", background: "transparent", border: "1px dashed #cbd5e1" }} />
-                        <input defaultValue={edu.school} placeholder="School" onBlur={(e) => onUpdate?.(`education.${edu.id}.school`, e.target.value)} style={{ fontSize: "11px", width: "100%", background: "transparent", border: "1px dashed #cbd5e1" }} />
-                        <DurationPicker value={edu.duration} onChange={(val) => onUpdate?.(`education.${edu.id}.duration`, val)} />
-                      </div>
-                    ) : (
-                      <>
-                        <p style={{ fontWeight: 800, fontSize: "12px", color: "#0f172a", marginBottom: "1px" }}>{edu.degree}</p>
-                        <p style={{ fontSize: "11px", color: "#64748b" }}>{edu.school}</p>
-                        {edu.duration && <p style={{ fontSize: "10px", color: "#f97316", fontWeight: 700 }}>{edu.duration}</p>}
-                      </>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          {(projects.length > 0 || isEditable) && (
-            <div style={{ flex: 1 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                <HeavyHeading label="Projects" />
-                {isEditable && (
-                   <button onClick={() => onUpdate?.("projects.add", {})} style={{ background: "none", border: "none", color: "#f97316", cursor: "pointer" }}><PlusCircle size={14} /></button>
-                )}
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                {projects.map((proj) => (
-                  <div key={proj.id} style={{ position: "relative" }}>
-                    {isEditable && (
-                      <button onClick={() => onUpdate?.("projects.remove", proj.id)} style={{ position: "absolute", left: "-20px", color: "#ef4444", background: "none", border: "none" }}><Trash2 size={12} /></button>
-                    )}
-                    {isEditable ? (
-                      <div>
-                        <input defaultValue={proj.name} placeholder="Project Name" onBlur={(e) => onUpdate?.(`projects.${proj.id}.name`, e.target.value)} style={{ fontWeight: 800, fontSize: "12px", width: "100%", background: "transparent", border: "1px dashed #cbd5e1" }} />
-                        <input defaultValue={proj.link} placeholder="Link" onBlur={(e) => onUpdate?.(`projects.${proj.id}.link`, e.target.value)} style={{ fontSize: "9px", width: "100%", background: "transparent", border: "1px dashed #cbd5e1", color: "#f97316" }} />
-                        <textarea defaultValue={proj.description} placeholder="Description..." onBlur={(e) => onUpdate?.(`projects.${proj.id}.description`, e.target.value)} style={{ width: "100%", fontSize: "11px", background: "transparent", border: "1px dashed #cbd5e1", outline: "none", fontFamily: "inherit" }} />
-                      </div>
-                    ) : (
-                      <>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                          <span style={{ fontWeight: 800, fontSize: "12px", color: "#0f172a" }}>{proj.name}</span>
-                          {proj.link && (
-                            <a href={formatUrl(proj.link)} target="_blank" rel="noopener noreferrer" style={{ fontSize: "9px", color: "#f97316", textDecoration: "none" }}>
-                              {proj.link}
-                            </a>
-                          )}
-                        </div>
-                        {proj.description && (
-                          <MarkdownText content={proj.description} style={{ fontSize: "11px", color: "#334155", lineHeight: 1.6, marginTop: "2px" }} />
-                        )}
-                      </>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Volunteering */}
-        {(volunteering && volunteering.length > 0 || isEditable) && (
-          <div style={{ marginTop: "26px" }}>
+        {/* Projects */}
+        {(projects.length > 0 || isEditable) && (
+          <div style={{ marginBottom: "26px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-               <HeavyHeading label="Volunteering" />
-               {isEditable && (
-                 <button onClick={() => onUpdate?.("volunteering.add", {})} style={{ background: "none", border: "none", color: "#f97316", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", fontSize: "11px" }}>
-                  <PlusCircle size={14} /> ADD ROLE
+              <HeavyHeading label="Projects" />
+              {isEditable && (
+                 <button onClick={() => onUpdate?.("projects.add", {})} style={{ background: "none", border: "none", color: "#f97316", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", fontSize: "11px" }}>
+                  <PlusCircle size={14} /> ADD PROJECT
                 </button>
               )}
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
-              {(volunteering || []).map((vol) => (
-                <div key={vol.id} style={{ position: "relative" }}>
-                   {isEditable && (
-                    <button onClick={() => onUpdate?.("volunteering.remove", vol.id)} style={{ position: "absolute", left: "-28px", color: "#ef4444", background: "none", border: "none" }}><Trash2 size={14} /></button>
-                  )}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
-                    <div>
-                      {isEditable ? (
-                         <div style={{ display: "flex", gap: "4px" }}>
-                            <input defaultValue={vol.role} placeholder="Role" onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.role`, e.target.value)} style={{ fontWeight: 800, fontSize: "14px", background: "transparent", border: "1px dashed #cbd5e1", outline: "none" }} />
-                            <span style={{ color: "#64748b", fontSize: "12px" }}>at</span>
-                            <input defaultValue={vol.organization} placeholder="Organization" onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.organization`, e.target.value)} style={{ color: "#64748b", fontSize: "12px", background: "transparent", border: "1px dashed #cbd5e1", outline: "none" }} />
-                         </div>
-                      ) : (
-                        <>
-                          <span style={{ fontWeight: 800, fontSize: "14px", color: "#0f172a" }}>{vol.role}</span>
-                          <span style={{ color: "#64748b", fontSize: "12px", marginLeft: "8px" }}>at {vol.organization}</span>
-                        </>
-                      )}
-                    </div>
-                    {isEditable ? (
-                      <DurationPicker value={vol.duration} onChange={(val) => onUpdate?.(`volunteering.${vol.id}.duration`, val)} />
-                    ) : (
-                      <span style={{ fontSize: "10px", fontWeight: 700, color: "#fff", background: "#f97316", padding: "3px 10px", borderRadius: "3px" }}>{vol.duration}</span>
-                    )}
-                  </div>
-                  {isEditable ? (
-                    <textarea defaultValue={vol.description} placeholder="Description..." onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.description`, e.target.value)} style={{ width: "100%", fontSize: "12px", background: "transparent", border: "1px dashed #cbd5e1", outline: "none", fontFamily: "inherit", resize: "vertical" }} />
-                  ) : (
-                    <MarkdownText content={vol.description} style={{ fontSize: "12px", color: "#334155", lineHeight: 1.6 }} />
-                  )}
+            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+              {projects.map((proj) => (
+                <div key={proj.id} style={{ position: "relative" }}>
                   {isEditable && (
-                    <button 
-                      onClick={() => onRefine?.("volunteering", vol.id)}
-                      disabled={refiningId === vol.id || !vol.description}
-                      style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "10px", fontWeight: "bold", color: "#f97316", background: "rgba(249, 115, 22, 0.05)", border: "1px solid rgba(249, 115, 22, 0.2)", padding: "2px 8px", borderRadius: "4px", cursor: "pointer", marginTop: "4px", opacity: (refiningId === vol.id || !vol.description) ? 0.5 : 1 }}
-                    >
-                      {refiningId === vol.id ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
-                      AI REFINE
-                    </button>
+                    <button onClick={() => onUpdate?.("projects.remove", proj.id)} style={{ position: "absolute", left: "-20px", color: "#ef4444", background: "none", border: "none" }}><Trash2 size={12} /></button>
+                  )}
+                  {isEditable ? (
+                    <div>
+                      <input defaultValue={proj.name} placeholder="Project Name" onBlur={(e) => onUpdate?.(`projects.${proj.id}.name`, e.target.value)} style={{ fontWeight: 800, fontSize: "12px", width: "100%", background: "transparent", border: "1px dashed #cbd5e1" }} />
+                      <input defaultValue={proj.link} placeholder="Link" onBlur={(e) => onUpdate?.(`projects.${proj.id}.link`, e.target.value)} style={{ fontSize: "9px", width: "100%", background: "transparent", border: "1px dashed #cbd5e1", color: "#f97316" }} />
+                      <div style={{ marginLeft: "16px", marginTop: "4px" }}>
+                        <textarea defaultValue={proj.description} placeholder="Description..." onBlur={(e) => onUpdate?.(`projects.${proj.id}.description`, e.target.value)} style={{ width: "100%", fontSize: "11px", background: "transparent", border: "1px dashed #cbd5e1", outline: "none", fontFamily: "inherit" }} />
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                        <span style={{ fontWeight: 800, fontSize: "12px", color: "#0f172a" }}>{proj.name}</span>
+                        {proj.link && (
+                          <a href={formatUrl(proj.link)} target="_blank" rel="noopener noreferrer" style={{ fontSize: "9px", color: "#f97316", textDecoration: "none" }}>
+                            {proj.link}
+                          </a>
+                        )}
+                      </div>
+                      {proj.description && (
+                        <MarkdownText content={proj.description} style={{ fontSize: "11px", color: "#334155", lineHeight: 1.6, marginTop: "2px", marginLeft: "16px" }} />
+                      )}
+                    </>
                   )}
                 </div>
               ))}
@@ -528,21 +692,87 @@ export function BoldImpact({
           </div>
         )}
 
-        {/* Personal Details & Languages */}
+        {/* Volunteering + Languages Side by Side (50/50) */}
         <div style={{ display: "flex", gap: "36px", marginTop: "26px" }}>
-          {(hasPersonalDetails || isEditable) && (
+          {(volunteering && volunteering.length > 0 || isEditable) && (
             <div style={{ flex: 1 }}>
-              <HeavyHeading label="Personal Details" />
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                {(personalInfo.dateOfBirth || isEditable) && <DetailRow label="DOB" value={personalInfo.dateOfBirth} onUpdate={(val) => onUpdate?.("personalInfo.dateOfBirth", val)} isEditable={isEditable} />}
-                {(personalInfo.placeOfBirth || isEditable) && <DetailRow label="Birth Place" value={personalInfo.placeOfBirth} onUpdate={(val) => onUpdate?.("personalInfo.placeOfBirth", val)} isEditable={isEditable} />}
-                {(personalInfo.nationality || isEditable) && <DetailRow label="Nationality" value={personalInfo.nationality} onUpdate={(val) => onUpdate?.("personalInfo.nationality", val)} isEditable={isEditable} />}
-                {(personalInfo.gender || isEditable) && <DetailRow label="Gender" value={personalInfo.gender} onUpdate={(val) => onUpdate?.("personalInfo.gender", val)} isEditable={isEditable} />}
-                {(personalInfo.passport || isEditable) && <DetailRow label="Passport" value={personalInfo.passport} onUpdate={(val) => onUpdate?.("personalInfo.passport", val)} isEditable={isEditable} />}
-                {(personalInfo.workPermit || isEditable) && <DetailRow label="Work Permit" value={personalInfo.workPermit} onUpdate={(val) => onUpdate?.("personalInfo.workPermit", val)} isEditable={isEditable} />}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                 <HeavyHeading label="Volunteering" />
+                 {isEditable && (
+                   <button onClick={() => onUpdate?.("volunteering.add", {})} style={{ background: "none", border: "none", color: "#f97316", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", fontSize: "11px" }}>
+                    <PlusCircle size={14} /> ADD VOLUNTEERING
+                  </button>
+                )}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+                {(volunteering || []).map((vol) => (
+                  <div key={vol.id} style={{ position: "relative" }}>
+                     {isEditable && (
+                      <button onClick={() => onUpdate?.("volunteering.remove", vol.id)} style={{ position: "absolute", left: "-28px", color: "#ef4444", background: "none", border: "none" }}><Trash2 size={14} /></button>
+                    )}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+                      <div>
+                        {isEditable ? (
+                           <div style={{ display: "flex", gap: "4px" }}>
+                              <input defaultValue={vol.role} placeholder="Role" onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.role`, e.target.value)} style={{ fontWeight: 800, fontSize: "14px", background: "transparent", border: "1px dashed #cbd5e1", outline: "none" }} />
+                              <span style={{ color: "#64748b", fontSize: "12px" }}>at</span>
+                              <input defaultValue={vol.organization} placeholder="Organization" onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.organization`, e.target.value)} style={{ color: "#64748b", fontSize: "12px", background: "transparent", border: "1px dashed #cbd5e1", outline: "none" }} />
+                           </div>
+                        ) : (
+                          <>
+                            <span style={{ fontWeight: 800, fontSize: "14px", color: "#0f172a" }}>{vol.role}</span>
+                            <span style={{ color: "#64748b", fontSize: "12px", marginLeft: "8px" }}>at {vol.organization}</span>
+                          </>
+                        )}
+                      </div>
+                      <div style={{ marginLeft: "16px" }}>
+                        {isEditable ? (
+                          <DurationPicker fontSize="9px" value={vol.duration} onChange={(val) => onUpdate?.(`volunteering.${vol.id}.duration`, val)} />
+                        ) : (
+                          <span style={{ fontSize: "10px", fontWeight: 700, color: "#fff", background: "#f97316", padding: "3px 10px", borderRadius: "3px" }}>{vol.duration}</span>
+                        )}
+                      </div>
+                    </div>
+                    {isEditable ? (
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "8px" }}>
+                        <SearchableSelect
+                          value={vol.country || "Country"}
+                          options={countriesData.map(c => c.name)}
+                          onSelect={(val) => onUpdate?.(`volunteering.${vol.id}.country`, val)}
+                          width="100px"
+                        />
+                        <SearchableSelect
+                          value={vol.county || "State"}
+                          options={vol.country ? (countriesData.find((c: any) => c.name === vol.country)?.states || []).map((s: any) => s.name) : []}
+                          onSelect={(val) => onUpdate?.(`volunteering.${vol.id}.county`, val)}
+                          width="100px"
+                        />
+                        <input
+                          defaultValue={vol.location}
+                          placeholder="City"
+                          onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.location`, e.target.value)}
+                          style={{ fontSize: "11px", color: "#64748b", background: "transparent", border: "1px dashed #cbd5e1", outline: "none", padding: "2px 4px", width: "90px" }}
+                        />
+                      </div>
+                    ) : (vol.location || vol.county || vol.country) && (
+                      <div style={{ display: "flex", alignItems: "center", gap: "4px", marginBottom: "4px", fontSize: "11px", color: "#64748b" }}>
+                        <MapPin size={10} />
+                        <span>{[vol.location, vol.county, vol.country].filter(Boolean).join(", ")}</span>
+                      </div>
+                    )}
+                    {isEditable ? (
+                      <div style={{ marginLeft: "16px", marginTop: "4px" }}>
+                        <textarea defaultValue={vol.description} placeholder="Description..." onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.description`, e.target.value)} style={{ width: "100%", fontSize: "12px", background: "transparent", border: "1px dashed #cbd5e1", outline: "none", fontFamily: "inherit", resize: "vertical" }} />
+                      </div>
+                    ) : (
+                      <MarkdownText content={vol.description} style={{ fontSize: "12px", color: "#334155", lineHeight: 1.6, marginLeft: "16px" }} />
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           )}
+
           {(languages && languages.length > 0 || isEditable) && (
             <div style={{ flex: 1 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
@@ -553,21 +783,30 @@ export function BoldImpact({
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 {(languages || []).map((lang, i) => (
-                  <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "12px" }}>
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "12px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                       {isEditable && (
                         <button onClick={() => onUpdate?.("languages.remove", i)} style={{ color: "#ef4444", background: "none", border: "none" }}><X size={12} /></button>
                       )}
                       {isEditable ? (
-                        <input defaultValue={lang.name} onBlur={(e) => onUpdate?.(`languages.${i}.name`, e.target.value)} style={{ fontWeight: 800, background: "transparent", border: "1px dashed #cbd5e1", width: "80px" }} />
+                        <input 
+                          defaultValue={lang.name} 
+                          placeholder="Language"
+                          onBlur={(e) => onUpdate?.(`languages.${i}.name`, e.target.value)} 
+                          style={{ fontWeight: 800, background: "transparent", border: "1px dashed #cbd5e1", width: "100px", color: "#0f172a", outline: "none", padding: "1px 4px" }} 
+                        />
                       ) : (
                         <span style={{ fontWeight: 800, color: "#0f172a" }}>{lang.name}</span>
                       )}
                     </div>
                     {isEditable ? (
-                      <input defaultValue={lang.proficiency} onBlur={(e) => onUpdate?.(`languages.${i}.proficiency`, e.target.value)} style={{ background: "transparent", border: "1px dashed #cbd5e1", width: "80px", textAlign: "right", color: "#64748b" }} />
+                      <PopSelect 
+                        value={lang.proficiency || "Level"}
+                        options={["Native", "Fluent", "Professional", "Intermediate", "Basic"]}
+                        onSelect={(val) => onUpdate?.(`languages.${i}.proficiency`, val)}
+                      />
                     ) : (
-                      <span style={{ color: "#64748b", fontStyle: "italic" }}>{lang.proficiency}</span>
+                      <span style={{ color: "#64748b", fontStyle: "italic" }}>({lang.proficiency})</span>
                     )}
                   </div>
                 ))}
@@ -575,6 +814,8 @@ export function BoldImpact({
             </div>
           )}
         </div>
+
+
       </div>
     </div>
   )
@@ -632,5 +873,184 @@ function ContactItem({ icon, text, href }: { icon: React.ReactNode; text: string
     </a>
   ) : (
     inner
+  )
+}
+
+function PopSelect({ value, options, onSelect, color }: { value: string; options: string[]; onSelect: (val: string) => void, color?: string }) {
+  const [isOpen, setIsOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setIsOpen(false)
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  return (
+    <div ref={ref} style={{ position: "relative", display: "inline-block" }}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          background: "none",
+          border: "none",
+          borderBottom: "1px dashed #f97316",
+          fontSize: "11px",
+          color: color || "#64748b",
+          cursor: "pointer",
+          padding: "1px 2px",
+          outline: "none"
+        }}
+      >
+        {value} <ChevronDown size={10} />
+      </button>
+      {isOpen && (
+        <div style={{
+          position: "absolute",
+          top: "100%",
+          right: 0,
+          zIndex: 1000,
+          background: "#fff",
+          border: "1px solid #e5e7eb",
+          borderRadius: "6px",
+          boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
+          padding: "4px",
+          maxHeight: "250px",
+          overflowY: "auto",
+          marginTop: "2px",
+          minWidth: "120px"
+        }}>
+          {options.map((opt) => (
+            <div
+              key={opt}
+              onClick={() => {
+                onSelect(opt)
+                setIsOpen(false)
+              }}
+              style={{
+                padding: "4px 8px",
+                fontSize: "10px",
+                cursor: "pointer",
+                borderRadius: "4px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                backgroundColor: value === opt ? "#fff7ed" : "transparent",
+                color: value === opt ? "#f97316" : "#374151",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#fff7ed")}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = value === opt ? "#fff7ed" : "transparent")}
+            >
+              {opt} {value === opt && <Check size={10} />}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function SearchableSelect({ value, options, onSelect, width }: { value: string; options: string[]; onSelect: (val: string) => void; width?: string }) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [search, setSearch] = useState("")
+  const ref = useRef<HTMLDivElement>(null)
+
+  const filtered = options.filter(o => o.toLowerCase().includes(search.toLowerCase()))
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setIsOpen(false)
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  return (
+    <div ref={ref} style={{ position: "relative", display: "inline-block", width: width || "110px" }}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "4px",
+          background: "transparent",
+          border: "1px dashed rgba(255,255,255,0.3)",
+          color: "#fff",
+          fontSize: "10.5px",
+          cursor: "pointer",
+          padding: "2px 6px",
+          outline: "none",
+          width: "100%",
+          borderRadius: "4px"
+        }}
+      >
+        <span style={{ flex: 1, textAlign: "left", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{value}</span>
+        <ChevronDown size={10} />
+      </button>
+      {isOpen && (
+        <div style={{
+          position: "absolute",
+          top: "100%",
+          left: 0,
+          zIndex: 1000,
+          background: "#fff",
+          border: "1px solid #e5e7eb",
+          borderRadius: "6px",
+          boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
+          padding: "6px",
+          minWidth: "180px",
+          marginTop: "4px"
+        }}>
+          <div style={{ position: "relative", marginBottom: "6px" }}>
+            <Search size={10} style={{ position: "absolute", left: "6px", top: "50%", transform: "translateY(-50%)", color: "#9ca3af" }} />
+            <input
+              autoFocus
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search..."
+              style={{
+                width: "100%",
+                padding: "4px 6px 4px 22px",
+                fontSize: "10px",
+                border: "1px solid #e5e7eb",
+                borderRadius: "4px",
+                outline: "none",
+                color: "#1f2937"
+              }}
+            />
+          </div>
+          <div style={{ maxHeight: "200px", overflowY: "auto" }}>
+            {filtered.map((opt) => (
+              <div
+                key={opt}
+                onClick={() => {
+                  onSelect(opt)
+                  setIsOpen(false)
+                }}
+                style={{
+                  padding: "6px 8px",
+                  fontSize: "10px",
+                  cursor: "pointer",
+                  borderRadius: "4px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  backgroundColor: value === opt ? "#fff7ed" : "transparent",
+                  color: value === opt ? "#f97316" : "#374151",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#fff7ed")}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = value === opt ? "#fff7ed" : "transparent")}
+              >
+                {opt} {value === opt && <Check size={10} />}
+              </div>
+            ))}
+            {filtered.length === 0 && (
+              <div style={{ padding: "6px", fontSize: "10px", color: "#9ca3af", textAlign: "center" }}>No results</div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
   )
 }

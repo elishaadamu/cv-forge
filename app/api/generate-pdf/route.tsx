@@ -14,16 +14,23 @@ const CHROME_PATH = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
 export async function POST(req: Request) {
   let browser = null
   try {
-    const { cvData, templateId } = await req.json()
+    const { cvData, templateId, cvId } = await req.json()
 
-    if (!cvData) {
-      return NextResponse.json({ error: 'CV data is required' }, { status: 400 })
+    if (!cvData && !cvId) {
+      return NextResponse.json({ error: 'CV data or ID is required' }, { status: 400 })
     }
 
     // Get the base URL for the render page
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-    const encodedData = encodeURIComponent(JSON.stringify(cvData))
-    const renderUrl = `${baseUrl}/pdf-render?data=${encodedData}&template=${templateId || 'modern'}`
+    
+    // Use cvId if available to avoid long URLs, otherwise fallback to encoded data
+    let renderUrl;
+    if (cvId) {
+      renderUrl = `${baseUrl}/pdf-render?id=${cvId}&template=${templateId || 'modern'}`
+    } else {
+      const encodedData = encodeURIComponent(JSON.stringify(cvData))
+      renderUrl = `${baseUrl}/pdf-render?data=${encodedData}&template=${templateId || 'modern'}`
+    }
 
     // Check if running locally (development) or on Vercel/Render (production)
     const isLocal = process.env.NODE_ENV === 'development'
@@ -44,8 +51,8 @@ export async function POST(req: Request) {
 
       const page = await browser.newPage()
       
-      // Log URL for debugging (truncated)
-      console.log('PDF Generation: Navigating to render URL (data length:', encodedData.length, ')')
+      // Log destination for debugging
+      console.log('PDF Generation: Navigating to render URL (length:', renderUrl.length, ')')
       
       await page.goto(renderUrl, { waitUntil: 'networkidle2', timeout: 60000 })
       

@@ -368,9 +368,9 @@ export function ClassicTable({
                 <tr key={edu.id} style={{ position: "relative" }}>
                   <td
                     style={{
-                      paddingBottom: "6px",
+                      paddingBottom: "12px",
                       verticalAlign: "top",
-                      width: "55%",
+                      width: "60%",
                     }}
                   >
                     {isEditable && (
@@ -389,6 +389,20 @@ export function ClassicTable({
                           onBlur={(e) => onUpdate?.(`education.${edu.id}.degree`, e.target.value)}
                           style={{ fontWeight: 700, fontSize: "13px", width: "100%", background: "transparent", border: "1px dashed #000", outline: "none", marginBottom: "2px" }}
                         />
+                         <div style={{ display: "flex", gap: "8px", marginBottom: "4px" }}>
+                          <input
+                            defaultValue={edu.fieldOfStudy}
+                            placeholder="Field of Study"
+                            onBlur={(e) => onUpdate?.(`education.${edu.id}.fieldOfStudy`, e.target.value)}
+                            style={{ fontSize: "12px", width: "50%", background: "transparent", border: "1px dashed #000", outline: "none" }}
+                          />
+                          <input
+                            defaultValue={edu.grade}
+                            placeholder="Grade/GPA"
+                            onBlur={(e) => onUpdate?.(`education.${edu.id}.grade`, e.target.value)}
+                            style={{ fontSize: "11px", width: "30%", background: "transparent", border: "1px dashed #000", outline: "none", color: "#666" }}
+                          />
+                        </div>
                         <div style={{ display: "flex", alignItems: "center", gap: "4px", flexWrap: "wrap" }}>
                           <MapPin size={10} color="#666" />
                           <SearchableSelect
@@ -414,9 +428,14 @@ export function ClassicTable({
                       </div>
                     ) : (
                       <div>
-                        <span style={{ fontWeight: 700, fontSize: "13px" }}>
+                        <div style={{ fontWeight: 700, fontSize: "13px" }}>
                           {edu.degree}
-                        </span>
+                        </div>
+                        {(edu.fieldOfStudy || edu.grade) && (
+                          <div style={{ fontSize: "12px", color: "#333", marginBottom: "2px" }}>
+                            {edu.fieldOfStudy}{edu.grade && ` • Grade: ${edu.grade}`}
+                          </div>
+                        )}
                         {edu.location || edu.county || edu.country ? (
                           <div style={{ fontSize: "11px", color: "#666", display: "flex", alignItems: "center", gap: "4px", marginTop: "1px" }}>
                             <MapPin size={10} /> {[edu.location, edu.county, edu.country].filter(Boolean).join(", ")}
@@ -427,9 +446,9 @@ export function ClassicTable({
                   </td>
                   <td
                     style={{
-                      paddingBottom: "6px",
+                      paddingBottom: "12px",
                       verticalAlign: "top",
-                      width: "30%",
+                      width: "25%",
                     }}
                   >
                     {isEditable ? (
@@ -445,7 +464,7 @@ export function ClassicTable({
                   </td>
                   <td
                     style={{
-                      paddingBottom: "6px",
+                      paddingBottom: "12px",
                       verticalAlign: "top",
                       textAlign: "right",
                       width: "15%",
@@ -811,14 +830,44 @@ export function ClassicTable({
                   )}
                 </div>
                 {isEditable ? (
-                  <input
-                    defaultValue={vol.organization}
-                    placeholder="Organization"
-                    onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.organization`, e.target.value)}
-                    style={{ fontSize: "13px", fontStyle: "italic", width: "80%", background: "transparent", border: "1px dashed #000", outline: "none", color: "#444", marginBottom: "4px" }}
-                  />
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "4px" }}>
+                    <input
+                      defaultValue={vol.organization}
+                      placeholder="Organization"
+                      onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.organization`, e.target.value)}
+                      style={{ fontSize: "13px", fontStyle: "italic", width: "150px", background: "transparent", border: "1px dashed #000", outline: "none", color: "#444" }}
+                    />
+                    <div style={{ display: "flex", gap: "4px" }}>
+                      <MapPin size={10} color="#000" />
+                      <SearchableSelect
+                        value={vol.country || "Country"}
+                        options={countriesData.map(c => c.name)}
+                        onSelect={(val) => onUpdate?.(`volunteering.${vol.id}.country`, val)}
+                        width="100px"
+                      />
+                      <SearchableSelect
+                        value={vol.county || "State"}
+                        options={vol.country ? (countriesData.find((c: any) => c.name === vol.country)?.states || []).map((s: any) => s.name) : []}
+                        onSelect={(val) => onUpdate?.(`volunteering.${vol.id}.county`, val)}
+                        width="100px"
+                      />
+                      <input
+                        defaultValue={vol.location}
+                        placeholder="City"
+                        onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.location`, e.target.value)}
+                        style={{ fontSize: "11px", width: "80px", background: "transparent", border: "1px dashed #000", outline: "none" }}
+                      />
+                    </div>
+                  </div>
                 ) : (
-                  <div style={{ fontSize: "13px", fontStyle: "italic", color: "#444" }}>{vol.organization}</div>
+                  <div style={{ fontSize: "13px", fontStyle: "italic", color: "#444", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span>{vol.organization}</span>
+                    {(vol.location || vol.county || vol.country) && (
+                      <span style={{ fontSize: "11px", color: "#666" }}>
+                        {[vol.location, vol.county, vol.country].filter(Boolean).join(", ")}
+                      </span>
+                    )}
+                  </div>
                 )}
                 {isEditable ? (
                   <textarea
@@ -852,10 +901,11 @@ export function ClassicTable({
           label="Languages" 
           isEditable={isEditable} 
           onAdd={() => onUpdate?.("languages.add", { name: "New Language", proficiency: "Native" })}
+          simpleAdd
         >
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 40px" }}>
             {(languages || []).map((lang, i) => (
-              <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                   {isEditable && (
                     <button 
@@ -866,10 +916,20 @@ export function ClassicTable({
                     </button>
                   )}
                   {isEditable ? (
-                    <SearchableSelect 
-                      value={lang.name || "Language"}
-                      options={["English", "French", "Spanish", "German", "Chinese", "Arabic", "Portuguese", "Japanese", "Russian", "Hindi", "Bengali", "Yoruba", "Igbo", "Hausa"]}
-                      onSelect={(val) => onUpdate?.(`languages.${i}.name`, val)}
+                    <input 
+                      defaultValue={lang.name}
+                      placeholder="Language"
+                      onBlur={(e) => onUpdate?.(`languages.${i}.name`, e.target.value)}
+                      style={{ 
+                        background: "transparent", 
+                        border: "1px dashed #000", 
+                        fontSize: "12px", 
+                        color: "#000", 
+                        padding: "1px 4px", 
+                        outline: "none",
+                        width: "110px",
+                        fontWeight: 700 
+                      }}
                     />
                   ) : (
                     <span style={{ fontWeight: 700 }}>{lang.name}</span>
@@ -882,7 +942,7 @@ export function ClassicTable({
                     onSelect={(val) => onUpdate?.(`languages.${i}.proficiency`, val)}
                   />
                 ) : (
-                  <span style={{ fontStyle: "italic", color: "#555" }}>{lang.proficiency}</span>
+                  <span style={{ fontStyle: "italic", color: "#555" }}>({lang.proficiency})</span>
                 )}
               </div>
             ))}
@@ -917,7 +977,8 @@ function Section({
   isEditable,
   onAdd,
   onRefine,
-  refining
+  refining,
+  simpleAdd
 }: {
   label: string
   children: React.ReactNode
@@ -925,6 +986,7 @@ function Section({
   onAdd?: () => void
   onRefine?: () => void
   refining?: boolean
+  simpleAdd?: boolean
 }) {
   return (
     <div style={{ marginBottom: "20px" }}>
@@ -957,7 +1019,7 @@ function Section({
                 onClick={onAdd}
                 style={{ background: "none", border: "none", color: "#000", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontSize: "10px", fontWeight: 700 }}
               >
-                <PlusCircle size={12} /> ADD ITEM
+                <PlusCircle size={12} /> {simpleAdd ? "" : `ADD ${label.toUpperCase()}`}
               </button>
             )}
           </div>

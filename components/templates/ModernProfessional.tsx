@@ -618,7 +618,7 @@ export function ModernProfessional({
                   onClick={() => onUpdate?.("volunteering.add", {})}
                   style={{ background: "none", border: "none", color: "#1a3a5c", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontSize: "11px", fontWeight: 700 }}
                 >
-                  <PlusCircle size={14} /> ADD
+                  <PlusCircle size={14} /> ADD VOLUNTEERING
                 </button>
               )}
             </div>
@@ -654,29 +654,44 @@ export function ModernProfessional({
                     )}
                   </div>
                   {isEditable ? (
-                    <div style={{ display: "flex", gap: "12px", alignItems: "center", marginBottom: "6px" }}>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center", marginBottom: "6px" }}>
                       <input 
                         defaultValue={vol.organization}
                         placeholder="Organization"
                         onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.organization`, e.target.value)}
-                        style={{ fontSize: "13px", color: "#3b82c4", fontWeight: 600, outline: "none", background: "transparent", border: "1px dashed rgba(59, 130, 196, 0.3)", padding: "2px 8px", borderRadius: "3px", width: "60%", fontFamily: "inherit" }}
+                        style={{ fontSize: "13px", color: "#3b82c4", fontWeight: 600, outline: "none", background: "transparent", border: "1px dashed rgba(59, 130, 196, 0.3)", padding: "2px 8px", borderRadius: "3px", width: "150px", fontFamily: "inherit" }}
                       />
-                      <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                         <MapPin size={10} color="#9ca3af" />
                         <SearchableSelect 
-                          value={vol.location || "Location"} 
+                          value={vol.country || "Country"} 
                           options={countriesData.map(c => c.name)} 
-                          onSelect={(val) => onUpdate?.(`volunteering.${vol.id}.location`, val)} 
+                          onSelect={(val) => onUpdate?.(`volunteering.${vol.id}.country`, val)} 
+                          width="100px"
+                        />
+                        <SearchableSelect 
+                          value={vol.county || "State"} 
+                          options={vol.country ? (countriesData.find((c: any) => c.name === vol.country)?.states || []).map((s: any) => s.name) : []} 
+                          onSelect={(val) => onUpdate?.(`volunteering.${vol.id}.county`, val)} 
+                          width="100px"
+                        />
+                         <input 
+                          defaultValue={vol.location}
+                          placeholder="City"
+                          onBlur={(e) => onUpdate?.(`volunteering.${vol.id}.location`, e.target.value)}
+                          style={{ fontSize: "11px", color: "#9ca3af", outline: "none", background: "transparent", border: "1px dashed rgba(26, 58, 92, 0.3)", padding: "2px 8px", borderRadius: "3px", width: "90px", fontFamily: "inherit" }}
                         />
                       </div>
                     </div>
                   ) : (
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
                       <div style={{ fontSize: "13px", color: "#3b82c4", fontWeight: 600 }}>{vol.organization}</div>
-                      {vol.location && (
+                      {(vol.location || vol.county || vol.country) && (
                         <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                           <MapPin size={10} color="#9ca3af" />
-                          <span style={{ fontSize: "11px", color: "#9ca3af" }}>{vol.location}</span>
+                          <span style={{ fontSize: "11.5px", color: "#6b7280" }}>
+                            {[vol.location, vol.county, vol.country].filter(Boolean).join(", ")}
+                          </span>
                         </div>
                       )}
                     </div>

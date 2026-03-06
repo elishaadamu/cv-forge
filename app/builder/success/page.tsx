@@ -32,7 +32,7 @@ import { BoldImpact } from "@/components/templates/BoldImpact"
 import { CorporateClean } from "@/components/templates/CorporateClean"
 import { FreshMinimal } from "@/components/templates/FreshMinimal"
 import { RefinedClassic } from "@/components/templates/RefinedClassic"
-import { getCV, saveCV } from "@/lib/actions"
+import { getCV, saveCV, getCVPreview } from "@/lib/actions"
 import { useSession } from "next-auth/react"
 import { useEffect, useState, useRef, Suspense } from "react"
 import html2canvas from "html2canvas-pro"
@@ -124,23 +124,31 @@ function SuccessContent() {
   ]
 
   useEffect(() => {
-    if (!session || !id) return // still loading session or no id
-    if (!session?.user?.id) {
-      setIsLoading(false)
-      return
-    }
+    if (!id) return; // no id to fetch
+    
     const fetchData = async () => {
-      setIsLoading(true)
-      const res = await getCV(id, session.user.id)
+      setIsLoading(true);
+      // Try to fetch with session user ID if available, otherwise "guest" or similar
+      // The getCV action on server should allow fetching if it's the owner or if we use a preview fetch
+      const res = await getCV(id, session?.user?.id || "guest");
+      
       if (res.success && res.data) {
-        setCvData(res.data)
+        setCvData(res.data);
         // Give the off-screen template ~400ms to paint before enabling downloads
-        setTimeout(() => setIsReady(true), 400)
+        setTimeout(() => setIsReady(true), 400);
+      } else {
+        // Fallback to getCVPreview which doesn't require session
+        const previewRes = await getCVPreview(id);
+        if (previewRes.success && previewRes.data) {
+          setCvData(previewRes.data);
+          setTimeout(() => setIsReady(true), 400);
+        }
       }
-      setIsLoading(false)
-    }
-    fetchData()
-  }, [id, session])
+      setIsLoading(false);
+    };
+    
+    fetchData();
+  }, [id, session]);
 
   const handleDownload = async (type: string) => {
     if (!cvRef.current || !cvData || !isReady || !id) {
@@ -198,7 +206,7 @@ function SuccessContent() {
         const response = await fetch("/api/generate-pdf", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ cvData, templateId: cvData.templateId }),
+          body: JSON.stringify({ cvData, templateId: cvData.templateId, cvId: id }),
         })
 
         if (!response.ok) {

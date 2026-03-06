@@ -7,7 +7,7 @@ export default auth((req) => {
   
   const isProtectedPage = 
     nextUrl.pathname.startsWith('/dashboard') || 
-    nextUrl.pathname.startsWith('/builder') ||
+    (nextUrl.pathname.startsWith('/builder') && !nextUrl.pathname.startsWith('/builder/success')) ||
     nextUrl.pathname.startsWith('/settings')
 
   if (isProtectedPage && !isLoggedIn) {

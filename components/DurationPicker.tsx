@@ -10,9 +10,10 @@ dayjs.extend(customParseFormat)
 interface DurationPickerProps {
   value: string;
   onChange: (val: string) => void;
+  fontSize?: string;
 }
 
-export function DurationPicker({ value, onChange }: DurationPickerProps) {
+export function DurationPicker({ value, onChange, fontSize }: DurationPickerProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [position, setPosition] = useState<'bottom' | 'top'>('bottom')
   const ref = useRef<HTMLDivElement>(null)
@@ -88,7 +89,7 @@ export function DurationPicker({ value, onChange }: DurationPickerProps) {
       <button
         onClick={() => setIsOpen(!isOpen)}
         style={{
-          fontSize: "12px",
+          fontSize: fontSize || "12px",
           color: "#7c3aed",
           fontWeight: 700,
           background: "rgba(124, 58, 237, 0.05)",

@@ -86,11 +86,19 @@ const INITIAL_DATA: CVData = {
     facebook: "",
     summary: "",
     profileImage: "",
+    nationality: "",
+    gender: "",
+    dateOfBirth: "",
+    placeOfBirth: "",
+    passport: "",
+    workPermit: "",
   },
   experience: [],
   education: [],
   skills: [],
-  projects: []
+  projects: [],
+  languages: [],
+  volunteering: []
 }
 
 function BuilderContent() {
@@ -147,9 +155,10 @@ function BuilderContent() {
     "Communication", "Leadership", "Team Management", "Mentoring"
   ]
   const [pageCount, setPageCount] = useState(1)
-  const [lastSavedData, setLastSavedData] = useState("")
+  const [isInitialLoading, setIsInitialLoading] = useState(!!cvIdParam)
+  const [lastSavedData, setLastSavedData] = useState(JSON.stringify({ data: INITIAL_DATA, templateId: "modern" }))
   // Track the ID of the CV being edited so saves always update the same record
-  const [currentCvId, setCurrentCvId] = useState<string | null>(cvIdParam)
+  const [currentCvId, setCurrentCvId] = useState<string | null>(null)
   const previewRef = useRef<HTMLDivElement>(null)
   const templateDropdownRef = useRef<HTMLDivElement>(null)
   const phoneDropdownRef = useRef<HTMLDivElement>(null)
@@ -171,21 +180,35 @@ function BuilderContent() {
 
   // Load existing CV when cvId param is present (e.g. coming from dashboard)
   useEffect(() => {
-    // Only load if the ID in the URL is different from our currently tracked ID
+    // If we have an ID in the URL, fetch it
     if (cvIdParam && session?.user?.id && cvIdParam !== currentCvId) {
       const loadCV = async () => {
-        const res = await getCV(cvIdParam, session.user.id)
-        if (res.success && res.data) {
-          // Update lastSavedData immediately with the loaded content to prevent an immediate auto-save re-trigger
-          const loadedDataStr = JSON.stringify({ data: res.data, templateId: res.data.templateId || currentTemplate })
-          setLastSavedData(loadedDataStr)
-          
-          setCvData(res.data)
-          if (res.data.templateId) setCurrentTemplate(res.data.templateId as any)
-          setCurrentCvId(cvIdParam)
+        setIsInitialLoading(true)
+        try {
+          console.log("BUILDER_LOAD: Fetching CV", cvIdParam)
+          const res = await getCV(cvIdParam, session.user.id)
+          if (res.success && res.data) {
+            // Update lastSavedData immediately with the loaded content to prevent an immediate auto-save re-trigger
+            const loadedDataStr = JSON.stringify({ data: res.data, templateId: res.data.templateId || currentTemplate })
+            setLastSavedData(loadedDataStr)
+            
+            setCvData(res.data)
+            if (res.data.templateId) setCurrentTemplate(res.data.templateId as any)
+            setCurrentCvId(cvIdParam)
+            console.log("BUILDER_LOAD: Success", cvIdParam)
+          } else {
+            console.error("BUILDER_LOAD: Failed", res.error)
+          }
+        } catch (err) {
+          console.error("BUILDER_LOAD: Exception", err)
+        } finally {
+          setIsInitialLoading(false)
         }
       }
       loadCV()
+    } else if (!cvIdParam) {
+      // If no ID param, we're not loading an existing CV
+      setIsInitialLoading(false)
     }
   }, [cvIdParam, session, currentCvId])
 
@@ -559,8 +582,9 @@ function BuilderContent() {
     if (currentDataStr === lastSavedData) return
 
     const timer = setTimeout(async () => {
-      // Prevent starting a new save if manual save or auto-save is already in flight
-      if (session?.user?.id && !isSaving && !isAutoSaving && !refiningId) {
+      // Prevent starting a new save if manual save or auto-save is already in flight,
+      // or if we are still doing the initial load of an existing CV.
+      if (session?.user?.id && !isSaving && !isAutoSaving && !refiningId && !isInitialLoading) {
         setIsAutoSaving(true)
         try {
           // Always pass currentCvId so we update the existing record, not create a new one
