@@ -149,7 +149,7 @@ export default async function AdminCVsPage({
               </div>
 
               <div className="flex items-center gap-2">
-                 <Link href={`/builder/${cv.id}`} className="flex-1 py-2.5 bg-secondary hover:bg-brand-action hover:text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center shadow-sm">
+                 <Link href={`/builder?cvId=${cv.id}`} className="flex-1 py-2.5 bg-secondary hover:bg-brand-action hover:text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center shadow-sm">
                     Audit Assets
                  </Link>
               </div>

@@ -282,6 +282,93 @@ export async function analyzeCVATS(cvData: any, jobDescription?: string) {
   }
 }
 
+// Helper function to create a new CV with all related data
+async function createNewCV(baseData: any, data: any) {
+  return await prisma.cV.create({
+    data: {
+      ...baseData,
+      personalInfo: {
+        create: {
+          fullName: data.personalInfo.fullName || "",
+          email: data.personalInfo.email || "",
+          phoneCode: data.personalInfo.phoneCode,
+          phone: data.personalInfo.phone,
+          country: data.personalInfo.country,
+          county: data.personalInfo.county,
+          location: data.personalInfo.location,
+          facebook: data.personalInfo.facebook,
+          jobTitle: data.personalInfo.jobTitle,
+          website: data.personalInfo.website,
+          linkedin: data.personalInfo.linkedin,
+          github: data.personalInfo.github,
+          summary: data.personalInfo.summary,
+          profileImage: data.personalInfo.profileImage,
+          dateOfBirth: data.personalInfo.dateOfBirth,
+          placeOfBirth: data.personalInfo.placeOfBirth,
+          nationality: data.personalInfo.nationality,
+          gender: data.personalInfo.gender,
+          passport: data.personalInfo.passport,
+          workPermit: data.personalInfo.workPermit,
+        }
+      },
+      experiences: {
+        create: data.experience.map((exp: any) => ({
+          company: exp.company || "Company",
+          role: exp.role || "Role",
+          duration: exp.duration || "",
+          location: exp.location,
+          country: exp.country,
+          county: exp.county,
+          description: Array.isArray(exp.description) ? exp.description : [],
+          workDescription: exp.workDescription,
+        }))
+      },
+      educations: {
+        create: data.education.map((edu: any) => ({
+          school: edu.school || "School",
+          degree: edu.degree || "Degree",
+          duration: edu.duration || "",
+          location: edu.location,
+          country: edu.country,
+          county: edu.county,
+          fieldOfStudy: edu.fieldOfStudy,
+          grade: edu.grade,
+        }))
+      },
+      skills: {
+        create: data.skills.map((skill: any) => ({
+          category: skill.category || "Category",
+          items: Array.isArray(skill.items) ? skill.items : [],
+        }))
+      },
+      projects: {
+        create: data.projects.map((proj: any) => ({
+          name: proj.name || "Project",
+          description: proj.description,
+          link: proj.link,
+        }))
+      },
+      languages: {
+        create: (data.languages || []).map((lang: any) => ({
+          name: lang.name || "",
+          proficiency: lang.proficiency || "",
+        }))
+      },
+      volunteering: {
+        create: (data.volunteering || []).map((vol: any) => ({
+          organization: vol.organization || "",
+          role: vol.role || "",
+          duration: vol.duration || "",
+          location: vol.location,
+          country: vol.country,
+          county: vol.county,
+          description: vol.description,
+        }))
+      }
+    },
+  })
+}
+
 export async function saveCV(userId: string, data: any, id?: string) {
   if (!userId) return { error: "User not authenticated" }
 
@@ -294,207 +381,137 @@ export async function saveCV(userId: string, data: any, id?: string) {
     }
 
     let cv
-    if (id && id !== "edit-id") {
+    if (id && id !== "edit-id" && id !== "undefined" && id !== "null") {
       // Update existing CV
-      cv = await prisma.cV.update({
-        where: { id },
-        data: {
-          ...baseData,
-          personalInfo: {
-            upsert: {
-              create: {
-                fullName: data.personalInfo.fullName,
-                email: data.personalInfo.email,
-                phoneCode: data.personalInfo.phoneCode,
-                phone: data.personalInfo.phone,
-                country: data.personalInfo.country,
-                county: data.personalInfo.county,
-                location: data.personalInfo.location,
-                facebook: data.personalInfo.facebook,
-                jobTitle: data.personalInfo.jobTitle,
-                website: data.personalInfo.website,
-                linkedin: data.personalInfo.linkedin,
-                github: data.personalInfo.github,
-                summary: data.personalInfo.summary,
-                profileImage: data.personalInfo.profileImage,
-                dateOfBirth: data.personalInfo.dateOfBirth,
-                placeOfBirth: data.personalInfo.placeOfBirth,
-                nationality: data.personalInfo.nationality,
-                gender: data.personalInfo.gender,
-                passport: data.personalInfo.passport,
-                workPermit: data.personalInfo.workPermit,
-              },
-              update: {
-                fullName: data.personalInfo.fullName,
-                email: data.personalInfo.email,
-                phoneCode: data.personalInfo.phoneCode,
-                phone: data.personalInfo.phone,
-                country: data.personalInfo.country,
-                county: data.personalInfo.county,
-                location: data.personalInfo.location,
-                facebook: data.personalInfo.facebook,
-                jobTitle: data.personalInfo.jobTitle,
-                website: data.personalInfo.website,
-                linkedin: data.personalInfo.linkedin,
-                github: data.personalInfo.github,
-                summary: data.personalInfo.summary,
-                profileImage: data.personalInfo.profileImage,
-                dateOfBirth: data.personalInfo.dateOfBirth,
-                placeOfBirth: data.personalInfo.placeOfBirth,
-                nationality: data.personalInfo.nationality,
-                gender: data.personalInfo.gender,
-                passport: data.personalInfo.passport,
-                workPermit: data.personalInfo.workPermit,
+      try {
+        cv = await prisma.cV.update({
+          where: { id, userId },
+          data: {
+            ...baseData,
+            personalInfo: {
+              upsert: {
+                create: {
+                  fullName: data.personalInfo.fullName || "",
+                  email: data.personalInfo.email || "",
+                  phoneCode: data.personalInfo.phoneCode,
+                  phone: data.personalInfo.phone,
+                  country: data.personalInfo.country,
+                  county: data.personalInfo.county,
+                  location: data.personalInfo.location,
+                  facebook: data.personalInfo.facebook,
+                  jobTitle: data.personalInfo.jobTitle,
+                  website: data.personalInfo.website,
+                  linkedin: data.personalInfo.linkedin,
+                  github: data.personalInfo.github,
+                  summary: data.personalInfo.summary,
+                  profileImage: data.personalInfo.profileImage,
+                  dateOfBirth: data.personalInfo.dateOfBirth,
+                  placeOfBirth: data.personalInfo.placeOfBirth,
+                  nationality: data.personalInfo.nationality,
+                  gender: data.personalInfo.gender,
+                  passport: data.personalInfo.passport,
+                  workPermit: data.personalInfo.workPermit,
+                },
+                update: {
+                  fullName: data.personalInfo.fullName || "",
+                  email: data.personalInfo.email || "",
+                  phoneCode: data.personalInfo.phoneCode,
+                  phone: data.personalInfo.phone,
+                  country: data.personalInfo.country,
+                  county: data.personalInfo.county,
+                  location: data.personalInfo.location,
+                  facebook: data.personalInfo.facebook,
+                  jobTitle: data.personalInfo.jobTitle,
+                  website: data.personalInfo.website,
+                  linkedin: data.personalInfo.linkedin,
+                  github: data.personalInfo.github,
+                  summary: data.personalInfo.summary,
+                  profileImage: data.personalInfo.profileImage,
+                  dateOfBirth: data.personalInfo.dateOfBirth,
+                  placeOfBirth: data.personalInfo.placeOfBirth,
+                  nationality: data.personalInfo.nationality,
+                  gender: data.personalInfo.gender,
+                  passport: data.personalInfo.passport,
+                  workPermit: data.personalInfo.workPermit,
+                }
               }
+            },
+            experiences: {
+              deleteMany: {},
+              create: data.experience.map((exp: any) => ({
+                company: exp.company || "Company",
+                role: exp.role || "Role",
+                duration: exp.duration || "",
+                location: exp.location,
+                country: exp.country,
+                county: exp.county,
+                description: Array.isArray(exp.description) ? exp.description : [],
+                workDescription: exp.workDescription,
+              }))
+            },
+            educations: {
+              deleteMany: {},
+              create: data.education.map((edu: any) => ({
+                school: edu.school || "School",
+                degree: edu.degree || "Degree",
+                duration: edu.duration || "",
+                location: edu.location,
+                country: edu.country,
+                county: edu.county,
+                fieldOfStudy: edu.fieldOfStudy,
+                grade: edu.grade,
+              }))
+            },
+            skills: {
+              deleteMany: {},
+              create: data.skills.map((skill: any) => ({
+                category: skill.category || "Category",
+                items: Array.isArray(skill.items) 
+                  ? skill.items.flatMap((i: any) => typeof i === 'string' ? i : (i.items || [])) 
+                  : [],
+              }))
+            },
+            projects: {
+              deleteMany: {},
+              create: data.projects.map((proj: any) => ({
+                name: proj.name || "Project",
+                description: proj.description,
+                link: proj.link,
+              }))
+            },
+            languages: {
+              deleteMany: {},
+              create: (data.languages || []).map((lang: any) => ({
+                name: lang.name || "",
+                proficiency: lang.proficiency || "",
+              }))
+            },
+            volunteering: {
+              deleteMany: {},
+              create: (data.volunteering || []).map((vol: any) => ({
+                organization: vol.organization || "",
+                role: vol.role || "",
+                duration: vol.duration || "",
+                location: vol.location,
+                country: vol.country,
+                county: vol.county,
+                description: vol.description,
+              }))
             }
           },
-          experiences: {
-            deleteMany: {},
-            create: data.experience.map((exp: any) => ({
-              company: exp.company,
-              role: exp.role,
-              duration: exp.duration,
-              location: exp.location,
-              country: exp.country,
-              county: exp.county,
-              description: exp.description,
-              workDescription: exp.workDescription,
-            }))
-          },
-          educations: {
-            deleteMany: {},
-            create: data.education.map((edu: any) => ({
-              school: edu.school,
-              degree: edu.degree,
-              duration: edu.duration,
-              location: edu.location,
-              country: edu.country,
-              county: edu.county,
-              fieldOfStudy: edu.fieldOfStudy,
-              grade: edu.grade,
-            }))
-          },
-          skills: {
-            deleteMany: {},
-            create: data.skills.map((skill: any) => ({
-              category: skill.category,
-              items: skill.items,
-            }))
-          },
-          projects: {
-            deleteMany: {},
-            create: data.projects.map((proj: any) => ({
-              name: proj.name,
-              description: proj.description,
-              link: proj.link,
-            }))
-          },
-          languages: {
-            deleteMany: {},
-            create: (data.languages || []).map((lang: any) => ({
-              name: lang.name,
-              proficiency: lang.proficiency,
-            }))
-          },
-          volunteering: {
-            deleteMany: {},
-            create: (data.volunteering || []).map((vol: any) => ({
-              organization: vol.organization,
-              role: vol.role,
-              duration: vol.duration,
-              location: vol.location,
-              country: vol.country,
-              county: vol.county,
-              description: vol.description,
-            }))
-          }
-        },
-      })
+        })
+      } catch (err: any) {
+        console.error("Update failed, record might be missing or unauthorized:", err)
+        // If update fails because record not found, fall back to creation
+        if (err.code === 'P2025' || err.message?.includes("Record to update not found")) {
+          cv = await createNewCV(baseData, data)
+        } else {
+          throw err
+        }
+      }
     } else {
       // Create new CV
-      cv = await prisma.cV.create({
-        data: {
-          ...baseData,
-          personalInfo: {
-            create: {
-              fullName: data.personalInfo.fullName,
-              email: data.personalInfo.email,
-              phoneCode: data.personalInfo.phoneCode,
-              phone: data.personalInfo.phone,
-              country: data.personalInfo.country,
-              county: data.personalInfo.county,
-              location: data.personalInfo.location,
-              facebook: data.personalInfo.facebook,
-              jobTitle: data.personalInfo.jobTitle,
-              website: data.personalInfo.website,
-              linkedin: data.personalInfo.linkedin,
-              github: data.personalInfo.github,
-              summary: data.personalInfo.summary,
-              profileImage: data.personalInfo.profileImage,
-              dateOfBirth: data.personalInfo.dateOfBirth,
-              placeOfBirth: data.personalInfo.placeOfBirth,
-              nationality: data.personalInfo.nationality,
-              gender: data.personalInfo.gender,
-              passport: data.personalInfo.passport,
-              workPermit: data.personalInfo.workPermit,
-            }
-          },
-          experiences: {
-            create: data.experience.map((exp: any) => ({
-              company: exp.company,
-              role: exp.role,
-              duration: exp.duration,
-              location: exp.location,
-              country: exp.country,
-              county: exp.county,
-              description: exp.description,
-              workDescription: exp.workDescription,
-            }))
-          },
-          educations: {
-            create: data.education.map((edu: any) => ({
-              school: edu.school,
-              degree: edu.degree,
-              duration: edu.duration,
-              location: edu.location,
-              country: edu.country,
-              county: edu.county,
-              fieldOfStudy: edu.fieldOfStudy,
-              grade: edu.grade,
-            }))
-          },
-          skills: {
-            create: data.skills.map((skill: any) => ({
-              category: skill.category,
-              items: skill.items,
-            }))
-          },
-          projects: {
-            create: data.projects.map((proj: any) => ({
-              name: proj.name,
-              description: proj.description,
-              link: proj.link,
-            }))
-          },
-          languages: {
-            create: (data.languages || []).map((lang: any) => ({
-              name: lang.name,
-              proficiency: lang.proficiency,
-            }))
-          },
-          volunteering: {
-            create: (data.volunteering || []).map((vol: any) => ({
-              organization: vol.organization,
-              role: vol.role,
-              duration: vol.duration,
-              location: vol.location,
-              country: vol.country,
-              county: vol.county,
-              description: vol.description,
-            }))
-          }
-        },
-      })
+      cv = await createNewCV(baseData, data)
     }
 
     return { success: true, id: cv.id }

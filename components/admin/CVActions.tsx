@@ -70,7 +70,7 @@ export function CVActions({ cvId, cvName }: CVActionsProps) {
               </div>
               
               <Link 
-                  href={`/builder/${cvId}`}
+                  href={`/builder?cvId=${cvId}`}
                   className="w-full flex items-center space-x-3 px-3 py-3 rounded-xl hover:bg-secondary text-[11px] font-black uppercase tracking-wider transition-all text-foreground"
               >
                   <FileSearch size={14} className="text-brand-action" />

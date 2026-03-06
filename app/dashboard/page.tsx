@@ -344,11 +344,7 @@ export default function DashboardPage() {
                             <div className="flex items-center justify-end gap-2">
                               {/* Modify/Edit link */}
                               <Link 
-                                href={
-                                  ["midnight"].includes(cv.templateId)
-                                    ? `/builder?template=${cv.templateId}&cvId=${cv.id}`
-                                    : `/builder/${cv.id}`
-                                }
+                                href={`/builder?cvId=${cv.id}${cv.templateId ? `&template=${cv.templateId}` : ''}`}
                                 className="p-3 bg-brand-action/10 text-brand-action hover:bg-brand-action hover:text-white rounded-xl transition-all shadow-sm active:scale-95"
                                 title="Edit Asset"
                               >

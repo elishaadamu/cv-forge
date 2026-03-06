@@ -43,11 +43,17 @@ export async function POST(req: Request) {
       })
 
       const page = await browser.newPage()
-      await page.goto(renderUrl, { waitUntil: 'networkidle0', timeout: 60000 })
-      await page.waitForSelector('#cv-root', { timeout: 10000 })
       
-      // Wait for content to render
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      // Log URL for debugging (truncated)
+      console.log('PDF Generation: Navigating to render URL (data length:', encodedData.length, ')')
+      
+      await page.goto(renderUrl, { waitUntil: 'networkidle2', timeout: 60000 })
+      
+      // Wait for #cv-root (it should be there immediately now)
+      await page.waitForSelector('#cv-root', { timeout: 15000 })
+      
+      // Wait for content to render and fonts to load
+      await new Promise(resolve => setTimeout(resolve, 3000))
 
       const pdfBuffer = await page.pdf({
         format: 'A4',
