@@ -82,7 +82,7 @@ export default function BlogPost() {
     if (!session?.user?.id || !newComment.trim()) return
 
     setIsSubmitting(true)
-    const res = await addComment(slug as string, session.user.id, newComment.trim())
+    const res = await addComment(slug as string, newComment.trim())
     if (res.success) {
       setComments([res.comment, ...comments])
       setNewComment("")
@@ -108,7 +108,7 @@ export default function BlogPost() {
   const handleDeleteComment = async (commentId: string) => {
     if (!session?.user?.id) return
 
-    const res = await deleteComment(commentId, session.user.id)
+    const res = await deleteComment(commentId)
     if (res.success) {
       setComments(comments.filter(c => c.id !== commentId))
       message.success("Comment deleted")

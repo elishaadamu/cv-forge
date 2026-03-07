@@ -861,7 +861,11 @@ export async function getComments(blogSlug: string) {
   }
 }
 
-export async function deleteComment(commentId: string, userId: string) {
+export async function deleteComment(commentId: string) {
+  const session = await auth()
+  const userId = session?.user?.id
+  if (!userId) return { error: "User not authenticated" }
+
   try {
     const comment = await prisma.comment.findUnique({
       where: { id: commentId }
