@@ -76,6 +76,9 @@ export default async function AdminDashboardPage() {
         </div>
         
         <div className="flex items-center gap-3">
+           <Link href="/admin/jobs" className="flex items-center space-x-2 bg-secondary hover:bg-secondary/80 px-6 py-4 rounded-3xl font-black text-xs uppercase tracking-widest transition-all">
+              Jobs Forge
+           </Link>
            <Link href="/admin/users" className="flex items-center space-x-2 bg-secondary hover:bg-secondary/80 px-6 py-4 rounded-3xl font-black text-xs uppercase tracking-widest transition-all">
               Registry
            </Link>

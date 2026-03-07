@@ -186,7 +186,7 @@ function BuilderContent() {
         setIsInitialLoading(true)
         try {
           console.log("BUILDER_LOAD: Fetching CV", cvIdParam)
-          const res = await getCV(cvIdParam, session.user.id)
+          const res = await getCV(cvIdParam)
           if (res.success && res.data) {
             // Update lastSavedData immediately with the loaded content to prevent an immediate auto-save re-trigger
             const loadedDataStr = JSON.stringify({ data: res.data, templateId: res.data.templateId || currentTemplate })
@@ -275,7 +275,7 @@ function BuilderContent() {
     if (!session?.user?.id) return
     setIsSaving(true)
     // Pass currentCvId so we always update the same record, never create a duplicate
-    const res = await saveCV(session.user.id, { ...cvData, templateId: currentTemplate }, currentCvId || undefined)
+    const res = await saveCV({ ...cvData, templateId: currentTemplate }, currentCvId || undefined)
     if (res.success && res.id) {
       setCurrentCvId(res.id)  // pin the ID for all future saves
       if (shouldRedirect) {
@@ -588,7 +588,7 @@ function BuilderContent() {
         setIsAutoSaving(true)
         try {
           // Always pass currentCvId so we update the existing record, not create a new one
-          const res = await saveCV(session.user.id, { ...cvData, templateId: currentTemplate }, currentCvId || undefined)
+          const res = await saveCV({ ...cvData, templateId: currentTemplate }, currentCvId || undefined)
           if (res.success && res.id) {
             setLastSavedData(currentDataStr)
             setCurrentCvId(res.id)
@@ -618,7 +618,7 @@ function BuilderContent() {
     setIsSaving(true)
     try {
       // First save the CV to ensure the success page has the latest data
-      const res = await saveCV(session?.user?.id || "guest", { ...cvData, templateId: currentTemplate }, currentCvId || undefined)
+      const res = await saveCV({ ...cvData, templateId: currentTemplate }, currentCvId || undefined)
       
       if (res.success && res.id) {
         // Redirect to the dedicated success/download page

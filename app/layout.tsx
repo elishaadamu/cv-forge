@@ -75,6 +75,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { Chatbot } from "@/components/Chatbot";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -116,6 +118,7 @@ export default function RootLayout({
               </Suspense>
               <CookieConsent />
               {children}
+              <Chatbot />
             </AntdRegistry>
           </ThemeProvider>
         </AuthProvider>

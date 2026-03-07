@@ -40,7 +40,7 @@ export default function DashboardPage() {
     setError(null)
     
     try {
-      const res = await listCVs(userId)
+      const res = await listCVs()
       if (res.success && res.cvs) {
         setCvs(res.cvs)
       } else {
@@ -93,7 +93,7 @@ export default function DashboardPage() {
         const userId = session?.user?.id || (session?.user as any)?.sub
         if (!userId) return
         try {
-          const res = await deleteCV(id, userId)
+          const res = await deleteCV(id)
           if (res.success) {
             message.success("CV deleted successfully")
             setSelectedIds(prev => prev.filter(i => i !== id))
@@ -121,7 +121,7 @@ export default function DashboardPage() {
         const userId = session?.user?.id || (session?.user as any)?.sub
         if (!userId) return
         try {
-          const res = await deleteManyCVs(selectedIds, userId)
+          const res = await deleteManyCVs(selectedIds)
           if (res.success) {
             message.success(`${selectedIds.length} CVs deleted successfully`)
             setSelectedIds([])

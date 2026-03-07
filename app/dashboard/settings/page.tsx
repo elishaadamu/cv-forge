@@ -39,7 +39,7 @@ export default function SettingsPage() {
   const fetchProfile = async () => {
     if (!session?.user?.id) return
     setIsLoading(true)
-    const res = await getUserProfile(session.user.id)
+    const res = await getUserProfile()
     if (res.success && res.user) {
       setProfileData({
         name: res.user.name || "",
@@ -58,7 +58,7 @@ export default function SettingsPage() {
     e.preventDefault()
     if (!session?.user?.id) return
     setIsSubmitting(true)
-    const res = await updateProfile(session.user.id, profileData)
+    const res = await updateProfile(profileData)
     if (res.success) {
       await update({
         user: {

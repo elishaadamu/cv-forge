@@ -369,7 +369,9 @@ async function createNewCV(baseData: any, data: any) {
   })
 }
 
-export async function saveCV(userId: string, data: any, id?: string) {
+export async function saveCV(data: any, id?: string) {
+  const session = await auth()
+  const userId = session?.user?.id
   if (!userId) return { error: "User not authenticated" }
 
   try {
@@ -521,7 +523,10 @@ export async function saveCV(userId: string, data: any, id?: string) {
   }
 }
 
-export async function getCV(id: string, userId: string) {
+export async function getCV(id: string) {
+  const session = await auth()
+  const userId = session?.user?.id
+  if (!userId) return { error: "User not authenticated" }
   try {
     const cv = await (prisma.cV as any).findUnique({
       where: { id, userId },
@@ -618,7 +623,9 @@ export async function getCV(id: string, userId: string) {
   }
 }
 
-export async function listCVs(userId: string) {
+export async function listCVs() {
+  const session = await auth()
+  const userId = session?.user?.id
   const start = Date.now()
   console.log("LIST_CVS_ACTION: Starting for user", userId)
   if (!userId) {
@@ -655,7 +662,9 @@ export async function listCVs(userId: string) {
   }
 }
 
-export async function deleteCV(id: string, userId: string) {
+export async function deleteCV(id: string) {
+  const session = await auth()
+  const userId = session?.user?.id
   if (!id || !userId) return { error: "Missing required info" }
 
   try {
@@ -669,7 +678,9 @@ export async function deleteCV(id: string, userId: string) {
   }
 }
 
-export async function deleteManyCVs(ids: string[], userId: string) {
+export async function deleteManyCVs(ids: string[]) {
+  const session = await auth()
+  const userId = session?.user?.id
   if (!ids || ids.length === 0 || !userId) return { error: "Missing required info" }
 
   try {
@@ -687,7 +698,9 @@ export async function deleteManyCVs(ids: string[], userId: string) {
 }
 
 
-export async function getUserProfile(userId: string) {
+export async function getUserProfile() {
+  const session = await auth()
+  const userId = session?.user?.id
   if (!userId) return { error: "Unauthenticated" }
   try {
     const user = await prisma.user.findUnique({
@@ -700,7 +713,9 @@ export async function getUserProfile(userId: string) {
   }
 }
 
-export async function updateProfile(userId: string, data: { name?: string, image?: string }) {
+export async function updateProfile(data: { name?: string, image?: string }) {
+  const session = await auth()
+  const userId = session?.user?.id
   if (!userId) return { error: "Unauthenticated" }
 
   try {
@@ -793,7 +808,9 @@ export async function verifyOTPAndUpdatePassword(identifier: string, otp: string
   }
 }
 
-export async function addComment(blogSlug: string, userId: string, content: string) {
+export async function addComment(blogSlug: string, content: string) {
+  const session = await auth()
+  const userId = session?.user?.id
   if (!blogSlug || !userId || !content) return { error: "Missing required information" }
 
   try {
