@@ -109,7 +109,7 @@ function BuilderContent() {
   const [activeSection, setActiveSection] = useState("personal")
   const [isPreview, setIsPreview] = useState(false)
   const [isAuditOpen, setIsAuditOpen] = useState(false)
-  const [isInlineEdit, setIsInlineEdit] = useState(false) // Toggle between sidebar and inline edit
+  const [isInlineEdit, setIsInlineEdit] = useState(true) // Toggle between sidebar and inline edit
   const [cvData, setCvData] = useState<CVData>(INITIAL_DATA)
   const [currentTemplate, setCurrentTemplate] = useState<"modern" | "classic" | "executive" | "minimal" | "creative" | "startup" | "executive-board" | "midnight" | "bold-impact" | "corporate" | "fresh" | "refined">("modern")
   const [isTemplateDropdownOpen, setIsTemplateDropdownOpen] = useState(false)
@@ -681,7 +681,7 @@ function BuilderContent() {
           
           {/* Top Selection & Status Toolbar - Not fixed, will scroll away */}
           {!isPreview && (
-            <div className="min-h-20 shrink-0 border-b border-white/5 flex flex-wrap items-center justify-between px-4 sm:px-8 py-4 sm:py-0 bg-black/40 backdrop-blur-3xl z-40 gap-4">
+            <div className="min-h-20 shrink-0 border-b border-white/5 flex flex-wrap items-center justify-between px-4 sm:px-8 py-4 sm:py-0 bg-black/40 backdrop-blur-3xl z-40 gap-4 dark">
               <div className="w-full sm:w-auto flex flex-wrap items-center justify-between sm:justify-start gap-4">
                 {/* Template Navigator */}
                 <div className="relative" ref={templateDropdownRef}>
@@ -747,7 +747,7 @@ function BuilderContent() {
                                   alt={t.name}
                                 />
                               </div>
-                              <span className={`text-[10px] text-white/90 font-black uppercase tracking-tight text-center ${currentTemplate === t.id ? 'text-brand-action' : 'text-foreground/40'}`}>{t.name}</span>
+                              <span className={`text-[10px] text-white/90 font-black uppercase tracking-tight text-center ${currentTemplate === t.id ? 'text-brand-action' : 'text-white/40'}`}>{t.name}</span>
                             </button>
                           ))}
                         </div>
@@ -856,7 +856,7 @@ function BuilderContent() {
               <motion.aside
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="w-full lg:w-[480px] shrink-0 flex h-auto lg:h-[calc(100vh-80px)] lg:overflow-hidden bg-[#0a0a0a] border-r border-white/5"
+                className="w-full lg:w-[480px] shrink-0 flex h-auto lg:h-[calc(100vh-80px)] lg:overflow-hidden bg-[#0a0a0a] border-r border-white/5 dark"
               >
                 {/* 1. Sidebar Rail (Section Navigator) - Sticky on all devices */}
                 <div className="w-[72px] shrink-0 border-r border-white/5 flex flex-col items-center py-6 gap-3 overflow-y-auto custom-scrollbar bg-black/40 sticky top-20 lg:top-0 self-start lg:h-full z-30">
@@ -868,7 +868,7 @@ function BuilderContent() {
                       className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 border-2 shrink-0 ${
                         activeSection === section.id
                           ? "bg-brand-action text-white border-brand-action shadow-lg shadow-brand-action/20 scale-105"
-                          : "bg-white/5 border-transparent text-foreground/40 hover:bg-white/10"
+                          : "bg-white/5 border-transparent text-white/40 hover:bg-white/10"
                       }`}
                     >
                       <section.icon size={20} />
@@ -884,7 +884,7 @@ function BuilderContent() {
                       <span>{sections.find(s => s.id === activeSection)?.title} Editor</span>
                     </div>
                     <h1 className="text-2xl font-black tracking-tight leading-tight">
-                      Edit <span className="text-brand-action">{sections.find(s => s.id === activeSection)?.title}</span>
+                      <span className="text-white">Edit</span> <span className="text-brand-action">{sections.find(s => s.id === activeSection)?.title}</span>
                     </h1>
                   </header>
 
@@ -898,7 +898,7 @@ function BuilderContent() {
                         exit={{ opacity: 0, y: -10 }}
                         className="space-y-6"
                       >
-                        <h3 className="text-xl font-black mb-4">Personal Details</h3>
+                        <h3 className="text-xl font-black mb-4 text-white">Personal Details</h3>
                         
                         {/* Photo Section */}
                         <div className="flex items-center space-x-6 p-6 bg-white/5 border border-border-custom rounded-3xl mb-4">
@@ -921,8 +921,8 @@ function BuilderContent() {
                           </div>
 
                           <div className="space-y-3 flex-1">
-                            <h4 className="text-sm font-black">Profile Portrait</h4>
-                            <p className="text-[11px] text-foreground/40 font-medium leading-relaxed">
+                            <h4 className="text-sm font-black text-white">Profile Portrait</h4>
+                            <p className="text-[11px] text-white/40 font-medium leading-relaxed">
                               Upload a professional headshot. Clear, high-resolution photos make a better impression.
                             </p>
                             <CldUploadWidget 
@@ -936,7 +936,7 @@ function BuilderContent() {
                               {({ open }) => (
                                 <button 
                                   onClick={() => open()}
-                                  className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95"
+                                  className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-white text-[10px] font-black uppercase tracking-widest transition-all active:scale-95"
                                 >
                                   {cvData.personalInfo.profileImage ? "Update Photo" : "Upload Image"}
                                 </button>
@@ -947,44 +947,44 @@ function BuilderContent() {
 
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-1.5">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Full Name</label>
+                            <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Full Name</label>
                             <input 
                               name="fullName"
                               autoComplete="name"
                               value={cvData.personalInfo.fullName}
                               onChange={(e) => updatePersonalInfo("fullName", e.target.value)}
-                              className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                              className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold placeholder:text-white/90 text-white" 
                             />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Title</label>
+                            <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Title</label>
                             <input 
                               name="jobTitle"
                               autoComplete="organization-title"
                               value={cvData.personalInfo.jobTitle}
                               onChange={(e) => updatePersonalInfo("jobTitle", e.target.value)}
                               placeholder="e.g. Designer"
-                              className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                              className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold placeholder:text-white/90 text-white" 
                             />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Email</label>
+                            <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Email</label>
                             <input 
                               type="email"
                               name="email"
                               autoComplete="email"
                               value={cvData.personalInfo.email}
                               onChange={(e) => updatePersonalInfo("email", e.target.value)}
-                              className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                              className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold placeholder:text-white/90 text-white" 
                             />
                           </div>
                             <div className="space-y-1.5 overflow-visible">
-                              <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Phone Number</label>
+                              <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Phone Number</label>
                               <div className="flex space-x-2 min-w-0">
                                 <div className="relative" ref={phoneDropdownRef}>
                                   <div 
                                     onClick={() => setIsPhoneDropdownOpen(!isPhoneDropdownOpen)}
-                                    className="w-[90px] shrink-0 h-11 px-2 bg-white/5 border border-border-custom rounded-xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all text-sm font-bold focus:border-brand-action"
+                                    className="w-[90px] shrink-0 h-11 px-2 bg-white/5 border border-border-custom rounded-xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all text-sm font-bold focus:border-brand-action text-white"
                                   >
                                     <div className="flex items-center gap-2 overflow-hidden">
                                       <span className="truncate">{cvData.personalInfo.phoneCode || "+000"}</span>
@@ -1007,7 +1007,7 @@ function BuilderContent() {
                                             placeholder="Search code..."
                                             value={phoneSearch}
                                             onChange={(e) => setPhoneSearch(e.target.value)}
-                                            className="w-full bg-transparent border-none outline-none text-[11px] font-bold h-8"
+                                            className="w-full bg-transparent border-none outline-none text-[11px] font-bold h-8 placeholder:text-white/90 text-white"
                                           />
                                         </div>
                                         <div className="max-h-[250px] overflow-y-auto overflow-x-hidden p-0">
@@ -1027,8 +1027,8 @@ function BuilderContent() {
                                               }}
                                               className={`flex items-center gap-2 p-2 px-3 hover:bg-brand-action/10 cursor-pointer transition-colors group ${`+${c.phonecode}` === cvData.personalInfo.phoneCode ? 'bg-brand-action text-white' : ''}`}
                                             >
-                                              <span className={`text-[11px] font-bold ${`+${c.phonecode}` === cvData.personalInfo.phoneCode ? 'text-white' : 'text-foreground/80 group-hover:text-foreground'}`}>+{c.phonecode}</span>
-                                              <span className={`text-[10px] truncate ${`+${c.phonecode}` === cvData.personalInfo.phoneCode ? 'text-white/80' : 'text-muted-foreground group-hover:text-foreground/60'}`}>{c.name}</span>
+                                              <span className={`text-[11px] font-bold ${`+${c.phonecode}` === cvData.personalInfo.phoneCode ? 'text-white' : 'text-white group-hover:text-white'}`}>+{c.phonecode}</span>
+                                              <span className={`text-[10px] truncate ${`+${c.phonecode}` === cvData.personalInfo.phoneCode ? 'text-white/80' : 'text-white/90 group-hover:text-white'}`}>{c.name}</span>
                                             </div>
                                           ))}
                                         </div>
@@ -1045,15 +1045,15 @@ function BuilderContent() {
                                   value={cvData.personalInfo.phone}
                                   onChange={(e) => updatePersonalInfo("phone", e.target.value.replace(/\D/g, "").slice(0, 11))}
                                   placeholder="08012345678"
-                                  className="flex-1 min-w-0 h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                                  className="flex-1 min-w-0 h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold placeholder:text-white/90 text-white" 
                                 />
                               </div>
                             </div>
                             <div className="space-y-1.5 relative" ref={countryDropdownRef}>
-                              <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Country</label>
+                              <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Country</label>
                               <div 
                                 onClick={() => setIsCountryDropdownOpen(!isCountryDropdownOpen)}
-                                className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all text-sm font-bold focus-within:border-brand-action"
+                                className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all text-sm font-bold focus-within:border-brand-action text-white"
                               >
                                 <div className="flex items-center gap-2">
                                   <span>{cvData.personalInfo.country || "Select Country"}</span>
@@ -1070,12 +1070,12 @@ function BuilderContent() {
                                     className="absolute z-100 left-0 right-0 mt-2 bg-card/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden max-h-[300px] flex flex-col shadow-brand-action/10"
                                   >
                                     <div className="p-3 border-b border-white/5 flex items-center gap-2 bg-white/5">
-                                      <Search size={16} className="text-muted-foreground" />
+                                      <Search size={16} className="text-white/40" />
                                       <input 
                                         autoFocus
                                         placeholder="Search countries..."
                                         value={countrySearch}
-                                        className="w-full bg-transparent outline-none text-sm font-bold h-8"
+                                        className="w-full bg-transparent outline-none text-sm font-bold h-8 placeholder:text-white/90 text-white"
                                         onChange={(e) => setCountrySearch(e.target.value)}
                                       />
                                     </div>
@@ -1093,7 +1093,7 @@ function BuilderContent() {
                                           }}
                                           className={`flex items-center gap-3 px-4 py-2 hover:bg-brand-action/10 cursor-pointer transition-colors group ${c.name === cvData.personalInfo.country ? 'bg-brand-action text-white' : ''}`}
                                         >
-                                          <span className={`text-sm font-bold ${c.name === cvData.personalInfo.country ? 'text-white' : 'text-foreground/80 group-hover:text-foreground'}`}>{c.name}</span>
+                                          <span className={`text-sm font-bold ${c.name === cvData.personalInfo.country ? 'text-white' : 'text-white group-hover:text-white'}`}>{c.name}</span>
                                         </div>
                                       ))}
                                     </div>
@@ -1102,10 +1102,10 @@ function BuilderContent() {
                               </AnimatePresence>
                             </div>
                             <div className="space-y-1.5 relative" ref={stateDropdownRef}>
-                              <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">County / State</label>
+                              <label className="text-[10px] font-black uppercase tracking-widest text-white/40">County / State</label>
                               <div 
                                 onClick={() => setIsStateDropdownOpen(!isStateDropdownOpen)}
-                                className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all text-sm font-bold focus-within:border-brand-action"
+                                className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-all text-sm font-bold focus-within:border-brand-action text-white"
                               >
                                 <span>{cvData.personalInfo.county || "Select State"}</span>
                                 <ChevronDown size={14} className={`transition-transform duration-300 ${isStateDropdownOpen ? 'rotate-180' : ''}`} />
@@ -1120,12 +1120,12 @@ function BuilderContent() {
                                     className="absolute z-100 left-0 right-0 mt-2 bg-card/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden max-h-[300px] flex flex-col shadow-brand-action/10"
                                   >
                                     <div className="p-3 border-b border-white/5 flex items-center gap-2 bg-white/5">
-                                      <Search size={16} className="text-muted-foreground" />
+                                      <Search size={16} className="text-white/40" />
                                       <input 
                                         autoFocus
                                         placeholder="Search states..."
                                         value={stateSearch}
-                                        className="w-full bg-transparent outline-none text-sm font-bold h-8"
+                                        className="w-full bg-transparent outline-none text-sm font-bold h-8 text-white placeholder:text-white/90"
                                         onChange={(e) => setStateSearch(e.target.value)}
                                       />
                                     </div>
@@ -1145,7 +1145,7 @@ function BuilderContent() {
                                           }}
                                           className={`flex items-center gap-3 px-4 py-2 hover:bg-brand-action/10 cursor-pointer transition-colors group ${s.name === cvData.personalInfo.county ? 'bg-brand-action text-white' : ''}`}
                                         >
-                                          <span className={`text-sm font-bold ${s.name === cvData.personalInfo.county ? 'text-white' : 'text-foreground/80 group-hover:text-foreground'}`}>{s.name}</span>
+                                          <span className={`text-sm font-bold ${s.name === cvData.personalInfo.county ? 'text-white' : 'text-white group-hover:text-white'}`}>{s.name}</span>
                                         </div>
                                       ))}
                                       {(!cvData.personalInfo.country || (countries.find(c => c.name === cvData.personalInfo.country)?.states.length === 0)) && (
@@ -1159,57 +1159,57 @@ function BuilderContent() {
                               </AnimatePresence>
                             </div>
                            <div className="space-y-1.5">
-                             <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Zip / Postal Code</label>
+                             <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Zip / Postal Code</label>
                              <input 
                                name="postalCode"
                                autoComplete="postal-code"
                                value={cvData.personalInfo.location || ""}
                                onChange={(e) => updatePersonalInfo("location", e.target.value)}
                                placeholder="Postal code (e.g. 10123)"
-                               className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                               className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold placeholder:text-white/90 text-white" 
                              />
                            </div>
                            <div className="space-y-1.5">
-                             <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Portfolio Website</label>
+                             <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Portfolio Website</label>
                              <input 
                                name="url"
                                autoComplete="url"
                                value={cvData.personalInfo.website || ""}
                                onChange={(e) => updatePersonalInfo("website", e.target.value)}
                                placeholder="portfolio.com"
-                               className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                               className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold placeholder:text-white/90 text-white" 
                              />
                            </div>
                            <div className="space-y-1.5">
-                             <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">GitHub URL</label>
+                             <label className="text-[10px] font-black uppercase tracking-widest text-white/40">GitHub URL</label>
                              <input 
                                value={cvData.personalInfo.github || ""}
                                onChange={(e) => updatePersonalInfo("github", e.target.value)}
                                placeholder="github.com/username"
-                               className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                               className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold placeholder:text-white/90 text-white" 
                              />
                            </div>
                            <div className="space-y-1.5">
-                             <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Facebook URL</label>
+                             <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Facebook URL</label>
                              <input 
                                value={cvData.personalInfo.facebook || ""}
                                onChange={(e) => updatePersonalInfo("facebook", e.target.value)}
                                placeholder="facebook.com/username"
-                               className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                               className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold placeholder:text-white/90 text-white" 
                              />
                            </div>
                            <div className="space-y-1.5">
-                             <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">LinkedIn URL</label>
+                             <label className="text-[10px] font-black uppercase tracking-widest text-white/40">LinkedIn URL</label>
                              <input 
                                value={cvData.personalInfo.linkedin || ""}
                                onChange={(e) => updatePersonalInfo("linkedin", e.target.value)}
                                placeholder="linkedin.com/in/username"
-                               className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                               className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold placeholder:text-white/90 text-white" 
                              />
                            </div>
                          </div>
                            <div className="flex items-center justify-between">
-                             <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Professional Summary</label>
+                             <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Professional Summary</label>
                              <button 
                                onClick={() => handleRefine("summary")}
                                disabled={refiningId === "summary" || !cvData.personalInfo.summary}
@@ -1223,7 +1223,7 @@ function BuilderContent() {
                             value={cvData.personalInfo.summary}
                             onChange={(e) => updatePersonalInfo("summary", e.target.value)}
                             placeholder="Briefly describe your professional journey..."
-                            className="w-full h-32 p-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-medium resize-none placeholder:text-foreground/10" 
+                            className="w-full h-32 p-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-medium resize-none placeholder:text-white/90 text-white" 
                           />
 
                            {/* Additional Personal Details */}
@@ -1231,44 +1231,44 @@ function BuilderContent() {
                              <h4 className="text-sm font-black mb-4 text-foreground/60">Additional Details <span className="text-[10px] font-medium text-foreground/30">(Optional)</span></h4>
                              <div className="grid grid-cols-2 gap-4">
                                <div className="space-y-1.5">
-                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Date of Birth</label>
+                                 <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Date of Birth</label>
                                  <input 
                                    type="date"
                                    name="bday"
                                    autoComplete="bday"
                                    value={cvData.personalInfo.dateOfBirth || ""}
                                    onChange={(e) => updatePersonalInfo("dateOfBirth", e.target.value)}
-                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold placeholder:text-white/90 text-white" 
                                  />
                                </div>
                                <div className="space-y-1.5">
-                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Place of Birth</label>
+                                 <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Place of Birth</label>
                                  <input 
                                    name="address-level2"
                                    autoComplete="address-level2"
                                    value={cvData.personalInfo.placeOfBirth || ""}
                                    onChange={(e) => updatePersonalInfo("placeOfBirth", e.target.value)}
                                    placeholder="e.g. Lagos, Nigeria"
-                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold placeholder:text-white/90 text-white" 
                                  />
                                </div>
                                <div className="space-y-1.5">
-                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Nationality</label>
+                                 <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Nationality</label>
                                  <input 
                                    name="country-name"
                                    autoComplete="country-name"
                                    value={cvData.personalInfo.nationality || ""}
                                    onChange={(e) => updatePersonalInfo("nationality", e.target.value)}
                                    placeholder="e.g. Nigerian"
-                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold placeholder:text-white/90 text-white" 
                                  />
                                </div>
                                <div className="space-y-1.5">
-                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Gender</label>
+                                 <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Gender</label>
                                  <select
                                    value={cvData.personalInfo.gender || ""}
                                    onChange={(e) => updatePersonalInfo("gender", e.target.value)}
-                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold"
+                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold placeholder:text-white/90 text-white"
                                  >
                                    <option value="">Select</option>
                                    <option value="Male">Male</option>
@@ -1276,21 +1276,21 @@ function BuilderContent() {
                                  </select>
                                </div>
                                <div className="space-y-1.5">
-                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Passport</label>
+                                 <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Passport</label>
                                  <input 
                                    value={cvData.personalInfo.passport || ""}
                                    onChange={(e) => updatePersonalInfo("passport", e.target.value)}
                                    placeholder="e.g. Available"
-                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold placeholder:text-white/90 text-white" 
                                  />
                                </div>
                                <div className="space-y-1.5">
-                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Work Permit</label>
+                                 <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Work Permit</label>
                                  <input 
                                    value={cvData.personalInfo.workPermit || ""}
                                    onChange={(e) => updatePersonalInfo("workPermit", e.target.value)}
                                    placeholder="e.g. Nigerian (Nigeria)"
-                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold placeholder:text-white/90 text-white" 
                                  />
                                </div>
                              </div>
@@ -1307,7 +1307,7 @@ function BuilderContent() {
                       className="space-y-8"
                     >
                       <div className="flex items-center justify-between mb-4">
-                         <h3 className="text-xl font-black">Work Experience</h3>
+                         <h3 className="text-xl font-black text-white">Work Experience</h3>
                          <button 
                             onClick={addExperience}
                             className="flex items-center space-x-2 px-4 py-2 bg-brand-action text-white rounded-xl text-xs font-black uppercase tracking-widest hover:shadow-lg hover:shadow-brand-action/20 transition-all active:scale-95"
@@ -1337,56 +1337,56 @@ function BuilderContent() {
 
                               <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-1.5">
-                                  <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Role</label>
+                                  <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Role</label>
                                   <input 
                                     value={exp.role}
                                     onChange={(e) => updateExperience(exp.id, "role", e.target.value)}
                                     placeholder="e.g. Lead Developer"
-                                    className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                                    className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold placeholder:text-white/90 text-white" 
                                   />
                                 </div>
                                 <div className="space-y-1.5">
-                                  <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Company</label>
+                                  <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Company</label>
                                   <input 
                                     value={exp.company}
                                     onChange={(e) => updateExperience(exp.id, "company", e.target.value)}
                                     placeholder="e.g. Acme Inc"
-                                    className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                                    className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold placeholder:text-white/90 text-white" 
                                   />
                                 </div>
                                <div className="space-y-1.5">
-                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Duration</label>
+                                 <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Duration</label>
                                  <input 
                                    value={exp.duration}
                                    onChange={(e) => updateExperience(exp.id, "duration", e.target.value)}
                                    placeholder="e.g. Jan 2020 - Present"
-                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold placeholder:text-white/90 text-white" 
                                  />
                                </div>
 
                                <div className="space-y-1.5 col-span-2">
-                                  <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Location / Zip</label>
+                                  <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Location / Zip</label>
                                    <input 
                                      value={exp.location || ""}
                                      onChange={(e) => updateExperience(exp.id, "location", e.target.value)}
                                      placeholder="City, Country"
-                                     className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                                     className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold placeholder:text-white/90 text-white" 
                                    />
                                 </div>
                                <div className="space-y-1.5 col-span-2">
-                                  <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Work Description (Paragraph)</label>
+                                  <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Work Description (Paragraph)</label>
                                   <textarea 
                                     value={exp.workDescription || ""}
                                     onChange={(e) => updateExperience(exp.id, "workDescription", e.target.value)}
                                     placeholder="Briefly describe your role and key responsibilities..."
-                                    className="w-full h-24 p-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-medium resize-none placeholder:text-foreground/10" 
+                                    className="w-full h-24 p-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-medium resize-none placeholder:text-white/90 text-white" 
                                   />
                                 </div>
                               </div>
 
                               <div className="space-y-2">
                                 <div className="flex items-center justify-between">
-                                  <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Responsibilities (One per line)</label>
+                                  <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Responsibilities (One per line)</label>
                                   <button 
                                     onClick={() => handleRefine("experience", exp.id)}
                                     disabled={refiningId === exp.id || (exp.description.length === 0 && !exp.workDescription)}
@@ -1400,7 +1400,7 @@ function BuilderContent() {
                                   value={exp.description.join("\n")}
                                   onChange={(e) => updateExperience(exp.id, "description", e.target.value.split("\n"))}
                                   placeholder="List your key achievements..."
-                                  className="w-full h-32 p-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-medium resize-none placeholder:text-foreground/10" 
+                                  className="w-full h-32 p-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-medium resize-none placeholder:text-white/90 text-white" 
                                 />
                               </div>
                            </div>
@@ -1417,7 +1417,7 @@ function BuilderContent() {
                       className="space-y-8"
                     >
                       <div className="flex items-center justify-between mb-4">
-                         <h3 className="text-xl font-black">Education</h3>
+                         <h3 className="text-xl font-black text-white">Education</h3>
                          <button 
                             onClick={addEducation}
                             className="flex items-center space-x-2 px-4 py-2 bg-brand-action text-white rounded-xl text-xs font-black uppercase tracking-widest hover:shadow-lg hover:shadow-brand-action/20 transition-all active:scale-95"
@@ -1445,58 +1445,58 @@ function BuilderContent() {
                             </Popconfirm>
                             <div className="grid grid-cols-2 gap-4">
                                <div className="space-y-1.5">
-                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Degree</label>
+                                 <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Degree</label>
                                  <input 
                                    value={edu.degree}
                                    onChange={(e) => updateEducation(edu.id, "degree", e.target.value)}
                                    placeholder="e.g. B.Sc. Computer Science"
-                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold placeholder:text-white/90 text-white" 
                                  />
                                </div>
                                <div className="space-y-1.5">
-                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">School</label>
+                                 <label className="text-[10px] font-black uppercase tracking-widest text-white/40">School</label>
                                  <input 
                                    value={edu.school}
                                    onChange={(e) => updateEducation(edu.id, "school", e.target.value)}
                                    placeholder="e.g. Harvard University"
-                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold placeholder:text-white/90 text-white" 
                                  />
                                </div>
                                <div className="space-y-1.5">
-                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Duration</label>
+                                 <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Duration</label>
                                  <input 
                                    value={edu.duration}
                                    onChange={(e) => updateEducation(edu.id, "duration", e.target.value)}
                                    placeholder="e.g. 2018 - 2022"
-                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold placeholder:text-white/90 text-white" 
                                  />
                                </div>
 
                                <div className="space-y-1.5 col-span-2">
-                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Location / Zip</label>
+                                 <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Location / Zip</label>
                                    <input 
                                      value={edu.location || ""}
                                      onChange={(e) => updateEducation(edu.id, "location", e.target.value)}
                                      placeholder="City, Country"
-                                     className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                                     className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold placeholder:text-white/90 text-white" 
                                    />
                                </div>
                                <div className="space-y-1.5">
-                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Field of Study</label>
+                                 <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Field of Study</label>
                                  <input 
                                    value={edu.fieldOfStudy || ""}
                                    onChange={(e) => updateEducation(edu.id, "fieldOfStudy", e.target.value)}
                                    placeholder="e.g. Electrical Engineering"
-                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold placeholder:text-white/90 text-white" 
                                  />
                                </div>
                                <div className="space-y-1.5">
-                                 <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Final Grade</label>
+                                 <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Final Grade</label>
                                  <input 
                                    value={edu.grade || ""}
                                    onChange={(e) => updateEducation(edu.id, "grade", e.target.value)}
                                    placeholder="e.g. Second Class Upper"
-                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold" 
+                                   className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold placeholder:text-white/90 text-white" 
                                  />
                                </div>
                             </div>
@@ -1514,7 +1514,7 @@ function BuilderContent() {
                         exit={{ opacity: 0, y: -10 }}
                         className="space-y-4"
                       >
-                        <h3 className="text-xl font-black">Skills</h3>
+                        <h3 className="text-xl font-black text-white">Skills</h3>
                         <div className="flex gap-2">
                           <input
                             type="text"
@@ -1527,7 +1527,7 @@ function BuilderContent() {
                                 setSkillInput('')
                               }
                             }}
-                            className="flex-1 px-4 py-3 bg-white/5 border border-border-custom rounded-xl text-foreground/90 placeholder-foreground/30 focus:outline-none focus:border-brand-action/50 text-sm"
+                            className="flex-1 px-4 py-3 bg-white/5 border border-border-custom rounded-xl text-foreground/90 placeholder:text-white/90 focus:outline-none focus:border-brand-action/50 text-sm"
                             placeholder="Add a skill..."
                           />
                           <button
@@ -1565,7 +1565,7 @@ function BuilderContent() {
                         className="space-y-4"
                       >
                         <div className="flex items-center justify-between">
-                          <h3 className="text-xl font-black">Projects</h3>
+                          <h3 className="text-xl font-black text-white">Projects</h3>
                           <button
                             onClick={addProject}
                             className="p-2 bg-brand-action/10 hover:bg-brand-action/20 rounded-xl text-brand-action transition-all"
@@ -1576,7 +1576,7 @@ function BuilderContent() {
                         {cvData.projects.map((proj) => (
                           <div key={proj.id} className="p-4 bg-white/5 border border-border-custom rounded-2xl space-y-3">
                             <div className="flex justify-between items-center">
-                              <span className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Project</span>
+                              <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Project</span>
                               <button onClick={() => removeProject(proj.id)} className="text-foreground/30 hover:text-red-400 transition-colors">
                                 <Plus size={16} className="rotate-45" />
                               </button>
@@ -1585,13 +1585,13 @@ function BuilderContent() {
                               type="text"
                               value={proj.name}
                               onChange={(e) => updateProject(proj.id, "name", e.target.value)}
-                              className="w-full px-3 py-2 bg-white/5 border border-border-custom rounded-xl text-foreground/90 placeholder-foreground/30 focus:outline-none focus:border-brand-action/50 text-sm"
+                              className="w-full px-3 py-2 bg-white/5 border border-border-custom rounded-xl text-foreground/90 placeholder:text-white/90 focus:outline-none focus:border-brand-action/50 text-sm"
                               placeholder="Project Name"
                             />
                             <textarea
                               value={proj.description}
                               onChange={(e) => updateProject(proj.id, "description", e.target.value)}
-                              className="w-full px-3 py-2 bg-white/5 border border-border-custom rounded-xl text-foreground/90 placeholder-foreground/30 focus:outline-none focus:border-brand-action/50 text-sm resize-none"
+                              className="w-full px-3 py-2 bg-white/5 border border-border-custom rounded-xl text-foreground/90 placeholder:text-white/90 focus:outline-none focus:border-brand-action/50 text-sm resize-none"
                               rows={3}
                               placeholder="Project description..."
                             />
@@ -1599,7 +1599,7 @@ function BuilderContent() {
                               type="text"
                               value={proj.link}
                               onChange={(e) => updateProject(proj.id, "link", e.target.value)}
-                              className="w-full px-3 py-2 bg-white/5 border border-border-custom rounded-xl text-foreground/90 placeholder-foreground/30 focus:outline-none focus:border-brand-action/50 text-sm"
+                              className="w-full px-3 py-2 bg-white/5 border border-border-custom rounded-xl text-foreground/90 placeholder:text-white/90 focus:outline-none focus:border-brand-action/50 text-sm"
                               placeholder="Project Link (optional)"
                             />
                           </div>
@@ -1619,7 +1619,7 @@ function BuilderContent() {
                         className="space-y-4"
                       >
                         <div className="flex items-center justify-between">
-                          <h3 className="text-xl font-black">Languages</h3>
+                          <h3 className="text-xl font-black text-white">Languages</h3>
                           <button
                             onClick={addLanguage}
                             className="p-2 bg-brand-action/10 hover:bg-brand-action/20 rounded-xl text-brand-action transition-all"
@@ -1630,7 +1630,7 @@ function BuilderContent() {
                         {cvData.languages?.map((lang, index) => (
                           <div key={index} className="p-4 bg-white/5 border border-border-custom rounded-2xl space-y-3">
                             <div className="flex justify-between items-center">
-                              <span className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Language</span>
+                              <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Language</span>
                               <button onClick={() => removeLanguage(index)} className="text-foreground/30 hover:text-red-400 transition-colors">
                                 <Plus size={16} className="rotate-45" />
                               </button>
@@ -1639,7 +1639,7 @@ function BuilderContent() {
                               type="text"
                               value={lang.name}
                               onChange={(e) => updateLanguage(index, "name", e.target.value)}
-                              className="w-full px-3 py-2 bg-white/5 border border-border-custom rounded-xl text-foreground/90 placeholder-foreground/30 focus:outline-none focus:border-brand-action/50 text-sm"
+                              className="w-full px-3 py-2 bg-white/5 border border-border-custom rounded-xl text-foreground/90 placeholder:text-white/90 focus:outline-none focus:border-brand-action/50 text-sm"
                               placeholder="Language"
                             />
                             <select
@@ -1670,7 +1670,7 @@ function BuilderContent() {
                         className="space-y-4"
                       >
                         <div className="flex items-center justify-between">
-                          <h3 className="text-xl font-black">Volunteering</h3>
+                          <h3 className="text-xl font-black text-white">Volunteering</h3>
                           <button
                             onClick={addVolunteering}
                             className="p-2 bg-brand-action/10 hover:bg-brand-action/20 rounded-xl text-brand-action transition-all"
@@ -1681,7 +1681,7 @@ function BuilderContent() {
                         {cvData.volunteering?.map((vol) => (
                           <div key={vol.id} className="p-4 bg-white/5 border border-border-custom rounded-2xl space-y-3">
                             <div className="flex justify-between items-center">
-                              <span className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Volunteering</span>
+                              <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Volunteering</span>
                               <button onClick={() => removeVolunteering(vol.id)} className="text-foreground/30 hover:text-red-400 transition-colors">
                                 <Plus size={16} className="rotate-45" />
                               </button>
@@ -1690,22 +1690,22 @@ function BuilderContent() {
                               type="text"
                               value={vol.role}
                               onChange={(e) => updateVolunteering(vol.id, "role", e.target.value)}
-                              className="w-full px-3 py-2 bg-white/5 border border-border-custom rounded-xl text-foreground/90 placeholder-foreground/30 focus:outline-none focus:border-brand-action/50 text-sm"
+                              className="w-full px-3 py-2 bg-white/5 border border-border-custom rounded-xl text-foreground/90 placeholder:text-white/90 focus:outline-none focus:border-brand-action/50 text-sm"
                               placeholder="Role"
                             />
                             <input
                               type="text"
                               value={vol.organization}
                               onChange={(e) => updateVolunteering(vol.id, "organization", e.target.value)}
-                              className="w-full px-3 py-2 bg-white/5 border border-border-custom rounded-xl text-foreground/90 placeholder-foreground/30 focus:outline-none focus:border-brand-action/50 text-sm"
+                              className="w-full px-3 py-2 bg-white/5 border border-border-custom rounded-xl text-foreground/90 placeholder:text-white/90 focus:outline-none focus:border-brand-action/50 text-sm"
                               placeholder="Organization"
                             />
                             <div className="space-y-1.5">
-                              <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Duration</label>
+                              <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Duration</label>
                               <input
                                 value={vol.duration}
                                 onChange={(e) => updateVolunteering(vol.id, "duration", e.target.value)}
-                                className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold"
+                                className="w-full h-11 px-4 bg-white/5 border border-border-custom rounded-xl outline-none focus:border-brand-action transition-all text-sm font-bold placeholder:text-white/90 text-white"
                                 placeholder="e.g. 2023 - Present"
                               />
                             </div>

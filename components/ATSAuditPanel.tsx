@@ -116,7 +116,7 @@ export function ATSAuditPanel({ isOpen, onClose, cvData }: ATSAuditPanelProps) {
                       value={jobDescription}
                       onChange={(e) => setJobDescription(e.target.value)}
                       placeholder="Paste Job Description here..."
-                      className="w-full h-32 bg-black/20 border border-white/10 rounded-2xl p-4 text-sm focus:border-brand-action/50 focus:ring-1 focus:ring-brand-action/50 transition-all outline-none resize-none"
+                      className="w-full h-32 bg-black/20 border border-white/10 rounded-2xl p-4 text-sm focus:border-brand-action/50 focus:ring-1 focus:ring-brand-action/50 transition-all outline-none resize-none placeholder:text-white/90 text-foreground"
                     />
                   </div>
 

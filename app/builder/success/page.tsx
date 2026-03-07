@@ -52,7 +52,7 @@ function SuccessContent() {
   const cvRef = useRef<HTMLDivElement>(null)
 
   const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/preview/${id}` : ""
-  const shareTitle = "Check out my new CV created on CV Forge!"
+  const shareTitle = "Check out my new CV created on cvmyjob!"
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shareUrl)

@@ -88,7 +88,7 @@ export default function SeedPage() {
           { category: "Backend", items: ["Node.js", "Express", "Prisma", "PostgreSQL", "Docker"] }
         ],
         projects: [
-          { id: "master-proj-1", name: "CV Forge", description: "The ultimate AI CV builder.", link: "https://cv-forge.com" }
+          { id: "master-proj-1", name: "cvmyjob", description: "The ultimate AI CV builder.", link: "https://cvmyjob.com" }
         ],
         languages: [
           { name: "English", proficiency: "Fluent" },
