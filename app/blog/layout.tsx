@@ -5,14 +5,14 @@ const baseUrl = process.env.NEXTAUTH_URL || 'https://cvmyjob.com';
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
-  title: "Career Insights & Professional Growth",
+  title: "Career Insights & Professional Growth Advice | cvmyjob Blog",
   description: "Expert advice on resume writing, job search strategies, and career development to help you land your dream job.",
   openGraph: {
-    title: "Career Insights & Professional Growth | cvmyjob Blog",
+    title: "Career Insights & Professional Growth Advice | cvmyjob Blog",
     description: "Expert advice on resume writing, job search strategies, and career development.",
     images: [
       {
-        url: '/modern.png',
+        url: '/og-image.png',
         width: 1200,
         height: 630,
         alt: 'cvmyjob Blog - Career Insights'
@@ -21,9 +21,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Career Insights & Professional Growth | cvmyjob Blog",
+    title: "Career Insights & Professional Growth Advice | cvmyjob Blog",
     description: "Expert advice on resume writing, job search strategies, and career development.",
-    images: ['/modern.png'],
+    images: ['/og-image.png'],
   },
 };
 

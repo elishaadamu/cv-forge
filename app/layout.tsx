@@ -25,7 +25,7 @@ const baseUrl = process.env.NEXTAUTH_URL || 'https://cvmyjob.com';
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: "cvmyjob | Build Your Professional CV for Free",
+    default: "cvmyjob | Create Your Professional ATS-Friendly CV for Free",
     template: "%s | cvmyjob"
   },
   description: "cvmyjob is the ultimate 100% free CV builder. No watermark, no paywall, no hidden charges. Create your high-quality, ATS-friendly CV in minutes.",
@@ -42,12 +42,12 @@ export const metadata: Metadata = {
     google: "ilt-gaTpoL9aFUhs-op9lSSCw_T3bIa2LiLmnvfWuh8",
   },
   openGraph: {
-    title: "cvmyjob | 100% Free Professional CV Builder",
+    title: "cvmyjob | Create Your Professional ATS-Friendly CV for Free",
     description: "Start your career on the right foot with a premium CV, completely free of charge. No watermarks, no hidden fees.",
     siteName: 'cvmyjob',
     images: [
       {
-        url: '/midnight.png',
+        url: '/og-image.png',
         width: 1200,
         height: 630,
         alt: 'cvmyjob - Professional CV Builder'
@@ -58,9 +58,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "cvmyjob | 100% Free Professional CV Builder",
+    title: "cvmyjob | Create Your Professional ATS-Friendly CV for Free",
     description: "Create your high-quality, ATS-friendly CV in minutes. 100% free, no watermarks.",
-    images: ['/midnight.png'],
+    images: ['/og-image.png'],
   },
   robots: {
     index: true,

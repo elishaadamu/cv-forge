@@ -5,14 +5,14 @@ const baseUrl = process.env.NEXTAUTH_URL || 'https://cvmyjob.com';
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
-  title: "Build Your Professional CV",
+  title: "Build Your Professional CV for Free - No Watermark | cvmyjob",
   description: "The most intuitive and powerful free CV builder. Create, edit, and export your professional resume in minutes.",
   openGraph: {
-    title: "Build Your Professional CV | cvmyjob Builder",
+    title: "Build Your Professional CV for Free - No Watermark | cvmyjob",
     description: "The most intuitive, 100% free CV builder. Create your professional resume in minutes with our executive tools.",
     images: [
       {
-        url: '/executive.png',
+        url: '/og-image.png',
         width: 1200,
         height: 630,
         alt: 'cvmyjob Builder - Create Your CV'
@@ -21,9 +21,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Build Your Professional CV | cvmyjob Builder",
+    title: "Build Your Professional CV for Free - No Watermark | cvmyjob",
     description: "The most intuitive, 100% free CV builder. Create your professional resume in minutes.",
-    images: ['/executive.png'],
+    images: ['/og-image.png'],
   },
 };
 
