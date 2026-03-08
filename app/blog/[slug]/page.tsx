@@ -208,7 +208,7 @@ export default function BlogPost() {
             </div>
 
             <motion.div 
-              className="relative aspect-[21/9] rounded-[40px] overflow-hidden shadow-2xl mb-12 group/hero-image cursor-pointer border border-white/5"
+              className="relative aspect-21/9 rounded-[40px] overflow-hidden shadow-2xl mb-12 group/hero-image cursor-pointer border border-white/5"
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               whileHover="hover"

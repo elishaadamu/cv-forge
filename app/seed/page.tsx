@@ -102,7 +102,7 @@ export default function SeedPage() {
 
       // We'll use a placeholder for the userId, the server action should have safety checks
       // Or we can just call the action and it will get the current session user
-      const res = await saveCV("auto-from-session" as any, cvData as any);
+      const res = await saveCV(cvData as any);
       
       if (res.success) {
         setStatus(`SUCCESS! CV Created with ID: ${res.id}. You can close this page.`);

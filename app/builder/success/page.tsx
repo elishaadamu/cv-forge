@@ -130,7 +130,7 @@ function SuccessContent() {
       setIsLoading(true);
       // Try to fetch with session user ID if available, otherwise "guest" or similar
       // The getCV action on server should allow fetching if it's the owner or if we use a preview fetch
-      const res = await getCV(id, session?.user?.id || "guest");
+      const res = await getCV(id);
       
       if (res.success && res.data) {
         setCvData(res.data);
@@ -162,7 +162,7 @@ function SuccessContent() {
 
     try {
       if (session?.user?.id) {
-         await saveCV(session.user.id, { ...cvData, templateId: cvData.templateId, status: "DOWNLOADED" }, id)
+         await saveCV({ ...cvData, templateId: cvData.templateId, status: "DOWNLOADED" }, id)
       }
 
       const element = cvRef.current
