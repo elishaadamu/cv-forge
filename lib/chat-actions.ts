@@ -1,6 +1,7 @@
 "use server"
 
 import { GoogleGenerativeAI } from "@google/generative-ai"
+import { auth } from "@/auth"
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "")
 
@@ -46,22 +47,36 @@ Helpful, professional, and encouraging. Keep responses concise but comprehensive
 
 export async function chatWithAI(history: { role: "user" | "model", parts: { text: string }[] }[]) {
   try {
+    const session = await auth()
+    const userName = session?.user?.name?.split(' ')[0] || "there"
+    
+    // Initialize model
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
     
+    // Inject dynamic user context
+    const dynamicPrompt = `
+${SYSTEM_PROMPT}
+
+### Current Session Context:
+- User Name: ${userName}
+- Authentication: ${session ? "Member (Logged In)" : "Guest"}
+- Goal: Help ${userName} achieve career success on CVMYJOB.
+    `
+
     // Google AI SDK requires the first message to be "user"
-    // Our history might start with a "model" greeting.
+    // Filter history to ensure it starts with a user message
     let validHistory = history.slice(0, -1)
     const firstUserIndex = validHistory.findIndex(m => m.role === "user")
     
     if (firstUserIndex !== -1) {
       validHistory = validHistory.slice(firstUserIndex)
     } else {
-      validHistory = [] // No user messages yet, just use the last one
+      validHistory = [] // No user messages in history yet
     }
 
     const chat = model.startChat({
       history: validHistory,
-      systemInstruction: SYSTEM_PROMPT,
+      systemInstruction: dynamicPrompt,
     })
 
     const lastMessage = history[history.length - 1].parts[0].text

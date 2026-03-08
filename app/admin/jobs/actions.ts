@@ -8,9 +8,13 @@ export interface ScrapedJob {
   description: string
   image: string
   url: string
-  location: string
+  state?: string
+  country: string
   salary: string
+  currency: string
   type: string
+  applyUrl?: string
+  contractDuration?: string
 }
 
 export async function scrapeJobUrl(url: string): Promise<ScrapedJob | { error: string }> {
@@ -81,8 +85,44 @@ export async function parseJobHtml(html: string, url: string = ""): Promise<Scra
     description,
     image,
     url,
-    location: "Remote / Multiple Locations",
+    state: "",
+    country: "Remote",
     salary: "Competitive",
+    currency: "usd",
     type: "Full-time"
+  }
+}
+
+export async function refineJobDescription(
+  description: string,
+  title: string,
+  company: string
+): Promise<{ refined: string } | { error: string }> {
+  try {
+    const { GoogleGenerativeAI } = await import("@google/generative-ai")
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
+
+    const prompt = `You are an expert technical recruiter and copywriter. Refine the following job description for the role of "${title}" at "${company}".
+
+Your goal is to:
+1. Make it compelling, clear and professional
+2. Organise content with proper sections (Overview, Responsibilities, Requirements, Benefits) using HTML headings
+3. Use bullet points (<ul><li>) for responsibilities and requirements
+4. Keep a warm but authoritative tone
+5. Ensure the description is SEO-friendly and enticing to top talent
+6. Return ONLY valid HTML fragment (no <!DOCTYPE>, no <html>, no <body> wrapper) — just inner content using: <h2>, <h3>, <p>, <ul>, <li>, <strong>
+
+Raw description to refine:
+${description}
+
+Return only the refined HTML fragment, nothing else.`
+
+    const result = await model.generateContent(prompt)
+    const refined = result.response.text().trim()
+    return { refined }
+  } catch (error: any) {
+    console.error("Gemini refinement error:", error.message)
+    return { error: "AI refinement failed. Please try again." }
   }
 }

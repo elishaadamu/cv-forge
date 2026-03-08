@@ -211,3 +211,20 @@ model AiGeneration {
   createdAt   DateTime @default(now())
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+model JobPosting {
+  id                 String   @id @default(cuid())
+  title              String
+  company            String
+  state              String?
+  country            String
+  type               String
+  salary             String?
+  currency           String?
+  description        String   @db.Text
+  image              String?
+  applyUrl           String?
+  contractDuration   String?
+  postedAt           DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}

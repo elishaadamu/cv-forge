@@ -15,22 +15,6 @@ const templates = [
     desc: "Clean, bold & ATS Optimized with structured skill grids." 
   },
   { 
-    id: "classic", 
-    name: "Classic Table", 
-    category: "ATS Gold", 
-    img: "/classic.png", 
-    color: "#1e293b", 
-    desc: "Highly structured table-based layout for maximum readability." 
-  },
-  { 
-    id: "executive", 
-    name: "Executive Two-Column", 
-    category: "Premium", 
-    img: "/executive.png", 
-    color: "#0f172a", 
-    desc: "High-contrast two-column layout for senior roles." 
-  },
-  { 
     id: "midnight", 
     name: "Midnight Elegance", 
     category: "Luxury", 
@@ -45,14 +29,6 @@ const templates = [
     img: "/bold.png", 
     color: "#f97316", 
     desc: "High-contrast, hard-hitting layout with dark navy and orange accents." 
-  },
-  { 
-    id: "refined", 
-    name: "Refined Classic", 
-    category: "Distinguished", 
-    img: "/refined.png", 
-    color: "#d97706", 
-    desc: "Elegant serif typography with gold accents, ideal for executive roles." 
   },
 ]
 

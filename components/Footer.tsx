@@ -8,8 +8,8 @@ export function Footer() {
   return (
     <footer className="pt-32 pb-16 px-4 bg-brand-primary text-white relative z-10 border-t border-white/5">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-16 mb-20">
-          <div className="lg:col-span-2 space-y-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-16 mb-20">
+          <div className="md:col-span-2 space-y-8">
             <Link href="/" className="flex items-center space-x-4 group" aria-label="cvmyjob home">
               <div className="relative w-14 h-14 bg-white/5 backdrop-blur-md rounded-2xl p-2 border border-white/10 transition-transform group-hover:scale-105" aria-hidden="true">
                 <Image 
@@ -28,16 +28,25 @@ export function Footer() {
                 </span>
               </div>
             </Link>
-            <p className="text-white/70 text-xl font-medium max-w-sm">
-              The world's most accessible premium CV crafting platform. Empowering careers since 2026.
-            </p>
+            <div className="space-y-4">
+              <p className="text-white/70 text-xl font-medium max-w-sm">
+                The world's most accessible premium CV crafting platform. Empowering careers since 2026.
+              </p>
+              <div className="flex flex-col space-y-2 text-sm font-bold text-white/50">
+                <a href="mailto:info.cvmyjob@gmail.com" className="hover:text-brand-action transition-colors">info.cvmyjob@gmail.com</a>
+                <a href="tel:+2347067206984" className="hover:text-brand-action transition-colors">+234 (706) 720 6984</a>
+                <p className="pt-2 leading-relaxed max-w-[240px]">
+                  No.8 Newlayout Street, Jebbu Bassa LGA, Jos, Nigeria
+                </p>
+              </div>
+            </div>
             <div className="flex space-x-3">
               {[
                 { Icon: Github, name: "GitHub", href: "https://github.com/elishaadamu/" },
                 { Icon: Linkedin, name: "LinkedIn", href: "https://www.linkedin.com/in/elisha-adamu-505552134/" },
                 { Icon: Facebook, name: "Facebook", href: "https://web.facebook.com/elisha.adamu.92" },
               ].map((item, i) => (
-                <Link key={i} href={item.href} target="_blank" rel="noopener noreferrer" aria-label={item.name} className="w-11 h-11 bg-white/5 rounded-2xl flex items-center justify-center text-white/50 hover:text-brand-action hover:bg-white/10 hover:scale-110 transition-all duration-300">
+                <Link key={i} href={item.href} target="_blank" rel="noopener noreferrer" aria-label={item.name} className="w-11 h-11 bg-white/5 rounded-2xl flex items-center justify-center text-white/50 LG:w-12 LG:h-12 hover:text-brand-action hover:bg-white/10 hover:scale-110 transition-all duration-300">
                   <item.Icon size={20} aria-hidden="true" />
                 </Link>
               ))}
@@ -51,8 +60,21 @@ export function Footer() {
                 { name: 'Templates', href: '/templates' },
                 { name: 'Cover Letter', href: '/cover-letter' },
                 { name: 'ATS Checker', href: '/ats' },
-                { name: 'Document Converter', href: '#tools' },
                 { name: 'Dashboard', href: '/dashboard' }
+              ].map(item => (
+                <Link key={item.name} href={item.href} className="font-bold text-lg text-white/90 hover:text-brand-action transition-colors">{item.name}</Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-8">
+            <h3 className="text-sm font-black uppercase tracking-[0.2em] text-white/50">Job Hub</h3>
+            <div className="flex flex-col space-y-5">
+              {[
+                { name: 'Remote Jobs', href: '/jobs' },
+                { name: 'Global Search', href: '/jobs/search' },
+                { name: 'Career Blog', href: '/blog' },
+                { name: 'Support', href: '/support' }
               ].map(item => (
                 <Link key={item.name} href={item.href} className="font-bold text-lg text-white/90 hover:text-brand-action transition-colors">{item.name}</Link>
               ))}
@@ -65,8 +87,7 @@ export function Footer() {
               {[
                 { name: 'Terms of Service', href: '/terms-of-service' },
                 { name: 'Privacy Policy', href: '/privacy-policy' },
-                { name: 'Cookies Policy', href: '/cookies-policy' },
-                { name: 'Support', href: '/support' }
+                { name: 'Cookies Policy', href: '/cookies-policy' }
               ].map(item => (
                 <Link key={item.name} href={item.href} className="font-bold text-lg text-white/90 hover:text-brand-action transition-colors">{item.name}</Link>
               ))}

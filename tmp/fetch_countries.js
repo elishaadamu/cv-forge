@@ -6,10 +6,13 @@ async function fetchCountries() {
     const data = await response.json();
     
     const formatted = data.map(country => {
-      const code = country.callingCodes?.[0] ? `+${country.callingCodes[0]}` : '';
-      const label = `${country.alpha2Code} (${code})`;
-      return { code, label, name: country.name };
-    }).filter(c => c.code);
+      const dialCode = country.callingCodes?.[0] ? `+${country.callingCodes[0]}` : '';
+      return { 
+        iso: country.alpha2Code, 
+        name: country.name,
+        label: `${country.name} (${country.alpha2Code})`
+      };
+    });
 
     // Sort by name
     formatted.sort((a, b) => a.name.localeCompare(b.name));

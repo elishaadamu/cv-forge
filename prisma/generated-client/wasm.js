@@ -289,6 +289,23 @@ exports.Prisma.AiGenerationScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.JobPostingScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  company: 'company',
+  state: 'state',
+  country: 'country',
+  type: 'type',
+  salary: 'salary',
+  currency: 'currency',
+  description: 'description',
+  image: 'image',
+  applyUrl: 'applyUrl',
+  contractDuration: 'contractDuration',
+  postedAt: 'postedAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -323,7 +340,8 @@ exports.Prisma.ModelName = {
   Volunteering: 'Volunteering',
   Comment: 'Comment',
   AtsAudit: 'AtsAudit',
-  AiGeneration: 'AiGeneration'
+  AiGeneration: 'AiGeneration',
+  JobPosting: 'JobPosting'
 };
 
 /**

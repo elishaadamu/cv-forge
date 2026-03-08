@@ -23,37 +23,56 @@ export default async function AdminDashboardPage() {
     redirect("/")
   }
 
-  // Fetch stats
-  const [
-    userCount,
-    cvsCount,
-    draftCvsCount,
-    downloadedCvsCount,
-    recentUsers,
-    recentCvs
-  ] = await Promise.all([
-    prisma.user.count(),
-    prisma.cV.count(),
-    prisma.cV.count({ where: { status: "DRAFT" } }),
-    prisma.cV.count({ where: { status: "DOWNLOADED" } }),
-    prisma.user.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 6
-    }),
-    prisma.cV.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 6,
-      include: {
-        user: {
-          select: {
-            name: true,
-            email: true,
-            image: true
+  // Fetch stats with error handling
+  let userCount = 0
+  let cvsCount = 0
+  let draftCvsCount = 0
+  let downloadedCvsCount = 0
+  let recentUsers: any[] = []
+  let recentCvs: any[] = []
+
+  try {
+    const [
+      uCount,
+      cCount,
+      dCount,
+      dlCount,
+      rUsers,
+      rCvs
+    ] = await Promise.all([
+      prisma.user.count(),
+      prisma.cV.count(),
+      prisma.cV.count({ where: { status: "DRAFT" } }),
+      prisma.cV.count({ where: { status: "DOWNLOADED" } }),
+      prisma.user.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 6
+      }),
+      prisma.cV.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 6,
+        include: {
+          user: {
+            select: {
+              name: true,
+              email: true,
+              image: true
+            }
           }
         }
-      }
-    })
-  ])
+      })
+    ])
+
+    userCount = uCount
+    cvsCount = cCount
+    draftCvsCount = dCount
+    downloadedCvsCount = dlCount
+    recentUsers = rUsers
+    recentCvs = rCvs
+  } catch (error) {
+    console.error("Dashboard data fetch failed:", error)
+    // We'll show the dashboard with 0 stats if DB is down
+  }
 
   const stats = [
     { name: "Total Members", value: userCount, icon: Users, color: "text-blue-500", bg: "bg-blue-500/10" },

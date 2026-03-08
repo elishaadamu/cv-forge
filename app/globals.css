@@ -56,6 +56,26 @@
   color: #2563EB;
 }
 
+/* Collapse empty &nbsp; paragraphs from API job descriptions */
+.prose-premium p:empty,
+.prose-premium p:has(> br:only-child) {
+  display: none;
+}
+
+.prose-premium p {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+/* Override inline color styles from API descriptions in dark mode */
+.dark .prose-premium *[style*="color"] {
+  color: var(--foreground) !important;
+}
+
+.dark .prose-premium *[style*="background"] {
+  background: transparent !important;
+}
+
 @theme {
   --color-brand-primary: #0F172A;
   --color-brand-secondary: #14B8A6;

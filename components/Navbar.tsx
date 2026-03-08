@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useTheme } from "next-themes"
-import { Menu, X, Sun, Moon, Sparkles, User, FileText, LayoutDashboard, SearchCode, MailQuestion, LogOut, Settings, ChevronDown, FilePen, Repeat, Shield, Briefcase, Search } from "lucide-react"
+import { Menu, X, Sun, Moon, Sparkles, User, FileText, LayoutDashboard, SearchCode, MailQuestion, LogOut, Settings, ChevronDown, FilePen, Repeat, Shield, Briefcase, Search, Zap } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useSession, signOut } from "next-auth/react"
 import Image from "next/image"
@@ -21,7 +21,9 @@ const navCategories = [
   {
     name: "Job Hub",
     links: [
+      { name: "Featured Jobs", href: "/jobs/board", icon: Zap, desc: "Curated picks posted by CVMyJob team" },
       { name: "Global Aggregates", href: "/jobs/search", icon: Search, desc: "Search Indeed, LinkedIn & Glassdoor" },
+      { name: "Remote Jobs", href: "/jobs", icon: Briefcase, desc: "Curated work-from-anywhere roles" },
     ]
   },
   {
@@ -104,12 +106,6 @@ export function Navbar() {
               className="px-4 py-2 text-sm font-bold text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-all duration-500"
             >
               Features
-            </Link>
-            <Link
-              href="/jobs"
-              className="px-4 py-2 text-sm font-bold text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-all duration-500"
-            >
-              Remote Jobs
             </Link>
 
             {navCategories.map((category) => (

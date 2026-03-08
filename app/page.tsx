@@ -16,6 +16,7 @@ import { TemplateShowcase } from "@/components/landing/TemplateShowcase"
 import { StrategicPillars } from "@/components/landing/StrategicPillars"
 import { BackToTop } from "@/components/landing/BackToTop"
 import { RecentBlogs } from "@/components/landing/RecentBlogs"
+import { FeaturedJobs } from "@/components/landing/FeaturedJobs"
 import { Footer } from "@/components/Footer"
 
 export default function Home() {
@@ -39,6 +40,8 @@ export default function Home() {
         <div id="stats">
           <ImpactStats />
         </div>
+
+        <FeaturedJobs />
 
         <StrategicPillars />
         
