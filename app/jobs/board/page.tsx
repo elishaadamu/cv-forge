@@ -88,7 +88,7 @@ export default async function JobBoardPage({ searchParams }: PageProps) {
           
           {/* Sidebar - FILTERS MOVE HERE */}
           <aside className="lg:col-span-3 space-y-8">
-            <div className="sticky top-28 bg-card/30 backdrop-blur-xl border border-border-custom rounded-[32px] p-6 shadow-xl">
+            <div className="sticky top-28 bg-card border border-border-custom rounded-[32px] p-6 shadow-xl">
                <JobBoardFilters initialFilters={filters} />
             </div>
           </aside>
