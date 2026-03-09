@@ -1,8 +1,3 @@
 {
-  "functions": {
-    "app/api/generate-pdf/route.tsx": {
-      "includeFiles": "node_modules/@sparticuz/chromium-min/bin/**"
-    }
-  },
   "regions": ["iad1"]
 }

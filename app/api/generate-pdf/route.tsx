@@ -1,15 +1,11 @@
 // @ts-nocheck
 import { NextResponse } from 'next/server'
-import puppeteer from 'puppeteer'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 // PDFShift API Key
 const PDFSHIFT_API_KEY = process.env.PDFSHIFT_API_KEY || 'sk_a74db5048046f9dd33ec3d7e24f82954cd5e6263'
-
-// Chrome executable path for Windows (local development)
-const CHROME_PATH = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
 
 export async function POST(req: Request) {
   let browser = null
@@ -43,8 +39,11 @@ export async function POST(req: Request) {
       // ===== LOCAL DEVELOPMENT: Use Puppeteer =====
       console.log('PDF Generation: Using Puppeteer (local)')
       
+      // Dynamic import to avoid bundling on production
+      const puppeteer = (await import('puppeteer')).default
+      
       browser = await puppeteer.launch({
-        executablePath: CHROME_PATH,
+        executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
         args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
         headless: true,
       })

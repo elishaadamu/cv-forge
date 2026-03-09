@@ -1,7 +1,7 @@
 // @ts-check
 "use server"
 
-import { PrismaClient } from "@/prisma/generated-client"
+import { PrismaClient } from "@prisma/client"
 
 const prisma = new PrismaClient()
 
@@ -101,5 +101,17 @@ export async function getJobPostings(filters?: JobFilters) {
   } catch (error: any) {
     console.error("Failed to fetch job postings:", error.message)
     return { success: false, jobs: [], error: error.message, pagination: { total: 0, page: 1, limit: 10, totalPages: 0 } }
+  }
+}
+
+export async function getJobPostingById(id: string) {
+  try {
+    const job = await prisma.jobPosting.findUnique({
+      where: { id }
+    })
+    return { success: true, job }
+  } catch (error: any) {
+    console.error("Failed to fetch job posting:", error.message)
+    return { success: false, error: error.message }
   }
 }

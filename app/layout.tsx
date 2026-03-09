@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     siteName: 'cvmyjob',
     images: [
       {
-        url: '/og-image.png',
+        url: '/logo.png',
         width: 1200,
         height: 630,
         alt: 'cvmyjob - Professional CV Builder'
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: "cvmyjob | Create Your Professional ATS-Friendly CV for Free",
     description: "Create your high-quality, ATS-friendly CV in minutes. 100% free, no watermarks.",
-    images: ['/og-image.png'],
+    images: ['/logo.png'],
   },
   robots: {
     index: true,
