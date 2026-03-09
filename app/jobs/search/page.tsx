@@ -1,9 +1,11 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { Suspense, useState, useEffect, useMemo } from "react"
 import { Navbar } from "@/components/Navbar"
 import { JSearchJob, getAggregatedJobs } from "@/lib/jobs"
 import { motion, AnimatePresence } from "framer-motion"
+import { useSearchParams, useRouter, Link } from "next/navigation"
+import { ShareButton } from "@/components/jobs/ShareButton"
 import { 
   Search, 
   MapPin, 
@@ -16,7 +18,8 @@ import {
   Loader2,
   ChevronRight,
   Globe,
-  Briefcase
+  Briefcase,
+  X
 } from "lucide-react"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
@@ -25,6 +28,18 @@ import { countryCodes } from "@/lib/countries"
 dayjs.extend(relativeTime)
 
 export default function AggregatedJobSearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#020617] flex items-center justify-center">
+        <Loader2 className="animate-spin text-brand-action" size={48} />
+      </div>
+    }>
+      <SearchContent />
+    </Suspense>
+  )
+}
+
+function SearchContent() {
   const [jobs, setJobs] = useState<JSearchJob[]>([])
   const [loading, setLoading] = useState(false)
   const [query, setQuery] = useState("")
@@ -35,6 +50,35 @@ export default function AggregatedJobSearchPage() {
   const [experience, setExperience] = useState("")
   const [country, setCountry] = useState("US")
   const [error, setError] = useState<string | null>(null)
+  
+  const [selectedJob, setSelectedJob] = useState<JSearchJob | null>(null)
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const selectedId = searchParams.get("selected")
+
+  useEffect(() => {
+    if (selectedId) {
+      const job = jobs.find(j => j.job_id === selectedId)
+      if (job) {
+        setSelectedJob(job)
+      } else {
+        const fetchJob = async () => {
+          try {
+            const res = await fetch(`/api/jobs/details?job_id=${selectedId}`)
+            const data = await res.json()
+            if (data.status === "OK" && data.data?.[0]) {
+              setSelectedJob(data.data[0])
+            }
+          } catch (err) {
+            console.error(err)
+          }
+        }
+        fetchJob()
+      }
+    } else {
+      setSelectedJob(null)
+    }
+  }, [selectedId, jobs])
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -84,6 +128,21 @@ export default function AggregatedJobSearchPage() {
               Search millions of openings from Indeed, LinkedIn, Glassdoor, and more—all in one place.
             </p>
           </motion.div>
+        </div>
+
+        {/* CV Builder Banner */}
+        <div className="max-w-4xl mx-auto mb-16 relative group cursor-pointer" onClick={() => router.push('/templates')}>
+          <div className="absolute inset-0 bg-brand-action/20 blur-xl group-hover:bg-brand-action/30 transition-all rounded-3xl" />
+          <div className="relative bg-[#0F172A] border border-brand-action/30 p-8 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
+             <div className="flex-1 space-y-2 text-center md:text-left">
+                <h3 className="text-2xl font-black text-white">Stand out with a Premium CV ✨</h3>
+                <p className="text-white/70 font-medium">Use our modern CV Builder templates to boost your chances of getting hired for these roles.</p>
+             </div>
+             <button className="px-8 py-4 bg-brand-action text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg shadow-brand-action/20 shrink-0">
+               Build CV Now
+               <ChevronRight size={16} className="inline ml-2" />
+             </button>
+          </div>
         </div>
 
         {/* Search Controls */}
@@ -274,7 +333,7 @@ export default function AggregatedJobSearchPage() {
                     </div>
 
                     <div className="flex-1 min-w-0 space-y-2">
-                       <h3 className="text-xl md:text-2xl font-black group-hover:text-brand-action transition-colors truncate text-foreground">
+                       <h3 className="text-xl md:text-2xl font-black group-hover:text-brand-action transition-colors text-foreground">
                          {job.job_title}
                        </h3>
                        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-foreground/40 text-sm font-bold">
@@ -320,14 +379,30 @@ export default function AggregatedJobSearchPage() {
                     </div>
 
                     <div className="flex items-center gap-4 pt-4 md:pt-0 border-t md:border-t-0 border-border-custom w-full md:w-auto">
-                       <a 
-                        href={job.job_apply_link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-brand-action text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-brand-action/90 transition-all active:scale-95 shadow-lg shadow-brand-action/20"
+                       <button 
+                        onClick={() => {
+                          setSelectedJob(job)
+                          router.push(`/jobs/search?selected=${job.job_id}`, { scroll: false })
+                        }}
+                        className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-foreground/10 hover:bg-brand-action/20 hover:text-brand-action rounded-2xl font-black text-xs uppercase tracking-widest text-foreground/70 transition-all active:scale-95 whitespace-nowrap border border-border-custom hover:border-brand-action/40"
                        >
-                         Apply Now
-                         <ExternalLink size={14} />
+                         View Details
+                         <ChevronRight size={14} />
+                       </button>
+                       <a 
+                         href={job.job_apply_link} 
+                         target="_blank" 
+                         rel="noopener noreferrer"
+                         onClick={(e) => {
+                           e.stopPropagation();
+                           if (job.job_apply_link) {
+                             window.open(job.job_apply_link, '_blank', 'noopener,noreferrer');
+                             e.preventDefault();
+                           }
+                         }}
+                         className="flex items-center justify-center w-14 h-14 bg-brand-action hover:bg-brand-action/90 text-white rounded-2xl transition-all active:scale-95 shadow-lg shadow-brand-action/20 shrink-0"
+                       >
+                         <ExternalLink size={20} />
                        </a>
                     </div>
 
@@ -339,6 +414,92 @@ export default function AggregatedJobSearchPage() {
           )}
         </div>
       </main>
+
+      {/* Job Description Modal */}
+      <AnimatePresence>
+        {selectedJob && (
+          <div className="fixed inset-0 z-9999 flex items-center justify-center px-4 md:px-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => {
+                setSelectedJob(null)
+                router.push('/jobs/search', { scroll: false })
+              }}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-4xl max-h-[85vh] md:max-h-[85vh] bg-[#0F172A] text-white border border-slate-800 rounded-[32px] md:rounded-[40px] shadow-[0_0_100px_rgba(0,0,0,0.5)] flex flex-col"
+            >
+              {/* Header */}
+              <div className="p-6 md:p-8 border-b border-slate-800 flex items-start md:items-center justify-between gap-4 shrink-0 bg-[#0F172A] rounded-t-[32px] md:rounded-t-[40px]">
+                <div className="flex items-start md:items-center gap-4 md:gap-6 min-w-0">
+                  <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-white/5 p-2 flex items-center justify-center border border-white/10 overflow-hidden shrink-0">
+                    {selectedJob.employer_logo ? (
+                      <img src={selectedJob.employer_logo} alt={selectedJob.employer_name} className="max-w-full max-h-full object-contain" />
+                    ) : (
+                      <Building2 className="text-white/40" size={24} />
+                    )}
+                  </div>
+                  <div className="min-w-0 mt-1">
+                    <h2 className="text-lg md:text-2xl font-black text-white">{selectedJob.job_title}</h2>
+                    <p className="text-brand-action font-bold uppercase tracking-widest text-[10px] md:text-xs mt-1">{selectedJob.employer_name} • {selectedJob.job_city || selectedJob.job_location || 'Remote'}</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => {
+                    setSelectedJob(null)
+                    router.push('/jobs/search', { scroll: false })
+                  }}
+                  className="w-10 h-10 md:w-12 md:h-12 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center transition-colors text-white shrink-0 -mt-2 -mr-2 md:m-0"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="p-6 md:p-8 overflow-y-auto flex-1 min-h-[40vh] prose prose-invert prose-premium max-w-none scrollbar-hide bg-[#1E293B]">
+                <div 
+                  dangerouslySetInnerHTML={{ __html: (selectedJob.job_description || "No detailed description available.").replace(/<p[^>]*>\s*(<span[^>]*>\s*)*(&nbsp;|\u00a0|\s)*(\s*<\/span>)*\s*<\/p>/gi, '') }} 
+                  className="text-white/80 leading-relaxed font-medium text-sm md:text-base prose-headings:text-white prose-strong:text-white prose-a:text-brand-action prose-p:text-white/80 prose-li:text-white/80"
+                />
+              </div>
+
+              {/* Footer */}
+              <div className="p-6 md:p-8 border-t border-slate-800 bg-[#0F172A] flex flex-col md:flex-row items-center justify-between gap-6 shrink-0 rounded-b-[32px] md:rounded-b-[40px]">
+                <div className="flex flex-wrap gap-2 md:gap-4 justify-center md:justify-start w-full md:w-auto">
+                  <span className="px-4 py-2 bg-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-white/70 border border-white/10">
+                    {selectedJob.job_employment_type?.replace(/_/g, " ") || "Full Time"}
+                  </span>
+                  {selectedJob.job_is_remote && (
+                    <span className="px-4 py-2 bg-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-white border border-white/10">
+                      Remote
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-3 md:gap-4 w-full md:w-auto justify-end">
+                    <div className="shrink-0 flex items-center justify-center dark:text-white text-white">
+                      <ShareButton variant="icon" />
+                    </div>
+                    <a 
+                      href={selectedJob.job_apply_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 md:flex-none flex justify-center items-center gap-3 px-8 md:px-10 py-4 md:py-5 bg-brand-action text-white rounded-[20px] font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-brand-action/20 hover:scale-[1.02] active:scale-95 transition-all text-center whitespace-nowrap"
+                    >
+                      Confirm & Apply
+                      <ExternalLink size={18} />
+                    </a>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

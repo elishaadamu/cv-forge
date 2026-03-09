@@ -131,4 +131,38 @@ export async function getAggregatedJobs(
   }
 }
 
+export async function getAggregatedJobDetails(jobId: string): Promise<JSearchResponse> {
+  const apiKey = process.env.JSEARCH_API_KEY || "";
+  
+  const params = new URLSearchParams();
+  params.append("job_id", jobId);
+  params.append("extended_publisher_details", "false");
+  
+  const url = `https://jsearch.p.rapidapi.com/job-details?${params.toString()}`;
+  
+  try {
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'x-rapidapi-key': apiKey,
+        'x-rapidapi-host': 'jsearch.p.rapidapi.com'
+      },
+      next: { revalidate: 3600 }
+    });
+    
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      return { 
+        status: "error", 
+        message: errorData.message || res.statusText || "Unknown API error",
+        data: [] 
+      };
+    }
+    
+    return res.json();
+  } catch (error: any) {
+    console.error("Error fetching job details:", error);
+    return { status: "error", message: error.message || "Failed to connect to search service", data: [] };
+  }
+}
 

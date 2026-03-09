@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useSearchParams, useRouter } from "next/navigation"
 import { Suspense } from "react"
 import { ShareButton } from "@/components/jobs/ShareButton"
+import { CVBanner } from "@/components/jobs/CVBanner"
 import { 
   Search, 
   Briefcase, 
@@ -156,7 +157,7 @@ function JobListingContent() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center space-y-4"
           >
-            <h1 className="text-4xl mt-10 lg:text-6xl font-black tracking-tight">
+            <h1 className="text-4xl mt-20 md:mt-10 lg:text-6xl font-black tracking-tight">
               Remote <span className="text-brand-action">Jobs</span>
             </h1>
             <p className="text-foreground/60 max-w-2xl mx-auto text-lg pt-2 transition-colors duration-500">
@@ -166,6 +167,11 @@ function JobListingContent() {
 
           {/* Background Glow */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[300px] bg-brand-action/10 blur-[120px] rounded-full -z-10" />
+        </div>
+
+        {/* CV Builder Banner */}
+        <div className="mb-16 max-w-4xl mx-auto">
+          <CVBanner />
         </div>
 
         {/* Search Bar Area */}
@@ -373,7 +379,7 @@ function JobListingContent() {
                             {job.job_type.replace(/_/g, " ")}
                           </span>
                         </div>
-                        <h3 className="text-xl md:text-2xl font-black group-hover:text-brand-action transition-colors truncate text-foreground">
+                        <h3 className="text-xl md:text-2xl font-black group-hover:text-brand-action transition-colors text-foreground">
                           {job.title}
                         </h3>
                         <div className="flex flex-wrap items-center gap-y-2 gap-x-6 text-foreground/40 text-sm font-bold">
@@ -512,7 +518,7 @@ function JobListingContent() {
       {/* Job Description Modal */}
       <AnimatePresence>
         {selectedJob && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center px-6">
+          <div className="fixed inset-0 z-9999 flex items-center justify-center px-4 md:px-6">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -527,21 +533,21 @@ function JobListingContent() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-4xl max-h-[80vh] bg-card-bg border border-border-custom rounded-[40px] shadow-2xl overflow-hidden flex flex-col"
+              className="relative w-full max-w-4xl max-h-[85vh] md:max-h-[85vh] bg-[#0F172A] text-white border border-slate-800 rounded-[32px] md:rounded-[40px] shadow-[0_0_100px_rgba(0,0,0,0.5)] flex flex-col"
             >
               {/* Header */}
-              <div className="p-8 border-b border-border-custom flex items-center justify-between shrink-0 bg-background/50">
-                <div className="flex items-center gap-6">
-                  <div className="w-16 h-16 rounded-2xl bg-foreground/5 p-2 flex items-center justify-center border border-border-custom overflow-hidden">
+              <div className="p-6 md:p-8 border-b border-slate-800 flex items-start md:items-center justify-between gap-4 shrink-0 bg-[#0F172A] rounded-t-[32px] md:rounded-t-[40px]">
+                <div className="flex items-start md:items-center gap-4 md:gap-6 min-w-0">
+                  <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-white/5 p-2 flex items-center justify-center border border-white/10 overflow-hidden shrink-0">
                     {selectedJob.company_logo ? (
                       <img src={selectedJob.company_logo} alt={selectedJob.company_name} className="max-w-full max-h-full object-contain" />
                     ) : (
-                      <Building2 className="text-foreground/20" size={24} />
+                      <Building2 className="text-white/40" size={24} />
                     )}
                   </div>
-                  <div>
-                    <h2 className="text-2xl font-black text-foreground">{selectedJob.title}</h2>
-                    <p className="text-brand-action font-bold uppercase tracking-widest text-xs">{selectedJob.company_name} • {selectedJob.candidate_required_location}</p>
+                  <div className="min-w-0 mt-1">
+                    <h2 className="text-lg md:text-2xl font-black text-white">{selectedJob.title}</h2>
+                    <p className="text-brand-action font-bold uppercase tracking-widest text-[10px] md:text-xs mt-1">{selectedJob.company_name} • {selectedJob.candidate_required_location}</p>
                   </div>
                 </div>
                 <button 
@@ -549,38 +555,40 @@ function JobListingContent() {
                     setSelectedJob(null)
                     router.push('/jobs', { scroll: false })
                   }}
-                  className="w-12 h-12 bg-foreground/5 hover:bg-foreground/10 rounded-full flex items-center justify-center transition-colors text-foreground"
+                  className="w-10 h-10 md:w-12 md:h-12 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center transition-colors text-white shrink-0 -mt-2 -mr-2 md:m-0"
                 >
-                  <X size={24} />
+                  <X size={20} />
                 </button>
               </div>
 
               {/* Content */}
-              <div className="p-8 overflow-y-auto prose prose-premium max-w-none scrollbar-hide bg-card-bg">
+              <div className="p-6 md:p-8 overflow-y-auto flex-1 min-h-[40vh] prose prose-invert prose-premium max-w-none scrollbar-hide bg-[#1E293B]">
                 <div 
                   dangerouslySetInnerHTML={{ __html: selectedJob.description.replace(/<p[^>]*>\s*(<span[^>]*>\s*)*(&nbsp;|\u00a0|\s)*(\s*<\/span>)*\s*<\/p>/gi, '') }} 
-                  className="text-foreground/80 leading-relaxed font-medium"
+                  className="text-white/80 leading-relaxed font-medium text-sm md:text-base prose-headings:text-white prose-strong:text-white prose-a:text-brand-action prose-p:text-white/80 prose-li:text-white/80"
                 />
               </div>
 
               {/* Footer */}
-              <div className="p-8 border-t border-border-custom bg-background/50 flex flex-col md:flex-row items-center justify-between gap-6 shrink-0">
-                <div className="flex gap-4">
-                  <span className="px-4 py-2 bg-foreground/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-foreground/40 border border-border-custom">
+              <div className="p-6 md:p-8 border-t border-slate-800 bg-[#0F172A] flex flex-col md:flex-row items-center justify-between gap-6 shrink-0 rounded-b-[32px] md:rounded-b-[40px]">
+                <div className="flex flex-wrap gap-2 md:gap-4 justify-center md:justify-start w-full md:w-auto">
+                  <span className="px-4 py-2 bg-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-white/70 border border-white/10">
                     {selectedJob.category}
                   </span>
-                  <span className="px-4 py-2 bg-foreground/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-foreground/60 border border-border-custom">
+                  <span className="px-4 py-2 bg-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-white border border-white/10">
                     {selectedJob.job_type.replace(/_/g, " ")}
                   </span>
                 </div>
-                <div className="flex items-center gap-4 w-full md:w-auto justify-end">
-                    <ShareButton variant="icon" />
+                <div className="flex items-center gap-3 md:gap-4 w-full md:w-auto justify-end">
+                    <div className="shrink-0 flex items-center justify-center dark:text-white text-white">
+                      <ShareButton variant="icon" />
+                    </div>
                     <a 
                       href={selectedJob.url}
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={() => console.log("Final Application Data:", selectedJob)}
-                      className="flex items-center gap-3 px-10 py-5 bg-brand-action text-white rounded-[20px] font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-brand-action/20 hover:scale-[1.02] active:scale-95 transition-all text-center whitespace-nowrap"
+                      className="flex-1 md:flex-none flex justify-center items-center gap-3 px-8 md:px-10 py-4 md:py-5 bg-brand-action text-white rounded-[20px] font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-brand-action/20 hover:scale-[1.02] active:scale-95 transition-all text-center whitespace-nowrap"
                     >
                       Confirm & Apply
                       <ExternalLink size={18} />
