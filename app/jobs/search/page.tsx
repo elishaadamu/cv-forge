@@ -6,6 +6,7 @@ import { JSearchJob, getAggregatedJobs } from "@/lib/jobs"
 import { motion, AnimatePresence } from "framer-motion"
 import { useSearchParams, useRouter, Link } from "next/navigation"
 import { ShareButton } from "@/components/jobs/ShareButton"
+import { CVBanner } from "@/components/jobs/CVBanner"
 import { 
   Search, 
   MapPin, 
@@ -131,18 +132,8 @@ function SearchContent() {
         </div>
 
         {/* CV Builder Banner */}
-        <div className="max-w-4xl mx-auto mb-16 relative group cursor-pointer" onClick={() => router.push('/templates')}>
-          <div className="absolute inset-0 bg-brand-action/20 blur-xl group-hover:bg-brand-action/30 transition-all rounded-3xl" />
-          <div className="relative bg-[#0F172A] border border-brand-action/30 p-8 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
-             <div className="flex-1 space-y-2 text-center md:text-left">
-                <h3 className="text-2xl font-black text-white">Stand out with a Premium CV ✨</h3>
-                <p className="text-white/70 font-medium">Use our modern CV Builder templates to boost your chances of getting hired for these roles.</p>
-             </div>
-             <button className="px-8 py-4 bg-brand-action text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg shadow-brand-action/20 shrink-0">
-               Build CV Now
-               <ChevronRight size={16} className="inline ml-2" />
-             </button>
-          </div>
+        <div className="mb-16 max-w-4xl mx-auto">
+          <CVBanner />
         </div>
 
         {/* Search Controls */}
