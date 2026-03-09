@@ -9,6 +9,7 @@ import { LoadingLine } from "@/components/LoadingLine";
 import { CookieConsent } from "@/components/CookieConsent";
 import { Suspense } from "react";
 import Script from "next/script";
+import { Analytics } from "@vercel/analytics/next"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -119,6 +120,7 @@ export default function RootLayout({
               <CookieConsent />
               {children}
               <Chatbot />
+              <Analytics />
             </AntdRegistry>
           </ThemeProvider>
         </AuthProvider>

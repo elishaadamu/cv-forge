@@ -119,7 +119,7 @@
   --color-foreground: var(--foreground);
   --color-nav-bg: var(--nav-bg);
   --color-nav-text: var(--nav-text);
-  --color-card-bg: var(--card-bg);
+  --color-card: var(--card-bg);
   --color-border-custom: var(--border-color);
   --color-success: var(--success);
   --color-error: var(--error);
