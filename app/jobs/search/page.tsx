@@ -8,6 +8,7 @@ import { useSearchParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { ShareButton } from "@/components/jobs/ShareButton"
 import { CVBanner } from "@/components/jobs/CVBanner"
+import { JobNav } from "@/components/jobs/JobNav"
 import { 
   Search, 
   MapPin, 
@@ -117,7 +118,8 @@ function SearchContent() {
     <div className="min-h-screen bg-background text-foreground transition-colors duration-500">
       <Navbar />
       
-      <main className="max-w-7xl mx-auto px-6 py-12 lg:py-20">
+      <main className="max-w-7xl  mt-16 md:mt-13 mx-auto px-6 py-12 lg:py-20">
+        <JobNav />
         <div className="relative mb-16 text-center space-y-4">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}

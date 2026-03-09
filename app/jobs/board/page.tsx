@@ -2,6 +2,7 @@ import { getJobPostings, JobFilters } from "@/app/admin/jobs/job-actions"
 import { Navbar } from "@/components/Navbar"
 import { JobBoardFilters } from "@/components/jobs/JobBoardFilters"
 import { CVBanner } from "@/components/jobs/CVBanner"
+import { JobNav } from "@/components/jobs/JobNav"
 import { JobBoardSearch } from "@/components/jobs/JobBoardSearch"
 import { 
   Briefcase, 
@@ -63,6 +64,7 @@ export default async function JobBoardPage({ searchParams }: PageProps) {
       <Navbar />
 
       <main className="max-w-7xl mt-16 md:mt-10 mx-auto px-6 py-16 lg:py-24 space-y-20">
+        <JobNav />
         {/* Header */}
         <div className="relative text-center space-y-10 max-w-4xl mx-auto">
           <div className="space-y-6">

@@ -8,6 +8,7 @@ import { useSearchParams, useRouter } from "next/navigation"
 import { Suspense } from "react"
 import { ShareButton } from "@/components/jobs/ShareButton"
 import { CVBanner } from "@/components/jobs/CVBanner"
+import { JobNav } from "@/components/jobs/JobNav"
 import { 
   Search, 
   Briefcase, 
@@ -146,10 +147,11 @@ function JobListingContent() {
   const categories = ["All", ...Array.from(new Set(jobs.map(j => j.category)))].slice(0, 10)
 
   return (
-    <div className="min-h-screen bg-background text-foreground transition-colors duration-500">
+    <div className="min-h-screen  mt-16 md:mt-13 bg-background text-foreground transition-colors duration-500">
       <Navbar />
       
       <main className="max-w-7xl mx-auto px-6 py-12 lg:py-20">
+        <JobNav />
         {/* Header Section */}
         <div className="relative mb-16">
           <motion.div 
@@ -157,7 +159,7 @@ function JobListingContent() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center space-y-4"
           >
-            <h1 className="text-4xl mt-20 md:mt-10 lg:text-6xl font-black tracking-tight">
+            <h1 className="text-4xl  lg:text-6xl font-black tracking-tight">
               Remote <span className="text-brand-action">Jobs</span>
             </h1>
             <p className="text-foreground/60 max-w-2xl mx-auto text-lg pt-2 transition-colors duration-500">
