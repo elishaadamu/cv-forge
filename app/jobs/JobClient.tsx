@@ -9,6 +9,7 @@ import { Suspense } from "react"
 import { ShareButton } from "@/components/jobs/ShareButton"
 import { CVBanner } from "@/components/jobs/CVBanner"
 import { JobNav } from "@/components/jobs/JobNav"
+import { CopyBriefButton } from "@/components/jobs/CopyBriefButton"
 import { 
   Search, 
   Briefcase, 
@@ -408,6 +409,15 @@ function JobListingContent() {
 
                       {/* Actions */}
                       <div className="relative z-10 flex items-center gap-4 w-full md:w-auto pt-4 md:pt-0 border-t md:border-t-0 border-border-custom">
+                        <CopyBriefButton 
+                          jobData={{
+                            title: job.title,
+                            company: job.company_name,
+                            salary: job.salary,
+                            url: `${typeof window !== 'undefined' ? window.location.origin : ''}/jobs?selected=${job.id}`,
+                            description: job.description
+                          }}
+                        />
                         <button 
                           onClick={() => {
                             setSelectedJob(job)
@@ -583,7 +593,16 @@ function JobListingContent() {
                 </div>
                 <div className="flex items-center gap-3 md:gap-4 w-full md:w-auto justify-end">
                     <div className="shrink-0 flex items-center justify-center dark:text-white text-white">
-                      <ShareButton variant="icon" />
+                      <ShareButton 
+                        variant="icon" 
+                        jobData={{
+                          title: selectedJob.title,
+                          company: selectedJob.company_name,
+                          salary: selectedJob.salary,
+                          url: `${typeof window !== 'undefined' ? window.location.origin : ''}/jobs?selected=${selectedJob.id}`,
+                          description: selectedJob.description
+                        }}
+                      />
                     </div>
                     <a 
                       href={selectedJob.url}

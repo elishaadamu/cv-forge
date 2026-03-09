@@ -9,6 +9,7 @@ import Link from "next/link"
 import { ShareButton } from "@/components/jobs/ShareButton"
 import { CVBanner } from "@/components/jobs/CVBanner"
 import { JobNav } from "@/components/jobs/JobNav"
+import { CopyBriefButton } from "@/components/jobs/CopyBriefButton"
 import { 
   Search, 
   MapPin, 
@@ -372,17 +373,28 @@ function SearchContent() {
                        )}
                     </div>
 
-                    <div className="flex items-center gap-4 pt-4 md:pt-0 border-t md:border-t-0 border-border-custom w-full md:w-auto">
-                       <button 
-                        onClick={() => {
-                          setSelectedJob(job)
-                          router.push(`/jobs/search?selected=${job.job_id}`, { scroll: false })
+                    <div className="flex items-center gap-3 w-full md:w-auto pt-4 md:pt-0 border-t md:border-t-0 border-border-custom relative z-10">
+                      <CopyBriefButton 
+                        jobData={{
+                          title: job.job_title,
+                          company: job.employer_name,
+                          salary: (job.job_min_salary || job.job_max_salary) 
+                            ? `${job.job_salary_currency} ${job.job_min_salary?.toLocaleString()}${job.job_max_salary ? ' - ' + job.job_max_salary.toLocaleString() : ''} / ${job.job_salary_period}`
+                            : undefined,
+                          url: `${typeof window !== 'undefined' ? window.location.origin : ''}/jobs/search?selected=${job.job_id}`,
+                          description: job.job_description
                         }}
-                        className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-foreground/10 hover:bg-brand-action/20 hover:text-brand-action rounded-2xl font-black text-xs uppercase tracking-widest text-foreground/70 transition-all active:scale-95 whitespace-nowrap border border-border-custom hover:border-brand-action/40"
-                       >
+                      />
+                      <button 
+                         onClick={() => {
+                           setSelectedJob(job)
+                           router.push(`/jobs/search?selected=${job.job_id}`, { scroll: false })
+                         }}
+                         className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-foreground/10 hover:bg-brand-action/20 hover:text-brand-action rounded-2xl font-black text-xs uppercase tracking-widest text-foreground/70 transition-all active:scale-95 whitespace-nowrap border border-border-custom hover:border-brand-action/40"
+                      >
                          View Details
                          <ChevronRight size={14} />
-                       </button>
+                      </button>
                        <a 
                          href={job.job_apply_link} 
                          target="_blank" 
@@ -477,7 +489,18 @@ function SearchContent() {
                 </div>
                 <div className="flex items-center gap-3 md:gap-4 w-full md:w-auto justify-end">
                     <div className="shrink-0 flex items-center justify-center dark:text-white text-white">
-                      <ShareButton variant="icon" />
+                      <ShareButton 
+                        variant="icon" 
+                        jobData={{
+                          title: selectedJob.job_title,
+                          company: selectedJob.employer_name,
+                          salary: (selectedJob.job_min_salary || selectedJob.job_max_salary) 
+                            ? `${selectedJob.job_salary_currency} ${selectedJob.job_min_salary?.toLocaleString()}${selectedJob.job_max_salary ? ' - ' + selectedJob.job_max_salary.toLocaleString() : ''} / ${selectedJob.job_salary_period}`
+                            : undefined,
+                          url: `${typeof window !== 'undefined' ? window.location.origin : ''}/jobs/search?selected=${selectedJob.job_id}`,
+                          description: selectedJob.job_description
+                        }}
+                      />
                     </div>
                     <a 
                       href={selectedJob.job_apply_link}

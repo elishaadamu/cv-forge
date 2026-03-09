@@ -10,12 +10,26 @@ import {
   MessageCircle, 
   Layout, 
   Instagram,
-  ExternalLink
+  ExternalLink,
+  Zap
 } from "lucide-react"
 import { useState } from "react"
 
-export function ShareButton({ variant = "full" }: { variant?: "full" | "icon" }) {
+export function ShareButton({ 
+  variant = "full",
+  jobData 
+}: { 
+  variant?: "full" | "icon" | "ghost",
+  jobData?: {
+    title: string;
+    company: string;
+    salary?: string;
+    url: string;
+    description?: string;
+  }
+}) {
   const [copied, setCopied] = useState(false)
+  const [briefCopied, setBriefCopied] = useState(false)
   const [showOptions, setShowOptions] = useState(false)
 
   const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
@@ -25,6 +39,33 @@ export function ShareButton({ variant = "full" }: { variant?: "full" | "icon" })
     await navigator.clipboard.writeText(shareUrl)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  const stripHtml = (html: string) => {
+    if (typeof window === 'undefined') return html;
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    return doc.body.textContent || "";
+  }
+
+  const copyFullBrief = async () => {
+    if (!jobData) return;
+    
+    const plainDescription = jobData.description ? stripHtml(jobData.description) : "";
+    const briefText = `
+🔥 JOB OPPORTUNITY: ${jobData.title}
+🏢 COMPANY: ${jobData.company}
+💰 SALARY: ${jobData.salary || "Not Specified"}
+🔗 APPLY HERE: ${jobData.url}
+
+📝 JOB DESCRIPTION:
+${plainDescription.substring(0, 500)}${plainDescription.length > 500 ? "..." : ""}
+
+Check out more jobs at ${shareUrl}
+    `.trim();
+
+    await navigator.clipboard.writeText(briefText)
+    setBriefCopied(true)
+    setTimeout(() => setBriefCopied(false), 2000)
   }
 
   const shareOptions = [
@@ -75,6 +116,8 @@ export function ShareButton({ variant = "full" }: { variant?: "full" | "icon" })
           ? `w-full h-16 rounded-[20px] font-black text-xs uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 border shadow-lg ${
               showOptions ? "bg-brand-action text-white border-brand-action shadow-brand-action/20" : "bg-foreground/5 hover:bg-brand-action/10 text-foreground/60 hover:text-brand-action border-border-custom hover:border-brand-action/30"
             }`
+          : variant === "ghost"
+          ? `w-10 h-10 rounded-xl flex items-center justify-center transition-all border border-border-custom bg-foreground/5 hover:bg-brand-action/10 text-foreground/40 hover:text-brand-action shrink-0 shadow-sm`
           : `w-[60px] h-[60px] rounded-[20px] flex items-center justify-center transition-all border shadow-lg shrink-0 ${
               showOptions ? "bg-brand-action text-white border-brand-action shadow-brand-action/20" : "bg-white/5 hover:bg-white/10 text-white border-white/10 hover:border-white/20"
             }`
@@ -87,17 +130,39 @@ export function ShareButton({ variant = "full" }: { variant?: "full" | "icon" })
       {showOptions && (
         <>
           {/* Mobile backdrop to obscure the background and close on click */}
-          {variant === "icon" && (
+          {(variant === "icon" || variant === "ghost") && (
             <div 
               className="fixed inset-0 z-40 bg-black/40 sm:hidden backdrop-blur-sm animate-in fade-in"
               onClick={() => setShowOptions(false)}
             />
           )}
           <div className={`grid grid-cols-2 gap-3 animate-in fade-in duration-300 z-50 ${
-            variant === "icon" 
+            variant === "icon" || variant === "ghost"
               ? "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 sm:absolute sm:bottom-full sm:top-auto sm:right-0 sm:left-auto sm:translate-x-0 sm:translate-y-0 sm:mb-4 w-[360px] p-4 bg-white dark:bg-[#0F172A] border border-border-custom rounded-[24px] shadow-2xl zoom-in-95 sm:slide-in-from-bottom-2 max-w-[90vw]" 
               : "mt-4 slide-in-from-top-2"
           }`}>
+          {/* Copy Full Brief Option */}
+          {jobData && (
+            <button 
+              onClick={copyFullBrief}
+              className={`flex items-center gap-3 p-3 md:p-4 rounded-2xl border transition-all col-span-2 ${
+                briefCopied 
+                  ? "bg-brand-success/10 text-brand-success border-brand-success/30" 
+                  : "bg-brand-action/5 dark:bg-brand-action/10 text-brand-action border-brand-action/20 hover:bg-brand-action/20"
+              }`}
+            >
+              <div className={`p-2 rounded-xl ${briefCopied ? 'bg-brand-success/10' : 'bg-brand-action/10'}`}>
+                {briefCopied ? <Check size={16} /> : <Zap size={16} />}
+              </div>
+              <div className="flex flex-col items-start">
+                <span className="text-[10px] font-black uppercase tracking-widest text-left">
+                  {briefCopied ? "Brief Copied!" : "Copy Full Brief"}
+                </span>
+                <span className="text-[8px] opacity-50 font-bold">Copy Title, Salary, Link & Info</span>
+              </div>
+            </button>
+          )}
+
           {/* Copy URL Option */}
           <button 
             onClick={copyToClipboard}

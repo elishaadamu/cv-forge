@@ -187,7 +187,15 @@ export default async function JobDetailsPage({ params }: PageProps) {
               <div className="bg-card border border-border-custom rounded-[40px] p-8 shadow-2xl space-y-6">
                 
                 {/* SHARE BUTTON */}
-                <ShareButton />
+                <ShareButton 
+                  jobData={{
+                    title: job.title,
+                    company: job.company,
+                    salary: job.salary ? `${job.currency}${job.salary}` : undefined,
+                    url: `${typeof window !== 'undefined' ? window.location.origin : ''}/jobs/board/${job.id}`,
+                    description: job.description
+                  }}
+                />
 
                 {/* CHOOSE CV BUTTON / SECTION */}
                 <div className="space-y-4">

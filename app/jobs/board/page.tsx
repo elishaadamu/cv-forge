@@ -3,6 +3,8 @@ import { Navbar } from "@/components/Navbar"
 import { JobBoardFilters } from "@/components/jobs/JobBoardFilters"
 import { CVBanner } from "@/components/jobs/CVBanner"
 import { JobNav } from "@/components/jobs/JobNav"
+import { ShareButton } from "@/components/jobs/ShareButton"
+import { CopyBriefButton } from "@/components/jobs/CopyBriefButton"
 import { JobBoardSearch } from "@/components/jobs/JobBoardSearch"
 import { 
   Briefcase, 
@@ -176,7 +178,16 @@ export default async function JobBoardPage({ searchParams }: PageProps) {
                       </div>
 
                       {/* CTA */}
-                      <div className="flex items-center gap-3 shrink-0 w-full md:w-auto pt-4 md:pt-0 border-t md:border-t-0 border-border-custom">
+                      <div className="flex items-center gap-3 shrink-0 w-full md:w-auto pt-4 md:pt-0 border-t md:border-t-0 border-border-custom relative z-10">
+                        <CopyBriefButton 
+                          jobData={{
+                            title: job.title,
+                            company: job.company,
+                            salary: job.salary ? `${job.currency}${job.salary}` : undefined,
+                            url: `${typeof window !== 'undefined' ? window.location.origin : ''}/jobs/board?selected=${job.id}`,
+                            description: job.description
+                          }}
+                        />
                         <Link
                           href={`/jobs/board/${job.id}`}
                           className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3.5 bg-foreground/5 hover:bg-brand-action/10 hover:text-brand-action border border-border-custom hover:border-brand-action/30 rounded-2xl font-black text-xs uppercase tracking-widest text-foreground/60 transition-all active:scale-95 whitespace-nowrap"
