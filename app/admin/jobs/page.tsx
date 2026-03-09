@@ -706,7 +706,7 @@ export default function AdminJobsPage() {
 function InputField({ label, icon, value, onChange, placeholder }: { label: string, icon: React.ReactNode, value: string, onChange: (v: string) => void, placeholder?: string }) {
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-4 mb-2 flex items-center gap-2">
+      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 ml-4 mb-2 flex items-center gap-2">
         <span className="text-brand-action opacity-60">{icon}</span>
         {label}
       </label>
@@ -724,7 +724,7 @@ function InputField({ label, icon, value, onChange, placeholder }: { label: stri
 function SelectField({ label, icon, value, options, onChange }: { label: string, icon: React.ReactNode, value: string, options: Record<string, string>, onChange: (v: string) => void }) {
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-4 mb-2 flex items-center gap-2">
+      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 ml-4 mb-2 flex items-center gap-2">
         <span className="text-brand-action opacity-60">{icon}</span>
         {label}
       </label>
@@ -785,7 +785,7 @@ function SearchableSelect({
 
   return (
     <div className="flex flex-col gap-2 relative" ref={dropdownRef}>
-      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-4 mb-2 flex items-center gap-2">
+      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 ml-4 mb-2 flex items-center gap-2">
         <span className="text-brand-action opacity-60">{icon}</span>
         {label}
       </label>
@@ -795,10 +795,10 @@ function SearchableSelect({
         onClick={onToggle}
         className={`w-full bg-white dark:bg-[#0F172A] border border-border-custom rounded-[20px] px-6 py-4 outline-none transition-all font-bold text-sm flex items-center justify-between text-left ${disabled ? 'opacity-50 cursor-not-allowed' : 'focus:border-brand-action/50 hover:bg-secondary/30'}`}
       >
-        <span className={value ? "text-gray-900 dark:text-white" : "text-muted-foreground/50"}>
+        <span className={value ? "text-gray-900 dark:text-white" : "text-slate-400 dark:text-slate-500"}>
           {value || "Select..."}
         </span>
-        <ChevronDown size={14} className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown size={14} className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''} text-slate-500 dark:text-slate-400`} />
       </button>
 
       <AnimatePresence>
@@ -810,18 +810,18 @@ function SearchableSelect({
             onClick={(e) => e.stopPropagation()}
             className="absolute top-full left-0 mt-2 w-full bg-white dark:bg-[#0F172A] border border-border-custom rounded-[20px] shadow-2xl z-[100] overflow-hidden"
           >
-            <div className="p-4 border-b border-border-custom flex items-center gap-3 bg-secondary/20">
-              <Search size={14} className="text-muted-foreground" />
+            <div className="p-4 border-b border-border-custom flex items-center gap-3 bg-white dark:bg-[#0F172A]">
+              <Search size={14} className="text-slate-500 dark:text-slate-400" />
               <input
                 autoFocus
                 type="text"
                 value={search}
                 onChange={(e) => onSearchChange(e.target.value)}
                 placeholder={placeholder}
-                className="bg-transparent border-none outline-none text-sm font-bold w-full text-foreground"
+                className="bg-transparent border-none outline-none text-sm font-bold w-full text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
               />
             </div>
-            <div className="max-h-60 overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-brand-action/20">
+            <div className="max-h-60 overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-brand-action bg-white dark:bg-[#0F172A]">
               {filteredOptions.length > 0 ? (
                 filteredOptions.map((opt) => (
                   <div
@@ -833,13 +833,13 @@ function SearchableSelect({
                       onClose()
                       onSearchChange("")
                     }}
-                    className={`px-4 py-3 rounded-xl text-sm font-bold cursor-pointer transition-colors ${opt === value ? 'bg-brand-action text-white' : 'hover:bg-brand-action/10 text-foreground/80 hover:text-foreground'}`}
+                    className={`px-4 py-3 rounded-xl text-sm font-bold cursor-pointer transition-colors ${opt === value ? 'bg-brand-action text-white' : 'hover:bg-brand-action hover:text-white text-slate-800 dark:text-slate-200'}`}
                   >
                     {opt}
                   </div>
                 ))
               ) : (
-                <div className="px-4 py-6 text-center text-xs text-muted-foreground font-bold italic">
+                <div className="px-4 py-6 text-center text-xs text-slate-500 dark:text-slate-400 font-bold italic">
                   No results found
                 </div>
               )}

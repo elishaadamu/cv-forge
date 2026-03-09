@@ -14,7 +14,7 @@ import {
 } from "lucide-react"
 import { useState } from "react"
 
-export function ShareButton() {
+export function ShareButton({ variant = "full" }: { variant?: "full" | "icon" }) {
   const [copied, setCopied] = useState(false)
   const [showOptions, setShowOptions] = useState(false)
 
@@ -68,31 +68,38 @@ export function ShareButton() {
   ]
 
   return (
-    <div className="space-y-4">
+    <div className="relative">
       <button 
         onClick={() => setShowOptions(!showOptions)}
-        className={`w-full h-16 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 border shadow-lg ${
-          showOptions 
-            ? "bg-brand-action text-white border-brand-action shadow-brand-action/20" 
-            : "bg-foreground/5 hover:bg-brand-action/10 text-foreground/60 hover:text-brand-action border-border-custom hover:border-brand-action/30"
-        }`}
+        className={variant === "full" 
+          ? `w-full h-16 rounded-[20px] font-black text-xs uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 border shadow-lg ${
+              showOptions ? "bg-brand-action text-white border-brand-action shadow-brand-action/20" : "bg-foreground/5 hover:bg-brand-action/10 text-foreground/60 hover:text-brand-action border-border-custom hover:border-brand-action/30"
+            }`
+          : `w-[60px] h-[60px] rounded-[20px] flex items-center justify-center transition-all border shadow-lg shrink-0 ${
+              showOptions ? "bg-brand-action text-white border-brand-action shadow-brand-action/20" : "bg-foreground/5 hover:bg-brand-action/10 text-foreground/60 hover:text-brand-action border-border-custom hover:border-brand-action/30"
+            }`
+        }
       >
-        <Share2 size={18} />
-        {showOptions ? "Close Options" : "Share Opportunity"}
+        <Share2 size={variant === "icon" ? 22 : 18} />
+        {variant === "full" && (showOptions ? "Close Options" : "Share Opportunity")}
       </button>
 
       {showOptions && (
-        <div className="grid grid-cols-2 gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+        <div className={`grid grid-cols-2 gap-3 animate-in fade-in duration-300 z-50 ${
+          variant === "icon" 
+            ? "absolute bottom-full right-0 sm:left-1/2 sm:-translate-x-1/2 sm:right-auto mb-4 w-[360px] p-4 bg-white dark:bg-[#0F172A] border border-border-custom rounded-[24px] shadow-2xl slide-in-from-bottom-2" 
+            : "mt-4 slide-in-from-top-2"
+        }`}>
           {/* Copy URL Option */}
           <button 
             onClick={copyToClipboard}
             className={`flex items-center gap-3 p-4 rounded-2xl border transition-all col-span-2 ${
               copied 
                 ? "bg-brand-success/10 text-brand-success border-brand-success/30" 
-                : "bg-foreground/5 text-foreground/60 border-border-custom hover:bg-brand-action/10 hover:text-brand-action hover:border-brand-action/30"
+                : "bg-gray-50 dark:bg-[#020617] text-slate-700 dark:text-slate-300 border-border-custom hover:bg-brand-action/10 hover:text-brand-action hover:border-brand-action/30"
             }`}
           >
-            <div className={`p-2 rounded-xl ${copied ? 'bg-brand-success/10' : 'bg-foreground/5'}`}>
+            <div className={`p-2 rounded-xl ${copied ? 'bg-brand-success/10' : 'bg-gray-200 dark:bg-white/10'}`}>
               {copied ? <Check size={16} /> : <LinkIcon size={16} />}
             </div>
             <span className="text-[10px] font-black uppercase tracking-widest">
@@ -108,7 +115,7 @@ export function ShareButton() {
                 href={option.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`flex items-center gap-3 p-4 bg-foreground/5 text-foreground/60 border border-border-custom rounded-2xl transition-all ${option.color}`}
+                className={`flex items-center gap-3 p-4 bg-gray-50 dark:bg-[#020617] text-slate-700 dark:text-slate-300 border border-border-custom rounded-2xl transition-all ${option.color}`}
               >
                 <div className="shrink-0">{option.icon}</div>
                 <span className="text-[10px] font-black uppercase tracking-widest">{option.name}</span>
@@ -117,7 +124,7 @@ export function ShareButton() {
               <button 
                 key={option.name}
                 onClick={option.onClick}
-                className={`flex items-center gap-3 p-4 bg-foreground/5 text-foreground/60 border border-border-custom rounded-2xl transition-all ${option.color}`}
+                className={`flex items-center gap-3 p-4 bg-gray-50 dark:bg-[#020617] text-slate-700 dark:text-slate-300 border border-border-custom rounded-2xl transition-all ${option.color}`}
               >
                 <div className="shrink-0">{option.icon}</div>
                 <span className="text-[10px] font-black uppercase tracking-widest">{option.name}</span>

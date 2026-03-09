@@ -62,7 +62,7 @@ export default async function JobBoardPage({ searchParams }: PageProps) {
     <div className="min-h-screen bg-background text-foreground transition-colors duration-500">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-6 py-16 lg:py-24 space-y-20">
+      <main className="max-w-7xl mt-16 md:mt-10 mx-auto px-6 py-16 lg:py-24 space-y-20">
         {/* Header */}
         <div className="relative text-center space-y-10 max-w-4xl mx-auto">
           <div className="space-y-6">
@@ -78,7 +78,7 @@ export default async function JobBoardPage({ searchParams }: PageProps) {
             </p>
           </div>
           {/* Background glow */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-brand-action/5 blur-[140px] rounded-full -z-10" />
+          <div className="absolute top-1/2 left-1/2  -translate-x-1/2 -translate-y-1/2 w-full h-[350px] bg-brand-action/5 blur-[140px] rounded-full -z-10" />
         </div>
 
         {/* TOP BANNER */}
@@ -123,7 +123,7 @@ export default async function JobBoardPage({ searchParams }: PageProps) {
             ) : (
               <div className="space-y-8">
                 <div className="space-y-6">
-                  {jobs.map((job) => (
+                  {jobs.map((job: any) => (
                     <article
                       key={job.id}
                       className="group bg-card border border-border-custom hover:border-brand-action/40 rounded-[40px] p-8 md:p-10 transition-all relative overflow-hidden flex flex-col md:flex-row items-start md:items-center gap-8 shadow-xl hover:shadow-brand-action/10"
