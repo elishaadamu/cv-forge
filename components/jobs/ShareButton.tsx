@@ -26,13 +26,17 @@ export function ShareButton({
     salary?: string;
     url: string;
     description?: string;
+    type?: 'job' | 'scholarship';
   }
 }) {
   const [copied, setCopied] = useState(false)
   const [briefCopied, setBriefCopied] = useState(false)
   const [showOptions, setShowOptions] = useState(false)
 
-  const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
+  let shareUrl = '';
+  if (typeof window !== 'undefined') {
+    shareUrl = window.location.href.replace(window.location.origin, 'https://cvmyjob.online');
+  }
   const shareTitle = typeof document !== 'undefined' ? document.title : 'Job Opportunity'
 
   const copyToClipboard = async () => {
@@ -51,16 +55,41 @@ export function ShareButton({
     if (!jobData) return;
     
     const plainDescription = jobData.description ? stripHtml(jobData.description) : "";
-    const briefText = `
+    
+    const isScholarship = jobData.type === 'scholarship';
+
+    let fullApplyUrl = jobData.url;
+    let baseDirectoryUrl = '';
+    
+    if (typeof window !== 'undefined') {
+      if (fullApplyUrl && fullApplyUrl.startsWith('/')) {
+        fullApplyUrl = 'https://cvmyjob.online' + fullApplyUrl;
+      }
+      
+      const pathSegments = window.location.pathname.split('/').filter(Boolean);
+      const basePath = pathSegments.length > 0 ? `/${pathSegments[0]}` : '/jobs';
+      baseDirectoryUrl = 'https://cvmyjob.online' + basePath;
+    }
+
+    const briefText = isScholarship ? `
+🎓 SCHOLARSHIP OPPORTUNITY: ${jobData.title}
+🏢 PROVIDER: CVMYJOB
+🔗 APPLY HERE: ${fullApplyUrl}
+
+📝 SCHOLARSHIP DETAILS:
+${plainDescription.substring(0, 500)}${plainDescription.length > 500 ? "..." : ""}
+
+Check out more scholarships at ${baseDirectoryUrl}
+    `.trim() : `
 🔥 JOB OPPORTUNITY: ${jobData.title}
 🏢 COMPANY: ${jobData.company}
 💰 SALARY: ${jobData.salary || "Not Specified"}
-🔗 APPLY HERE: ${jobData.url}
+🔗 APPLY HERE: ${fullApplyUrl}
 
 📝 JOB DESCRIPTION:
 ${plainDescription.substring(0, 500)}${plainDescription.length > 500 ? "..." : ""}
 
-Check out more jobs at ${shareUrl}
+Check out more jobs at ${baseDirectoryUrl}
     `.trim();
 
     await navigator.clipboard.writeText(briefText)

@@ -24,7 +24,7 @@ const navCategories = [
       { name: "Featured Jobs", href: "/jobs/board", icon: Zap, desc: "Curated picks posted by CVMyJob team" },
       { name: "Global Aggregates", href: "/jobs/search", icon: Search, desc: "Search Indeed, LinkedIn & Glassdoor" },
       { name: "Remote Jobs", href: "/jobs", icon: Briefcase, desc: "Curated work-from-anywhere roles" },
-      { name: "Scholarships", href: "/scholarships", icon: GraduationCap, desc: "Fund your future with curated aid" },
+      { name: "Graduate Programs", href: "/graduate-programs", icon: GraduationCap, desc: "Find your next master's or PhD degree" },
     ]
   },
   {
@@ -102,11 +102,13 @@ export function Navbar() {
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center space-x-2">
+           
+
             <Link
-              href="/features"
+              href="/scholarship-region"
               className="px-4 py-2 text-sm font-bold text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-all duration-500"
             >
-              Features
+              Global Scholarships
             </Link>
 
             {navCategories.map((category) => (
@@ -318,12 +320,12 @@ export function Navbar() {
               {/* Main Links */}
               <div className="space-y-6">
                 <Link
-                  href="/features"
+                  href="/scholarship-region"
                   onClick={() => setIsOpen(false)}
                   className="flex items-center space-x-4 p-2 rounded-xl text-xl font-black tracking-tight hover:text-brand-action transition-all duration-500"
                 >
-                  <Sparkles size={22} className="text-brand-action" />
-                  <span>Features</span>
+                  <GraduationCap size={22} className="text-brand-action" />
+                  <span>Global Scholarships</span>
                 </Link>
 
                 {navCategories.map((category) => (

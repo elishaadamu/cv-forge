@@ -113,3 +113,28 @@ export async function getJobPostingById(id: string) {
     return { success: false, error: error.message }
   }
 }
+
+export async function updateJobPosting(id: string, data: Partial<JobPostingInput>) {
+  try {
+    const job = await prisma.jobPosting.update({
+      where: { id },
+      data
+    })
+    return { success: true, job }
+  } catch (error: any) {
+    console.error("Failed to update job posting:", error.message)
+    return { success: false, error: error.message }
+  }
+}
+
+export async function deleteJobPosting(id: string) {
+  try {
+    await prisma.jobPosting.delete({
+      where: { id }
+    })
+    return { success: true }
+  } catch (error: any) {
+    console.error("Failed to delete job posting:", error.message)
+    return { success: false, error: error.message }
+  }
+}

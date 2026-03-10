@@ -1,0 +1,43 @@
+=== Page 1 First 10 Listings ===
+AfroTech Girls Laptop Scholarship 2026 For Africans | How To Apply
+African Liberty Writing Fellowship Program 2026 | How To Apply
+Erasmus+ Scholarships 2026 For Africans | Fully Funded
+German Government Wascal Scholarship For Africans 2026/27 | Fully Funded
+Mandela Rhodes Scholarship 2027 For Africans | Step-by-Step Process
+AfroTech Girls Laptop Scholarship 2026 For Africans | How To Apply
+African Liberty Writing Fellowship Program 2026 | How To Apply
+Erasmus+ Scholarships 2026 For Africans | Fully Funded
+German Government Wascal Scholarship For Africans 2026/27 | Fully Funded
+Mandela Rhodes Scholarship 2027 For Africans | Step-by-Step Process
+
+=== Page 2 First 10 Listings ===
+AfroTech Girls Laptop Scholarship 2026 For Africans | How To Apply
+African Liberty Writing Fellowship Program 2026 | How To Apply
+Erasmus+ Scholarships 2026 For Africans | Fully Funded
+German Government Wascal Scholarship For Africans 2026/27 | Fully Funded
+Mandela Rhodes Scholarship 2027 For Africans | Step-by-Step Process
+AfroTech Girls Laptop Scholarship 2026 For Africans | How To Apply
+African Liberty Writing Fellowship Program 2026 | How To Apply
+Erasmus+ Scholarships 2026 For Africans | Fully Funded
+German Government Wascal Scholarship For Africans 2026/27 | Fully Funded
+Mandela Rhodes Scholarship 2027 For Africans | Step-by-Step Process
+
+=== Looking for noisy articles ===
+Found noisy article: 13 years after leaving prison, this woman defied o
+  Parent 0 class: entry-title td-module-title
+  Parent 1 class: td-module-meta-info
+  Parent 2 class: td-module-container td-category-pos-above
+  Parent 3 class: td_module_flex td_module_flex_1 td_module_wrap td-animation-stack td-cpt-post
+  Parent 4 class: td_block_inner td-mc1-wrap
+Found noisy article: after a career in journalism, this woman returns t
+  Parent 0 class: entry-title td-module-title
+  Parent 1 class: td-module-meta-info
+  Parent 2 class: td-module-container td-category-pos-above
+  Parent 3 class: td_module_flex td_module_flex_1 td_module_wrap td-animation-stack td-cpt-post
+  Parent 4 class: td_block_inner td-mc1-wrap
+Found noisy article: despite loosing her dad during her studies, this l
+  Parent 0 class: entry-title td-module-title
+  Parent 1 class: td-module-meta-info
+  Parent 2 class: td-module-container td-category-pos-above
+  Parent 3 class: td_module_flex td_module_flex_1 td_module_wrap td-animation-stack td-cpt-post
+  Parent 4 class: td_block_inner td-mc1-wrap

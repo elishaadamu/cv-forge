@@ -239,9 +239,24 @@ model Scholarship {
   currency           String?
   description        String   @db.Text
   image              String?
-  applyUrl           String?
+  applyUrl           String?  @unique
   deadline           DateTime?
   postedAt           DateTime @default(now())
   updatedAt          DateTime @updatedAt
 }
-
+model ScholarshipRegion {
+  id                 String   @id @default(cuid())
+  title              String
+  provider           String?
+  state              String?
+  country            String?
+  type               String?
+  amount             String?
+  currency           String?
+  description        String   @db.Text
+  image              String?
+  applyUrl           String?  @unique
+  deadline           DateTime?
+  postedAt           DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}

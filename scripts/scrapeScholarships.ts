@@ -49,22 +49,17 @@ const parsers: Record<string, (html: string) => Promise<ScholarshipData[]>> = {
             // Remove scripts, styles, and social sharing noise
             contentContainer.find('script, style, .sharedaddy, .jp-relatedposts, .sd-block, noscript, iframe').remove();
             
-            // Reconstruct semantic HTML
+            // Reconstruct semantic HTML - Only select top-level blocks to avoid duplicates from nested tags (like strong inside p)
             const semanticHtml: string[] = [];
-            contentContainer.find('h1, h2, h3, h4, h5, h6, p, ul, ol, li, strong, b, i, em, br').each((_, el) => {
+            contentContainer.find('h1, h2, h3, h4, h5, h6, p, ul, ol').each((_, el) => {
+              // Ensure we aren't selecting a nested element if the parent is already a block we've selected
+              if ($(el).parents('p, h1, h2, h3, h4, h5, h6, li').length > 0) return;
+
               if (el.type === 'tag') {
                 const tag = el.name;
-                const text = $(el).text().trim();
-                if (text || tag === 'br') {
-                  if (['ul', 'ol'].includes(tag)) {
-                    semanticHtml.push($(el).prop('outerHTML') || "");
-                  } else if (tag === 'li') {
-                    if (!$(el).parent().is('ul, ol')) {
-                      semanticHtml.push(`<li>${$(el).html()}</li>`);
-                    }
-                  } else {
-                    semanticHtml.push(`<${tag}>${$(el).html()}</${tag}>`);
-                  }
+                const htmlContent = $(el).html()?.trim();
+                if (htmlContent) {
+                  semanticHtml.push(`<${tag}>${htmlContent}</${tag}>`);
                 }
               }
             });
@@ -90,6 +85,15 @@ const parsers: Record<string, (html: string) => Promise<ScholarshipData[]>> = {
               }
             });
             content = $cleaner.html() || contentContainer.text().trim();
+
+            // Deduplication: Remove the title if it appears at the start of the description
+            const titleEscaped = title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const duplicatePattern = new RegExp(`^\\s*<p><strong>${titleEscaped}<\\/strong><\\/p>\\s*`, 'i');
+            content = content.replace(duplicatePattern, '');
+            // Also check for plain title repeats
+            if (content.trim().toLowerCase().startsWith(title.toLowerCase())) {
+               content = content.replace(new RegExp(`^\\s*${titleEscaped}\\s*`, 'i'), '');
+            }
           }
           
           if (!content || content.length < 100) {
@@ -167,12 +171,16 @@ const parsers: Record<string, (html: string) => Promise<ScholarshipData[]>> = {
 async function scrapeScholarships() {
   console.log('Starting multi-site scholarship scraper pipeline...');
   
-  // Clear the existing scholarships as requested
-  console.log('Clearing existing scholarship database...');
-  await prisma.scholarship.deleteMany({});
+  // No longer clearing the database to allow incremental updates
+  // console.log('Clearing existing scholarship database...');
+  // await prisma.scholarship.deleteMany({});
   
   const TARGET_URLS = [
     'https://jobs.smartyacad.com/category/graduate-programs/',
+    'https://jobs.smartyacad.com/category/graduate-programs/page/2/',
+    'https://jobs.smartyacad.com/category/graduate-programs/page/3/',
+    'https://jobs.smartyacad.com/category/graduate-programs/page/4/',
+    'https://jobs.smartyacad.com/category/graduate-programs/page/5/',
   ];
 
   const headers = {
@@ -207,8 +215,21 @@ async function scrapeScholarships() {
   let count = 0;
   for (const data of allScholarships) {
     try {
-      await prisma.scholarship.create({
-        data: {
+      await prisma.scholarship.upsert({
+        where: { applyUrl: data.applyUrl || "" } as any,
+        update: {
+          title: data.title,
+          provider: data.provider,
+          amount: data.amount,
+          currency: data.currency,
+          type: data.type,
+          country: data.country,
+          description: data.description,
+          deadline: data.deadline,
+          image: data.image,
+          postedAt: data.postedAt
+        },
+        create: {
           title: data.title,
           provider: data.provider,
           amount: data.amount,

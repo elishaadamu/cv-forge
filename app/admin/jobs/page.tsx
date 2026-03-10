@@ -28,7 +28,7 @@ import {
 } from "lucide-react"
 import { formatJobDescription } from "@/lib/formatJobDescription"
 import { ScrapedJob, refineJobDescription } from "./actions"
-import { createJobPosting } from "./job-actions"
+import { createJobPosting, getJobPostings, updateJobPosting, deleteJobPosting, JobPostingInput } from "./job-actions"
 import { useRef } from "react"
 import { JobScraperModal } from "@/components/admin/JobScraperModal"
 import { RichTextEditor } from "@/components/admin/RichTextEditor"
@@ -58,10 +58,20 @@ export default function AdminJobsPage() {
   const [showFormatter, setShowFormatter] = useState(false)
   const [rawText, setRawText] = useState("")
   const [currencies, setCurrencies] = useState<Record<string, string>>({"usd": "United States Dollar"})
-  
+
   const countryDropdownRef = useRef<HTMLDivElement>(null)
   const stateDropdownRef = useRef<HTMLDivElement>(null)
   const activeItemRef = useRef<HTMLDivElement>(null)
+
+  // Job list state
+  const [jobList, setJobList] = useState<any[]>([])
+  const [isLoadingList, setIsLoadingList] = useState(false)
+  const [editingJob, setEditingJob] = useState<any | null>(null)
+  const [deletingJobId, setDeletingJobId] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(0)
+  const [totalJobs, setTotalJobs] = useState(0)
 
   useEffect(() => {
     fetch("https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies.json")
@@ -80,6 +90,63 @@ export default function AdminJobsPage() {
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
+
+  // Load job list
+  useEffect(() => {
+    loadJobList()
+  }, [currentPage, searchQuery])
+
+  const loadJobList = async () => {
+    setIsLoadingList(true)
+    const result = await getJobPostings({
+      q: searchQuery,
+      page: currentPage,
+      limit: 10
+    })
+    if (result.success) {
+      setJobList(result.jobs)
+      setTotalPages(result.pagination.totalPages)
+      setTotalJobs(result.pagination.total)
+    }
+    setIsLoadingList(false)
+  }
+
+  const handleEditJob = (job: any) => {
+    setEditingJob({ ...job })
+  }
+
+  const handleUpdateJob = async () => {
+    if (!editingJob) return
+    const result = await updateJobPosting(editingJob.id, {
+      title: editingJob.title,
+      company: editingJob.company,
+      country: editingJob.country,
+      state: editingJob.state,
+      type: editingJob.type,
+      salary: editingJob.salary,
+      currency: editingJob.currency,
+      description: editingJob.description,
+      image: editingJob.image,
+      applyUrl: editingJob.applyUrl,
+      contractDuration: editingJob.contractDuration,
+    })
+    if (result.success) {
+      setEditingJob(null)
+      loadJobList()
+    } else {
+      alert(result.error || "Failed to update job")
+    }
+  }
+
+  const handleDeleteJob = async (id: string) => {
+    const result = await deleteJobPosting(id)
+    if (result.success) {
+      setDeletingJobId(null)
+      loadJobList()
+    } else {
+      alert(result.error || "Failed to delete job")
+    }
+  }
 
   // Scroll active item into view
   useEffect(() => {
@@ -696,6 +763,258 @@ export default function AdminJobsPage() {
                 <Briefcase size={300} />
               </div>
             </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Job List Section */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-brand-action/10 rounded-2xl flex items-center justify-center text-brand-action">
+              <ClipboardPaste size={20} />
+            </div>
+            <div>
+              <h2 className="text-xl font-black tracking-tight text-foreground">Posted Jobs</h2>
+              <p className="text-muted-foreground font-bold text-[10px] uppercase tracking-[0.2em]">{totalJobs} total listings</p>
+            </div>
+          </div>
+          <div className="relative">
+            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1) }}
+              placeholder="Search jobs..."
+              className="pl-12 pr-4 py-3 bg-secondary/50 border border-border-custom rounded-2xl text-sm font-bold text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-brand-action/50 transition-all w-64"
+            />
+          </div>
+        </div>
+
+        {isLoadingList ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 size={32} className="animate-spin text-brand-action" />
+          </div>
+        ) : jobList.length > 0 ? (
+          <div className="bg-card border border-border-custom rounded-[32px] overflow-hidden shadow-2xl">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-secondary/30 border-b border-border-custom">
+                    <th className="text-left py-5 px-6 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground">Job</th>
+                    <th className="text-left py-5 px-6 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground">Company</th>
+                    <th className="text-left py-5 px-6 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground">Location</th>
+                    <th className="text-left py-5 px-6 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground">Type</th>
+                    <th className="text-left py-5 px-6 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground">Posted</th>
+                    <th className="text-right py-5 px-6 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {jobList.map((job, idx) => (
+                    <tr key={job.id} className={`border-b border-border-custom/50 hover:bg-secondary/30 transition-colors ${idx === jobList.length - 1 ? '' : ''}`}>
+                      <td className="py-5 px-6">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-secondary/50 border border-border-custom flex items-center justify-center overflow-hidden shrink-0">
+                            {job.image ? (
+                              <img src={job.image} alt={job.company} className="w-full h-full object-contain" />
+                            ) : (
+                              <Building2 size={18} className="text-muted-foreground/40" />
+                            )}
+                          </div>
+                          <span className="font-bold text-sm text-foreground truncate max-w-[200px]">{job.title}</span>
+                        </div>
+                      </td>
+                      <td className="py-5 px-6">
+                        <span className="font-bold text-sm text-muted-foreground">{job.company}</span>
+                      </td>
+                      <td className="py-5 px-6">
+                        <span className="font-bold text-sm text-muted-foreground flex items-center gap-1">
+                          <MapPin size={12} className="text-brand-action/50" />
+                          {job.state ? `${job.state}, ` : ''}{job.country}
+                        </span>
+                      </td>
+                      <td className="py-5 px-6">
+                        <span className="px-3 py-1 bg-brand-action/10 text-brand-action text-[8px] font-black uppercase tracking-widest rounded-lg">{job.type}</span>
+                      </td>
+                      <td className="py-5 px-6">
+                        <span className="font-bold text-xs text-muted-foreground">{new Date(job.postedAt).toLocaleDateString()}</span>
+                      </td>
+                      <td className="py-5 px-6">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleEditJob(job)}
+                            className="p-2.5 bg-secondary/50 hover:bg-brand-action/20 text-foreground hover:text-brand-action rounded-xl transition-all active:scale-95 border border-border-custom hover:border-brand-action/30"
+                            title="Edit"
+                          >
+                            <FileEdit size={14} />
+                          </button>
+                          <button
+                            onClick={() => setDeletingJobId(job.id)}
+                            className="p-2.5 bg-secondary/50 hover:bg-red-500/20 text-foreground hover:text-red-500 rounded-xl transition-all active:scale-95 border border-border-custom hover:border-red-500/30"
+                            title="Delete"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between px-6 py-4 border-t border-border-custom bg-secondary/20">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 bg-secondary/50 hover:bg-secondary text-foreground rounded-xl font-black text-[9px] uppercase tracking-widest transition-all disabled:opacity-30 disabled:cursor-not-allowed border border-border-custom"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2 bg-secondary/50 hover:bg-secondary text-foreground rounded-xl font-black text-[9px] uppercase tracking-widest transition-all disabled:opacity-30 disabled:cursor-not-allowed border border-border-custom"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="bg-card border border-border-custom rounded-[32px] p-12 text-center space-y-4">
+            <div className="w-16 h-16 bg-secondary/50 rounded-2xl flex items-center justify-center mx-auto">
+              <Briefcase size={28} className="text-muted-foreground/40" />
+            </div>
+            <div>
+              <p className="text-lg font-black text-foreground">No jobs posted yet</p>
+              <p className="text-muted-foreground font-bold text-sm mt-1">Start by creating your first job listing above</p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Edit Job Modal */}
+      <AnimatePresence>
+        {editingJob && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setEditingJob(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-card border border-border-custom rounded-[40px] p-8 md:p-10 max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+            >
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-brand-action/10 rounded-2xl flex items-center justify-center text-brand-action">
+                    <FileEdit size={20} />
+                  </div>
+                  <h3 className="text-xl font-black tracking-tight text-foreground">Edit Job Posting</h3>
+                </div>
+                <button
+                  onClick={() => setEditingJob(null)}
+                  className="p-2 hover:bg-secondary rounded-xl transition-all"
+                >
+                  <X size={20} className="text-muted-foreground" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <InputField label="Job Title" icon={<Briefcase size={14} />} value={editingJob.title} onChange={(v) => setEditingJob({ ...editingJob, title: v })} />
+                  <InputField label="Company Name" icon={<Building2 size={14} />} value={editingJob.company} onChange={(v) => setEditingJob({ ...editingJob, company: v })} />
+                  <InputField label="Country" icon={<Globe size={14} />} value={editingJob.country} onChange={(v) => setEditingJob({ ...editingJob, country: v })} />
+                  <InputField label="State / Province" icon={<MapPin size={14} />} value={editingJob.state || ""} onChange={(v) => setEditingJob({ ...editingJob, state: v })} />
+                  <SelectField label="Work Type" icon={<Briefcase size={14} />} value={editingJob.type} options={WORK_TYPES} onChange={(v) => setEditingJob({ ...editingJob, type: v })} />
+                  <InputField label="Salary Amount" icon={<DollarSign size={14} />} value={editingJob.salary || ""} onChange={(v) => setEditingJob({ ...editingJob, salary: v })} />
+                  <InputField label="Banner / Logo URL" icon={<LinkIcon size={14} />} value={editingJob.image || ""} onChange={(v) => setEditingJob({ ...editingJob, image: v })} />
+                  <InputField label="Apply URL" icon={<ArrowRight size={14} />} value={editingJob.applyUrl || ""} onChange={(v) => setEditingJob({ ...editingJob, applyUrl: v })} />
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <label className="ml-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Job Description</label>
+                  <RichTextEditor
+                    value={editingJob.description}
+                    onChange={(v) => setEditingJob({ ...editingJob, description: v })}
+                    placeholder="Enter detailed job description..."
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4 mt-8 pt-6 border-t border-border-custom">
+                <button
+                  onClick={() => setEditingJob(null)}
+                  className="flex-1 py-4 bg-secondary/50 hover:bg-secondary text-foreground rounded-[20px] font-black text-xs uppercase tracking-[0.2em] transition-all active:scale-95 border border-border-custom"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleUpdateJob}
+                  className="flex-1 py-4 bg-brand-action hover:bg-brand-action/90 text-white rounded-[20px] font-black text-xs uppercase tracking-[0.2em] transition-all active:scale-95 shadow-xl shadow-brand-action/20"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {deletingJobId && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setDeletingJobId(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-card border border-border-custom rounded-[40px] p-10 max-w-md w-full shadow-2xl"
+            >
+              <div className="text-center space-y-4">
+                <div className="w-16 h-16 bg-red-500/10 rounded-[24px] flex items-center justify-center mx-auto">
+                  <X size={32} className="text-red-500" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black tracking-tight text-foreground">Delete Job Posting?</h3>
+                  <p className="text-muted-foreground font-bold text-sm mt-2 leading-relaxed">This action cannot be undone. The job will be removed from the platform permanently.</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 mt-8">
+                <button
+                  onClick={() => setDeletingJobId(null)}
+                  className="flex-1 py-4 bg-secondary/50 hover:bg-secondary text-foreground rounded-[20px] font-black text-xs uppercase tracking-[0.2em] transition-all active:scale-95 border border-border-custom"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleDeleteJob(deletingJobId)}
+                  className="flex-1 py-4 bg-red-500 hover:bg-red-600 text-white rounded-[20px] font-black text-xs uppercase tracking-[0.2em] transition-all active:scale-95 shadow-xl shadow-red-500/20"
+                >
+                  Delete Job
+                </button>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

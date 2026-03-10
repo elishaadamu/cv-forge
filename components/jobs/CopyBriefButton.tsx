@@ -9,6 +9,7 @@ interface JobData {
   salary?: string;
   url: string;
   description?: string;
+  type?: 'job' | 'scholarship';
 }
 
 export function CopyBriefButton({ jobData }: { jobData: JobData }) {
@@ -27,18 +28,43 @@ export function CopyBriefButton({ jobData }: { jobData: JobData }) {
     if (!jobData) return;
     
     const plainDescription = jobData.description ? stripHtml(jobData.description) : "";
-    const shareUrl = typeof window !== 'undefined' ? window.location.origin + window.location.pathname + window.location.search : '';
     
-    const briefText = `
-🔥 JOB OPPORTUNITY: ${jobData.title}
-🏢 COMPANY: ${jobData.company}
-💰 SALARY: ${jobData.salary || "Not Specified"}
-🔗 APPLY HERE: ${jobData.url}
+    const isScholarship = jobData.type === 'scholarship';
+    
+    let fullApplyUrl = jobData.url;
+    let baseDirectoryUrl = '';
+    
+    if (typeof window !== 'undefined') {
+      if (fullApplyUrl && fullApplyUrl.startsWith('/')) {
+        fullApplyUrl = 'https://cvmyjob.online' + fullApplyUrl;
+      }
+      
+      const pathSegments = window.location.pathname.split('/').filter(Boolean);
+      const basePath = pathSegments.length > 0 ? `/${pathSegments[0]}` : '/jobs';
+      baseDirectoryUrl = 'https://cvmyjob.online' + basePath;
+    }
 
-📝 JOB DESCRIPTION:
+    const briefText = isScholarship ? `
+🎓 *GRADUATE PROGRAM:* ${jobData.title}
+🏢 *PROVIDER:* CVMYJOB
+🔗 *APPLY HERE:* ${fullApplyUrl}
+
+📝 *DETAILS:*
 ${plainDescription.substring(0, 500)}${plainDescription.length > 500 ? "..." : ""}
 
-Check out more jobs at ${shareUrl}
+🚀 Discover more verified programs at:
+${baseDirectoryUrl}
+    `.trim() : `
+🔥 *JOB OPPORTUNITY:* ${jobData.title}
+🏢 *COMPANY:* ${jobData.company}
+💰 *SALARY:* ${jobData.salary || "Not Specified"}
+🔗 *APPLY HERE:* ${fullApplyUrl}
+    
+📝 *DESCRIPTION:*
+${plainDescription.substring(0, 500)}${plainDescription.length > 500 ? "..." : ""}
+
+🔍 Search more jobs at:
+${baseDirectoryUrl}
     `.trim();
 
     await navigator.clipboard.writeText(briefText)

@@ -1,20 +1,19 @@
-import { getScholarshipById } from "@/app/scholarships/actions"
+import { getScholarshipRegionById } from "@/app/scholarship-region/actions"
 import { listCVs } from "@/lib/actions"
 import { Navbar } from "@/components/Navbar"
 import { ShareButton } from "@/components/jobs/ShareButton"
 import { 
   Building2, 
   MapPin, 
-  DollarSign, 
   Clock, 
   ExternalLink,
   FileText,
   ChevronLeft,
   Calendar,
-  Briefcase,
   Globe,
   GraduationCap
 } from "lucide-react"
+import { CVBanner } from "@/components/jobs/CVBanner"
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
 import { notFound } from "next/navigation"
@@ -26,37 +25,37 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const { id } = await params
-  const { scholarship } = await getScholarshipById(id)
+  const { scholarship } = await getScholarshipRegionById(id)
   
   if (!scholarship) return { title: "Scholarship Not Found" }
 
   return {
-    title: `${scholarship.title} by ${scholarship.company} | cvmyjob`,
-    description: `Apply for the ${scholarship.title} by ${scholarship.company}. ${scholarship.type} opportunity perfectly tuned for you.`,
+    title: `${scholarship.title} | cvmyjob Global Scholarships`,
+    description: `Apply for the ${scholarship.title}. ${scholarship.type} opportunity from ScholarshipRegion.`,
     openGraph: {
-      title: `${scholarship.title} by ${scholarship.company}`,
-      description: `Apply for the ${scholarship.title} by ${scholarship.company}.`,
+      title: `${scholarship.title}`,
+      description: `Apply for the ${scholarship.title}.`,
       images: [
         {
           url: scholarship.image || '/logo.png',
           width: 1200,
           height: 630,
-          alt: `${scholarship.title} by ${scholarship.company}`
+          alt: scholarship.title
         }
       ],
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${scholarship.title} by ${scholarship.company}`,
+      title: scholarship.title,
       description: `New Scholarship Opportunity: ${scholarship.title}.`,
       images: [scholarship.image || '/logo.png'],
     }
   }
 }
 
-export default async function ScholarshipDetailsPage({ params }: PageProps) {
+export default async function ScholarshipRegionDetailPage({ params }: PageProps) {
   const { id } = await params
-  const { scholarship, success } = await getScholarshipById(id)
+  const { scholarship, success } = await getScholarshipRegionById(id)
   
   if (!success || !scholarship) {
     notFound()
@@ -78,13 +77,13 @@ export default async function ScholarshipDetailsPage({ params }: PageProps) {
       <main className="max-w-7xl mx-auto px-6 pt-32 pb-24">
         {/* Back Button */}
         <Link 
-          href="/scholarships"
-          className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-foreground/40 hover:text-brand-action transition-colors mb-12 group"
+          href="/scholarship-region"
+          className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-foreground/40 hover:text-emerald-500 transition-colors mb-12 group"
         >
-          <div className="w-8 h-8 rounded-full bg-foreground/5 flex items-center justify-center group-hover:bg-brand-action/10 transition-colors">
+          <div className="w-8 h-8 rounded-full bg-foreground/5 flex items-center justify-center group-hover:bg-emerald-500/10 transition-colors">
             <ChevronLeft size={16} />
           </div>
-          Back to Scholarship Board
+          Back to Global Scholarships
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
@@ -94,22 +93,30 @@ export default async function ScholarshipDetailsPage({ params }: PageProps) {
             
             {/* Header Card */}
             <div className="bg-card border border-border-custom rounded-[48px] p-8 md:p-12 shadow-2xl relative overflow-hidden">
-               <div className="flex flex-col md:flex-row gap-8 items-start relative z-10">
-                  <div className="w-24 h-24 rounded-3xl bg-foreground/5 flex items-center justify-center border border-border-custom shrink-0 overflow-hidden p-3">
-                    {scholarship.image ? (
-                      <img src={scholarship.image} alt={scholarship.company} className="max-w-full max-h-full object-contain" />
-                    ) : (
-                      <Building2 className="text-foreground/10" size={48} />
-                    )}
-                  </div>
-                  
+                <div className="flex flex-col gap-8 items-center relative z-10 text-center md:text-left">
+                 
+                {scholarship.image && (
+                 <div className="relative w-full max-h-[450px] aspect-21/9 rounded-[32px] overflow-hidden border border-white/10 shadow-inner group/featured">
+                   <img 
+                     src={scholarship.image} 
+                     alt={scholarship.title}
+                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]"
+                   />
+                   <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent flex items-bottom p-8">
+                      <div className="mt-auto space-y-2">
+                        <div className="w-12 h-1.5 bg-emerald-500 rounded-full" />
+                        <p className="text-white text-xs font-black uppercase tracking-[0.2em]">Global Program Highlights</p>
+                      </div>
+                   </div>
+                 </div>
+               )}
                   <div className="space-y-4 flex-1">
                     <div className="flex flex-wrap gap-2">
-                       <span className="px-3 py-1 bg-brand-action/10 text-brand-action text-[10px] font-black uppercase tracking-widest rounded-lg">
+                       <span className="px-3 py-1 bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase tracking-widest rounded-lg">
                         {scholarship.type || 'Scholarship'}
                       </span>
                       <span className="px-3 py-1 bg-foreground/5 text-foreground/40 text-[10px] font-black uppercase tracking-widest rounded-lg border border-border-custom">
-                        Verified Opportunity
+                        Global Opportunity
                       </span>
                     </div>
                     
@@ -117,24 +124,13 @@ export default async function ScholarshipDetailsPage({ params }: PageProps) {
                       {scholarship.title}
                     </h1>
                     
-                    <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm font-bold text-foreground/50">
+                    <div className="flex flex-wrap mt-6 items-center gap-x-6 gap-y-3 text-sm font-bold text-foreground/50">
                       <span className="flex items-center gap-2">
-                        <Building2 size={16} className="text-brand-action" />
-                        {scholarship.company}
+                        <MapPin size={16} className="text-emerald-500" />
+                        {scholarship.country || 'International'}
                       </span>
                       <span className="flex items-center gap-2">
-                        <MapPin size={16} className="text-brand-action" />
-                        {[scholarship.state, scholarship.country].filter(Boolean).join(", ")}
-                      </span>
-                      {scholarship.amount && (
-                        <span className="flex items-center gap-2 text-brand-success font-black">
-                          <DollarSign size={16} />
-                          <span className="uppercase text-[10px] opacity-70">{scholarship.currency}</span>
-                          {scholarship.amount}
-                        </span>
-                      )}
-                      <span className="flex items-center gap-2">
-                        <Clock size={16} className="text-brand-action" />
+                        <Clock size={16} className="text-emerald-500" />
                         Posted {scholarship.postedAt ? formatDistanceToNow(new Date(scholarship.postedAt), { addSuffix: true }) : 'Recently'}
                       </span>
                     </div>
@@ -147,18 +143,20 @@ export default async function ScholarshipDetailsPage({ params }: PageProps) {
             {/* Description */}
             <div className="bg-card/30 backdrop-blur-xl border border-border-custom rounded-[48px] p-8 md:p-12 shadow-xl space-y-8">
                <div className="flex items-center gap-4 border-b border-border-custom pb-8">
-                  <div className="w-12 h-12 rounded-2xl bg-brand-action/10 flex items-center justify-center text-brand-action">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
                     <FileText size={24} />
                   </div>
-                  <h2 className="text-2xl font-black text-foreground">Scholarship Overview</h2>
+                  <h2 className="text-2xl font-black text-foreground">Scholarship Details</h2>
                </div>
+
+              
                
                <div 
-                  className="prose prose-invert prose-brand max-w-none 
+                  className="prose prose-invert prose-emerald max-w-none 
                   text-foreground/70 font-medium leading-relaxed
                   prose-headings:text-foreground prose-headings:font-black prose-headings:tracking-tight
                   prose-p:mb-6 prose-ul:mb-6 prose-li:mb-2
-                  prose-strong:text-brand-action"
+                  prose-strong:text-emerald-500"
                   dangerouslySetInnerHTML={{ __html: scholarship.description }} 
                />
 
@@ -168,7 +166,7 @@ export default async function ScholarshipDetailsPage({ params }: PageProps) {
                       href={scholarship.applyUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-3 px-10 py-5 bg-brand-action text-white rounded-3xl font-black text-sm uppercase tracking-[0.2em] shadow-2xl hover:bg-brand-action/90 transition-all hover:-translate-y-1 active:scale-95"
+                      className="inline-flex items-center gap-3 px-10 py-5 bg-emerald-500 text-white rounded-3xl font-black text-sm uppercase tracking-[0.2em] shadow-2xl hover:bg-emerald-500/90 transition-all hover:-translate-y-1 active:scale-95"
                     >
                       Apply Now
                       <ExternalLink size={18} />
@@ -192,16 +190,16 @@ export default async function ScholarshipDetailsPage({ params }: PageProps) {
                   jobData={{
                     title: scholarship.title,
                     company: scholarship.company,
-                    salary: scholarship.amount ? `${scholarship.currency}${scholarship.amount}` : undefined,
-                    url: `${typeof window !== 'undefined' ? window.location.origin : ''}/scholarships/${scholarship.id}`,
-                    description: scholarship.description
+                    url: `${typeof window !== 'undefined' ? window.location.origin : ''}/scholarship-region/${scholarship.id}`,
+                    description: scholarship.description,
+                    type: 'scholarship'
                   }}
                 />
 
                 {/* CHOOSE CV BUTTON / SECTION */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 px-2">
-                    <FileText size={14} className="text-brand-action" />
+                    <FileText size={14} className="text-emerald-500" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Apply with CV</span>
                   </div>
                   
@@ -213,7 +211,7 @@ export default async function ScholarshipDetailsPage({ params }: PageProps) {
                            className="w-full p-4 bg-foreground/5 hover:bg-white/8 border border-border-custom rounded-2xl transition-all text-left flex items-center justify-between group"
                          >
                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-xl bg-brand-action/10 flex items-center justify-center text-brand-action">
+                              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
                                 <FileText size={18} />
                               </div>
                               <div className="flex flex-col">
@@ -221,13 +219,13 @@ export default async function ScholarshipDetailsPage({ params }: PageProps) {
                                 <span className="text-[9px] font-black text-foreground/20 uppercase tracking-widest">Last used {formatDistanceToNow(new Date(cv.updatedAt))} ago</span>
                               </div>
                            </div>
-                           <div className="w-6 h-6 rounded-full border border-border-custom flex items-center justify-center group-hover:border-brand-action group-hover:bg-brand-action group-hover:text-white transition-all">
+                           <div className="w-6 h-6 rounded-full border border-border-custom flex items-center justify-center group-hover:border-emerald-500 group-hover:bg-emerald-500 group-hover:text-white transition-all">
                               <ChevronLeft size={14} className="rotate-180" />
                            </div>
                          </button>
                        ))}
                        {userCVs.length > 3 && (
-                         <Link href="/dashboard" className="block text-center text-[10px] font-black uppercase tracking-widest text-brand-action mt-4 hover:opacity-70">
+                         <Link href="/dashboard" className="block text-center text-[10px] font-black uppercase tracking-widest text-emerald-500 mt-4 hover:opacity-70">
                             See All {userCVs.length} CVs
                          </Link>
                        )}
@@ -240,7 +238,7 @@ export default async function ScholarshipDetailsPage({ params }: PageProps) {
                        </p>
                        <Link 
                         href={session ? "/templates" : "/login"}
-                        className="inline-block px-6 py-3 bg-brand-action/10 text-brand-action rounded-xl font-black text-[9px] uppercase tracking-widest border border-brand-action/20 hover:bg-brand-action/20 transition-all"
+                        className="inline-block px-6 py-3 bg-emerald-500/10 text-emerald-500 rounded-xl font-black text-[9px] uppercase tracking-widest border border-emerald-500/20 hover:bg-emerald-500/20 transition-all"
                        >
                          {session ? "Create CV" : "Login Now"}
                        </Link>
@@ -250,29 +248,33 @@ export default async function ScholarshipDetailsPage({ params }: PageProps) {
               </div>
 
               {/* Quick Info Card */}
-              <div className="bg-brand-action/5 border border-brand-action/10 rounded-[40px] p-8 space-y-6">
-                 <h3 className="text-xs font-black uppercase tracking-[0.2em] text-brand-action">Quick Summary</h3>
+              <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-[40px] p-8 space-y-6">
+                 <h3 className="text-xs font-black uppercase tracking-[0.2em] text-emerald-500">Quick Summary</h3>
                  <div className="space-y-4">
                     <div className="flex items-center gap-4 text-xs font-bold text-foreground/60">
-                       <Calendar size={16} className="text-brand-action" />
+                       <Calendar size={16} className="text-emerald-500" />
                        <span>Type: {scholarship.type || 'Scholarship'}</span>
                     </div>
                     {scholarship.deadline && (
                     <div className="flex items-center gap-4 text-xs font-bold text-foreground/60">
-                       <Clock size={16} className="text-brand-action" />
+                       <Clock size={16} className="text-emerald-500" />
                        <span>Deadline: {new Date(scholarship.deadline).toLocaleDateString()}</span>
                     </div>
                     )}
                     <div className="flex items-center gap-4 text-xs font-bold text-foreground/60">
-                       <Globe size={16} className="text-brand-action" />
-                       <span>Location: {scholarship.country}</span>
+                       <Globe size={16} className="text-emerald-500" />
+                       <span>Location: {scholarship.country || 'International'}</span>
                     </div>
                  </div>
               </div>
 
             </div>
           </aside>
+        </div>
 
+        {/* CV Banner for Global Scholarships */}
+        <div className="mt-24">
+          <CVBanner />
         </div>
       </main>
     </div>

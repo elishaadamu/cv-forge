@@ -1,6 +1,6 @@
 "use client"
 
-import { ScholarshipFilters } from "@/app/scholarships/actions"
+import { ScholarshipFilters } from "@/app/graduate-programs/actions"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Filter, ChevronDown, Check, X } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
@@ -58,12 +58,12 @@ export function ScholarshipBoardFilters({ initialFilters }: Props) {
       }
     }
     params.set("page", "1") // Reset to page 1 on filter
-    router.push(`/scholarships?${params.toString()}`, { scroll: false })
+    router.push(`/graduate-programs?${params.toString()}`, { scroll: false })
     setActiveDropdown(null)
   }
 
   const clearFilters = () => {
-    router.push('/scholarships')
+    router.push('/graduate-programs')
   }
 
   const currentCountry = searchParams.get("country")

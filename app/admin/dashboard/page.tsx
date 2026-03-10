@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
+import { ScraperControls } from "./ScraperControls"
 
 export default async function AdminDashboardPage() {
   const session = await auth()
@@ -106,6 +107,8 @@ export default async function AdminDashboardPage() {
            </Link>
         </div>
       </div>
+
+      <ScraperControls />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-20">
         {stats.map((stat) => (

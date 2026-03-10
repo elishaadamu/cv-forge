@@ -4,7 +4,7 @@ import { Search, X } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 
-export function ScholarshipBoardSearch() {
+export function ScholarshipRegionSearch() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [query, setQuery] = useState(searchParams.get("q") || "")
@@ -18,8 +18,8 @@ export function ScholarshipBoardSearch() {
         } else {
           params.delete("q")
         }
-        params.set("page", "1") // Reset to page 1 on search
-        router.push(`/graduate-programs?${params.toString()}`, { scroll: false })
+        params.set("page", "1")
+        router.push(`/scholarship-region?${params.toString()}`, { scroll: false })
       }
     }, 500)
     return () => clearTimeout(timer)
@@ -27,14 +27,14 @@ export function ScholarshipBoardSearch() {
 
   return (
     <div className="relative w-full group">
-      <div className="absolute inset-0 bg-brand-action/20 blur-2xl rounded-full opacity-0 group-focus-within:opacity-100 transition-opacity" />
-      <div className="relative flex items-center bg-transparent group-focus-within:border-brand-action/50 rounded-[32px] overflow-hidden transition-all">
+      <div className="absolute inset-0 bg-emerald-500/20 blur-2xl rounded-full opacity-0 group-focus-within:opacity-100 transition-opacity" />
+      <div className="relative flex items-center bg-transparent group-focus-within:border-emerald-500/50 rounded-[32px] overflow-hidden transition-all">
         <div className="pl-6 pointer-events-none">
-          <Search size={20} className="text-muted-foreground group-focus-within:text-brand-action transition-colors" />
+          <Search size={20} className="text-muted-foreground group-focus-within:text-emerald-500 transition-colors" />
         </div>
         <input 
           type="text"
-          placeholder="Search for programs, masters, or keywords..."
+          placeholder="Search scholarships, universities, countries..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="w-full py-5 px-4 bg-transparent outline-none font-bold text-sm text-foreground placeholder:text-muted-foreground/50"
