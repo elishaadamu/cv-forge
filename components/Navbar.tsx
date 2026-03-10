@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useTheme } from "next-themes"
-import { Menu, X, Sun, Moon, Sparkles, User, FileText, LayoutDashboard, SearchCode, MailQuestion, LogOut, Settings, ChevronDown, FilePen, Repeat, Shield, Briefcase, Search, Zap } from "lucide-react"
+import { Menu, X, Sun, Moon, Sparkles, User, FileText, LayoutDashboard, SearchCode, MailQuestion, LogOut, Settings, ChevronDown, FilePen, Repeat, Shield, Briefcase, Search, Zap, GraduationCap } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useSession, signOut } from "next-auth/react"
 import Image from "next/image"
@@ -19,11 +19,12 @@ const navCategories = [
     ]
   },
   {
-    name: "Job Hub",
+    name: "Opportunities",
     links: [
       { name: "Featured Jobs", href: "/jobs/board", icon: Zap, desc: "Curated picks posted by CVMyJob team" },
       { name: "Global Aggregates", href: "/jobs/search", icon: Search, desc: "Search Indeed, LinkedIn & Glassdoor" },
       { name: "Remote Jobs", href: "/jobs", icon: Briefcase, desc: "Curated work-from-anywhere roles" },
+      { name: "Scholarships", href: "/scholarships", icon: GraduationCap, desc: "Fund your future with curated aid" },
     ]
   },
   {
