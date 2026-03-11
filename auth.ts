@@ -111,7 +111,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   session: {
     strategy: "jwt",
-    maxAge: 60, // 1 minute session for auto-logout testing
+    maxAge: 3600, // 1 hour session for auto-logout testing
   },
   pages: {
     signIn: "/login",
