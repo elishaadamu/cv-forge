@@ -16,27 +16,6 @@ import { formatDistanceToNow } from "date-fns"
 
 export const dynamic = "force-dynamic"
 
-export const metadata = {
-  title: "Graduate Programs | cvmyjob — Curated Higher Education",
-  description: "Hand-picked graduate programs, masters, and PhD opportunities.",
-  openGraph: {
-    title: "Graduate Programs | cvmyjob",
-    description: "Hand-picked graduate programs and research opportunities from top universities.",
-    images: [{
-      url: '/logo.png',
-      width: 1200,
-      height: 630,
-      alt: 'cvmyjob Graduate Programs'
-    }],
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: "cvmyjob Graduate Programs",
-    description: "Apply to premium, hand-picked postgraduate opportunities on cvmyjob.",
-    images: ['/logo.png'],
-  }
-}
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
@@ -170,7 +149,7 @@ export default async function ScholarshipBoardPage({ searchParams }: PageProps) 
                                 salary: scholarship.amount ? `${scholarship.currency}${scholarship.amount}` : undefined,
                                 url: `https://cvmyjob.online/graduate-programs?selected=${scholarship.id}`,
                                 description: scholarship.description,
-                                type: 'scholarship'
+                                type: 'graduate-program'
                               }}
                             />
                             <Link

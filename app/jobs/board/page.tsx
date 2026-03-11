@@ -20,27 +20,6 @@ import { formatDistanceToNow } from "date-fns"
 
 export const dynamic = "force-dynamic"
 
-export const metadata = {
-  title: "Job Board | cvmyjob — Curated Opportunities",
-  description: "Hand-picked job opportunities posted directly by cvmyjob. Apply to premium roles from top companies.",
-  openGraph: {
-    title: "Job Board | cvmyjob — Curated Opportunities",
-    description: "Hand-picked job opportunities from top companies, vetted by the cvmyjob team.",
-    images: [{
-      url: '/logo.png',
-      width: 1200,
-      height: 630,
-      alt: 'cvmyjob Job Board'
-    }],
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: "cvmyjob Job Board",
-    description: "Apply to premium, hand-picked roles on the cvmyjob Board.",
-    images: ['/logo.png'],
-  }
-}
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>

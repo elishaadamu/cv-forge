@@ -26,41 +26,6 @@ interface PageProps {
   params: Promise<{ id: string }>
 }
 
-export async function generateMetadata({ params }: PageProps) {
-  const { id } = await params
-  const { scholarship } = await getScholarshipById(id)
-  
-  if (!scholarship) return { title: "Program Not Found" }
-
-  const cleanDescription = stripHtml(scholarship.description).substring(0, 160) + "..."
-  const baseUrl = process.env.NEXTAUTH_URL || "https://cvmyjob.online"
-  const imageUrl = scholarship.image?.startsWith('http') 
-    ? scholarship.image 
-    : `${baseUrl}${scholarship.image || '/logo.png'}`
-
-  return {
-    title: `${scholarship.title} | cvmyjob`,
-    description: cleanDescription,
-    openGraph: {
-      title: scholarship.title,
-      description: cleanDescription,
-      images: [
-        {
-          url: imageUrl,
-          width: 1200,
-          height: 630,
-          alt: scholarship.title
-        }
-      ],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: scholarship.title,
-      description: cleanDescription,
-      images: [imageUrl],
-    }
-  }
-}
 
 export default async function ScholarshipDetailsPage({ params }: PageProps) {
   const { id } = await params
@@ -207,7 +172,7 @@ export default async function ScholarshipDetailsPage({ params }: PageProps) {
                     salary: scholarship.amount ? `${scholarship.currency}${scholarship.amount}` : undefined,
                     url: `${typeof window !== 'undefined' ? window.location.origin : ''}/graduate-programs/${scholarship.id}`,
                     description: scholarship.description,
-                    type: 'scholarship'
+                    type: 'graduate-program'
                   }}
                 />
 

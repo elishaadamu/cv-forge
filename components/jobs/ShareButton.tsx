@@ -26,7 +26,7 @@ export function ShareButton({
     salary?: string;
     url: string;
     description?: string;
-    type?: 'job' | 'scholarship';
+    type?: 'job' | 'scholarship' | 'graduate-program';
   }
 }) {
   const [copied, setCopied] = useState(false)

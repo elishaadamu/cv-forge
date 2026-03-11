@@ -16,27 +16,6 @@ import { formatDistanceToNow } from "date-fns"
 
 export const dynamic = "force-dynamic"
 
-export const metadata = {
-  title: "Global Scholarships | cvmyjob — World-Class Opportunities",
-  description: "Discover scholarships from around the world. Fully funded programs, grants, and financial aid curated from ScholarshipRegion.",
-  openGraph: {
-    title: "Global Scholarships | cvmyjob — World-Class Opportunities",
-    description: "Discover global scholarships and fully funded programs curated by the cvmyjob team.",
-    images: [{
-      url: '/logo.png',
-      width: 1200,
-      height: 630,
-      alt: 'cvmyjob Global Scholarships'
-    }],
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: "cvmyjob Global Scholarships",
-    description: "Apply to world-class scholarships on the cvmyjob platform.",
-    images: ['/logo.png'],
-  }
-}
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>

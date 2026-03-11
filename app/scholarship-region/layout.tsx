@@ -1,20 +1,20 @@
-import { getRemoteJobs } from "@/lib/jobs"
+import { getScholarshipRegions } from "./actions"
 import { stripHtml } from "@/lib/utils"
 import { Metadata } from "next"
 
 export async function generateMetadata(): Promise<Metadata> {
-  const data = await getRemoteJobs()
-  const firstJob = data.jobs?.[0]
+  const { scholarships } = await getScholarshipRegions({ page: 1, limit: 1 })
+  const firstScholarship = scholarships[0]
   
   const baseUrl = process.env.NEXTAUTH_URL || "https://cvmyjob.online"
   const normalizedBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl
   
-  const title = "Remote Jobs | cvmyjob — Global Career Opportunities"
-  const description = firstJob 
-    ? stripHtml(firstJob.description).substring(0, 160) + (firstJob.description.length > 160 ? "..." : "")
-    : "Browse thousands of hand-picked remote jobs across development, design, marketing, and more. Find your next global role on cvmyjob."
+  const title = "Global Scholarships | CVMYJOB"
+  const description = firstScholarship 
+    ? stripHtml(firstScholarship.description).substring(0, 160) + (firstScholarship.description.length > 160 ? "..." : "")
+    : "Browse the latest global scholarship opportunities."
     
-  const imagePath = firstJob?.company_logo || '/logo.png'
+  const imagePath = firstScholarship?.image || '/logo.png'
   const imageUrl = imagePath.startsWith('http') 
     ? imagePath 
     : `${normalizedBase}${imagePath.startsWith('/') ? imagePath : `/${imagePath}`}`
@@ -25,7 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title,
       description,
-      url: `${normalizedBase}/jobs`,
+      url: `${normalizedBase}/scholarship-region`,
       siteName: 'cvmyjob',
       images: [
         {
@@ -46,6 +46,6 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-export default function RemoteJobsLayout({ children }: { children: React.ReactNode }) {
+export default function ScholarshipRegionLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }

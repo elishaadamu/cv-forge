@@ -1,20 +1,20 @@
-import { getRemoteJobs } from "@/lib/jobs"
+import { getJobPostings } from "@/app/admin/jobs/job-actions"
 import { stripHtml } from "@/lib/utils"
 import { Metadata } from "next"
 
 export async function generateMetadata(): Promise<Metadata> {
-  const data = await getRemoteJobs()
-  const firstJob = data.jobs?.[0]
+  const { jobs } = await getJobPostings({ page: 1, limit: 1 })
+  const firstJob = jobs[0]
   
   const baseUrl = process.env.NEXTAUTH_URL || "https://cvmyjob.online"
   const normalizedBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl
   
-  const title = "Remote Jobs | cvmyjob — Global Career Opportunities"
+  const title = "Job Board | cvmyjob — Curated Opportunities"
   const description = firstJob 
     ? stripHtml(firstJob.description).substring(0, 160) + (firstJob.description.length > 160 ? "..." : "")
-    : "Browse thousands of hand-picked remote jobs across development, design, marketing, and more. Find your next global role on cvmyjob."
+    : "Hand-picked job opportunities from top companies, vetted by the cvmyjob team."
     
-  const imagePath = firstJob?.company_logo || '/logo.png'
+  const imagePath = firstJob?.image || '/logo.png'
   const imageUrl = imagePath.startsWith('http') 
     ? imagePath 
     : `${normalizedBase}${imagePath.startsWith('/') ? imagePath : `/${imagePath}`}`
@@ -25,7 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title,
       description,
-      url: `${normalizedBase}/jobs`,
+      url: `${normalizedBase}/jobs/board`,
       siteName: 'cvmyjob',
       images: [
         {
@@ -46,6 +46,6 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-export default function RemoteJobsLayout({ children }: { children: React.ReactNode }) {
+export default function JobBoardLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
