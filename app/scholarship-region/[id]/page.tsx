@@ -18,47 +18,11 @@ import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
 import { notFound } from "next/navigation"
 import { auth } from "@/auth"
-import { stripHtml } from "@/lib/utils"
 
 interface PageProps {
   params: Promise<{ id: string }>
 }
 
-export async function generateMetadata({ params }: PageProps) {
-  const { id } = await params
-  const { scholarship } = await getScholarshipRegionById(id)
-  
-  if (!scholarship) return { title: "Scholarship Not Found" }
-
-  const cleanDescription = stripHtml(scholarship.description).substring(0, 160) + "..."
-  const baseUrl = process.env.NEXTAUTH_URL || "https://cvmyjob.online"
-  const imageUrl = scholarship.image?.startsWith('http') 
-    ? scholarship.image 
-    : `${baseUrl}${scholarship.image || '/logo.png'}`
-
-  return {
-    title: `${scholarship.title} | Global Scholarships`,
-    description: cleanDescription,
-    openGraph: {
-      title: scholarship.title,
-      description: cleanDescription,
-      images: [
-        {
-          url: imageUrl,
-          width: 1200,
-          height: 630,
-          alt: scholarship.title
-        }
-      ],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: scholarship.title,
-      description: cleanDescription,
-      images: [imageUrl],
-    }
-  }
-}
 
 export default async function ScholarshipRegionDetailPage({ params }: PageProps) {
   const { id } = await params
@@ -105,7 +69,7 @@ export default async function ScholarshipRegionDetailPage({ params }: PageProps)
                 {scholarship.image && (
                  <div className="relative w-full max-h-[450px] aspect-21/9 rounded-[32px] overflow-hidden border border-white/10 shadow-inner group/featured">
                    <img 
-                     src={scholarship.image} 
+                     src={scholarship.image.startsWith('http') ? scholarship.image : (scholarship.image.startsWith('/') ? scholarship.image : `/${scholarship.image}`)} 
                      alt={scholarship.title}
                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]"
                    />
