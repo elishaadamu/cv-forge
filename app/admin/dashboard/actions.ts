@@ -80,3 +80,29 @@ export async function runScholarshipRegionScraperAction() {
     })
   })
 }
+
+export async function runSocialBroadcastAction() {
+  const session = await auth()
+  
+  if (!session?.user || (session.user as any).role !== "ADMIN") {
+    throw new Error("Unauthorized")
+  }
+
+  return new Promise((resolve) => {
+    const scriptPath = path.join(process.cwd(), "scripts", "postToSocials.ts")
+    console.log(`Starting social broadcast: ${scriptPath}`)
+    
+    // We run this in the background with spawn
+    const child = spawn("npx", ["ts-node", scriptPath, "latest"], {
+      shell: true,
+      env: { ...process.env, TS_NODE_TRANSPILE_ONLY: "true" }
+    })
+
+    child.on("close", (code) => {
+      console.log(`Social broadcast process exited with code ${code}`)
+    })
+
+    // Resolve immediately since we want it to be backgrounded but let the user know it started
+    resolve({ success: true, message: "Social broadcast started in background." })
+  })
+}

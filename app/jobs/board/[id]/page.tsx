@@ -18,6 +18,7 @@ import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
 import { notFound } from "next/navigation"
 import { auth } from "@/auth"
+import { stripHtml } from "@/lib/utils"
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -29,15 +30,21 @@ export async function generateMetadata({ params }: PageProps) {
   
   if (!job) return { title: "Job Not Found" }
 
+  const cleanDescription = stripHtml(job.description).substring(0, 160) + "..."
+  const baseUrl = process.env.NEXTAUTH_URL || "https://cvmyjob.online"
+  const imageUrl = job.image?.startsWith('http') 
+    ? job.image 
+    : `${baseUrl}${job.image || '/logo.png'}`
+
   return {
     title: `${job.title} at ${job.company} | cvmyjob`,
-    description: `Apply for ${job.title} at ${job.company}. ${job.type} role in ${job.country}. Hand-picked opportunities by cvmyjob.`,
+    description: cleanDescription,
     openGraph: {
       title: `${job.title} at ${job.company}`,
-      description: `Apply for ${job.title} at ${job.company}. ${job.type} role in ${job.country}.`,
+      description: cleanDescription,
       images: [
         {
-          url: job.image || '/logo.png',
+          url: imageUrl,
           width: 1200,
           height: 630,
           alt: `${job.title} at ${job.company}`
@@ -47,8 +54,8 @@ export async function generateMetadata({ params }: PageProps) {
     twitter: {
       card: 'summary_large_image',
       title: `${job.title} at ${job.company}`,
-      description: `New Job Opportunity: ${job.title} at ${job.company}.`,
-      images: [job.image || '/logo.png'],
+      description: cleanDescription,
+      images: [imageUrl],
     }
   }
 }

@@ -20,6 +20,7 @@ import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
 import { notFound } from "next/navigation"
 import { auth } from "@/auth"
+import { stripHtml } from "@/lib/utils"
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -31,26 +32,32 @@ export async function generateMetadata({ params }: PageProps) {
   
   if (!scholarship) return { title: "Program Not Found" }
 
+  const cleanDescription = stripHtml(scholarship.description).substring(0, 160) + "..."
+  const baseUrl = process.env.NEXTAUTH_URL || "https://cvmyjob.online"
+  const imageUrl = scholarship.image?.startsWith('http') 
+    ? scholarship.image 
+    : `${baseUrl}${scholarship.image || '/logo.png'}`
+
   return {
-    title: `${scholarship.title} by ${scholarship.company} | cvmyjob`,
-    description: `Apply for the ${scholarship.title} by ${scholarship.company}. ${scholarship.type} opportunity perfectly tuned for you.`,
+    title: `${scholarship.title} | cvmyjob`,
+    description: cleanDescription,
     openGraph: {
-      title: `${scholarship.title} by ${scholarship.company}`,
-      description: `Apply for the ${scholarship.title} by ${scholarship.company}.`,
+      title: scholarship.title,
+      description: cleanDescription,
       images: [
         {
-          url: scholarship.image || '/logo.png',
+          url: imageUrl,
           width: 1200,
           height: 630,
-          alt: `${scholarship.title} by ${scholarship.company}`
+          alt: scholarship.title
         }
       ],
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${scholarship.title} by ${scholarship.company}`,
-      description: `New Graduate Program Opportunity: ${scholarship.title}.`,
-      images: [scholarship.image || '/logo.png'],
+      title: scholarship.title,
+      description: cleanDescription,
+      images: [imageUrl],
     }
   }
 }

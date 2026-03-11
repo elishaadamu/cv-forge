@@ -21,7 +21,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const baseUrl = process.env.NEXTAUTH_URL || 'https://cvmyjob.com';
+const baseUrl = process.env.NEXTAUTH_URL || 'https://cvmyjob.online';
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
