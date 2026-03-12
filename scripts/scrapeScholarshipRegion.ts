@@ -186,6 +186,11 @@ async function scrapeScholarshipRegion() {
     'https://www.scholarshipregion.com/category/scholarships/page/3/',
     'https://www.scholarshipregion.com/category/scholarships/page/4/',
     'https://www.scholarshipregion.com/category/scholarships/page/5/',
+    'https://www.scholarshipregion.com/category/scholarships/page/6/',
+    'https://www.scholarshipregion.com/category/scholarships/page/7/',
+    'https://www.scholarshipregion.com/category/scholarships/page/8/',
+    'https://www.scholarshipregion.com/category/scholarships/page/9/',
+    'https://www.scholarshipregion.com/category/scholarships/page/10/',
   ];
 
   const allListings: { title: string; detailUrl: string; thumbImg?: string }[] = [];

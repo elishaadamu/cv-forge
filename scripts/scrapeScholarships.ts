@@ -181,6 +181,11 @@ async function scrapeScholarships() {
     'https://jobs.smartyacad.com/category/graduate-programs/page/3/',
     'https://jobs.smartyacad.com/category/graduate-programs/page/4/',
     'https://jobs.smartyacad.com/category/graduate-programs/page/5/',
+    'https://jobs.smartyacad.com/category/graduate-programs/page/6/',
+    'https://jobs.smartyacad.com/category/graduate-programs/page/7/',
+    'https://jobs.smartyacad.com/category/graduate-programs/page/8/',
+    'https://jobs.smartyacad.com/category/graduate-programs/page/9/',
+    'https://jobs.smartyacad.com/category/graduate-programs/page/10/',
   ];
 
   const headers = {
